@@ -1,15 +1,29 @@
 from data.global_dataset_loader import load_global_dataset
+from data.simulation import fedgraph_simulation
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--scenairo", type=str, default="fedgraph")
+
+
+
+# global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
-parser.add_argument("--dataset", type=str, default="hERG") # torch.int64, torch.float64 
+parser.add_argument("--scenairo", type=str, default="fedgraph")
+parser.add_argument("--dataset", type=list, default=["hERG"]) # torch.int64, torch.float64 
+
+# simulation settings
+parser.add_argument("--num_clients", type=int, default=10)
+# train/val/test
+parser.add_argument("--train_val_test", type=str, default="0.8-0.1-0.1")
+
 
 args = parser.parse_args()
 
-glb_dataset = load_global_dataset(args)
-print(glb_dataset)
+if len(args.dataset) == 1:
+    glb_dataset = load_global_dataset(args.root, args.scenairo, args.dataset[0])
+else:
+    glb_dataset = [load_global_dataset(args.root, args.scenairo, dataset) for dataset in args.dataset]
 
-print("ok")
+fedgraph_simulation(args, glb_dataset)
+
     

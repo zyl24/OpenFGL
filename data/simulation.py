@@ -1,9 +1,49 @@
+import os
+import random
+import torch
 
-def fedgraph_simulation(global_dataset):
+def extract_floats(s):
+    from decimal import Decimal
+    parts = s.split('-')
+    train = float(parts[0])
+    val = float(parts[1])
+    test = float(parts[2])
+    assert Decimal(parts[0]) + Decimal(parts[1]) + Decimal(parts[2]) == Decimal(1)
+    return train, val, test
+
+def idx_to_mask_tensor(idx_list, length):
+    mask = torch.zeros(length)
+    mask[idx_list] = 1
+    return mask
+
+def fedgraph_simulation(args, global_dataset, shuffle=True):
     if type(global_dataset) is list:
-        print("Conducting fed-graph simulation across multiple datasets...")
+        print("Conducting Fed-graph Simulation across Multiple Datasets.")
     else:
-        print("Conducting fed-graph simulation within single datasets...")
+        print("Conducting Fed-graph Simulation within Single Dataset.")
+        save_dir = os.path.join(args.root, "fedgraph", args.dataset[0], "simulation", f"{args.num_clients}_clients_{args.train_val_test}")
+        num_graphs = len(global_dataset)
+        shuffled_graph_idx = list(range(num_graphs))
+        random.shuffle(shuffled_graph_idx)
+        os.makedirs(save_dir, exist_ok=True)
+        for client_id in range(args.num_clients):
+            local_graphs = global_dataset[shuffled_graph_idx[num_graphs * client_id // args.num_clients : num_graphs * (client_id+1) // args.num_clients]]
+            
+            if local_graphs[0].y.dtype is torch.int64: # for classification problem
+                pass
+            else: # for regression problem
+                train_, val_, test_ = extract_floats(args.train_val_test)
+                num_local_graphs = len(local_graphs)
+                train_mask = idx_to_mask_tensor(range(int(train_ * num_local_graphs)), num_local_graphs)
+                val_mask = idx_to_mask_tensor(range(int(train_ * num_local_graphs), int((train_+val_) * num_local_graphs)), num_local_graphs)
+                test_mask = idx_to_mask_tensor(range(int((train_+val_) * num_local_graphs), num_local_graphs), num_local_graphs)
+                assert (train_mask + val_mask + test_mask).sum() == num_local_graphs
+            torch.save(local_graphs, os.path.join(save_dir, f"client_{client_id}.pt"))
+        
+        
+        
+        
+        
         
         
     

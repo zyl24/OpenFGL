@@ -9,9 +9,9 @@ import numpy as np
 from torch_geometric.utils import coalesce, cumsum, one_hot, remove_self_loops
 from typing import Dict, List, Optional, Tuple
 
-def load_global_dataset(args):
-    if args.scenairo == "fedgraph":
-        if args.dataset in ["AIDS",
+def load_global_dataset(root, scenairo, dataset):
+    if scenairo == "fedgraph":
+        if dataset in ["AIDS",
                             "BZR",
                             "COLLAB", "COX2",
                             "DD", "DHFR",
@@ -21,15 +21,15 @@ def load_global_dataset(args):
                             "PROTEINS", "PTC_MR"]:
             
             from torch_geometric.datasets import TUDataset
-            return TUDataset(root=osp.join(args.root, "fedgraph"), name=args.dataset, use_node_attr=True, use_edge_attr=True)
-        elif args.dataset in ["hERG"]:
-            return hERGDataset(root=osp.join(args.root, "fedgraph"), use_node_attr=True, use_edge_attr=True)
+            return TUDataset(root=osp.join(root, "fedgraph"), name=dataset, use_node_attr=True, use_edge_attr=True)
+        elif dataset in ["hERG"]:
+            return hERGDataset(root=osp.join(root, "fedgraph"), use_node_attr=True, use_edge_attr=True)
             
         
         
                 
-    elif args.scenairo == "fedsubgraph":
-        assert args.dataset in []
+    elif scenairo == "fedsubgraph":
+        assert dataset in []
 
 
 def cat(seq: List[Optional[torch.Tensor]]) -> Optional[torch.Tensor]:
