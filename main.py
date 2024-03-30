@@ -9,10 +9,10 @@ parser = argparse.ArgumentParser()
 # global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
 parser.add_argument("--scenairo", type=str, default="fedgraph")
-parser.add_argument("--dataset", type=list, default=["hERG"]) # torch.int64, torch.float64 
+parser.add_argument("--dataset", type=list, default=["DD", "PROTEINS", "NCI1"]) # torch.int64, torch.float64 
 
 # simulation settings
-parser.add_argument("--num_clients", type=int, default=10)
+parser.add_argument("--num_clients", type=int, default=3)
 # train/val/test
 parser.add_argument("--train_val_test", type=str, default="0.8-0.1-0.1")
 
