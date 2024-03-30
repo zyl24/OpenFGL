@@ -21,9 +21,9 @@ def load_global_dataset(args):
                             "PROTEINS", "PTC_MR"]:
             
             from torch_geometric.datasets import TUDataset
-            return TUDataset(root=osp.join(args.root, "fedgraph"), name=args.dataset)
-        elif args.dataset in ["Herg"]:
-            return hERGDataset(root=osp.join(args.root, "fedgraph"))
+            return TUDataset(root=osp.join(args.root, "fedgraph"), name=args.dataset, use_node_attr=True, use_edge_attr=True)
+        elif args.dataset in ["hERG"]:
+            return hERGDataset(root=osp.join(args.root, "fedgraph"), use_node_attr=True, use_edge_attr=True)
             
         
         
@@ -151,7 +151,6 @@ class hERGDataset(InMemoryDataset):
         fs.cp(self.url, self.raw_dir, extract=True)
 
     def process(self) -> None:
-
         with open(osp.join(self.raw_dir, "adjacency_matrices.pkl"), 'rb') as file:
             csr_adj_list = pickle.load(file)
         edge_index_list = []
@@ -191,7 +190,7 @@ class hERGDataset(InMemoryDataset):
         edge_attr = cat([edge_attribute, edge_label])
 
         graph_feature_np = np.load(osp.join(self.raw_dir, "labels.npy"))
-        y = torch.tensor(graph_feature_np)
+        y = torch.tensor(graph_feature_np).squeeze()
 
 
         num_nodes = int(edge_index.max()) + 1 if x is None else x.size(0)

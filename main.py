@@ -3,11 +3,13 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--scenairo", type=str, default="fedgraph")
-parser.add_argument("--root", type=str, default="/home/ai2/work/openfgl_data")
-parser.add_argument("--dataset", type=str, default="Herg")
+parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
+parser.add_argument("--dataset", type=str, default="hERG") # torch.int64, torch.float64 
 
 args = parser.parse_args()
 
-print(load_global_dataset(args))
+glb_dataset = load_global_dataset(args)
+print(glb_dataset)
 
+print("ok")
     
