@@ -29,7 +29,17 @@ def load_global_dataset(root, scenairo, dataset):
         
                 
     elif scenairo == "fedsubgraph":
-        assert dataset in []
+        if dataset in ["Cora", "CiteSeer", "PubMed"]:
+            from torch_geometric.datasets import Planetoid
+            return Planetoid(root=osp.join(root, "fedsubgraph"), name=dataset)
+        elif dataset in ["Photo", "Computers"]:
+            from torch_geometric.datasets import Amazon
+            return Amazon(root=osp.join(root, "fedsubgraph"), name=dataset)
+        elif dataset in ["CS", "Physics"]:
+            from torch_geometric.datasets import Coauthor
+            return Coauthor(root=osp.join(root, "fedsubgraph"), name=dataset)
+        elif dataset in ["Chameleon", "Squirrel"]:
+            return WikiPages(root=osp.join(root, "fedsubgraph"), name=dataset)
 
 
 def cat(seq: List[Optional[torch.Tensor]]) -> Optional[torch.Tensor]:
@@ -231,3 +241,63 @@ class hERGDataset(InMemoryDataset):
     def __repr__(self) -> str:
         return f'{self.name}({len(self)})'
 
+
+class WikiPages(InMemoryDataset):
+    url = "https://data.dgl.ai/dataset"
+
+    def __init__(
+        self,
+        root: str,
+        name: str,
+        transform: Optional[Callable] = None,
+        pre_transform: Optional[Callable] = None,
+        force_reload: bool = False,
+    ) -> None:
+        self.name = name # [chameleon, squirrel]
+
+        super().__init__(root, transform, pre_transform,
+                         force_reload=force_reload)
+        self.load(self.processed_paths[0])
+
+    @property
+    def raw_dir(self) -> str:
+        return osp.join(self.root, self.name, 'raw')
+
+    @property
+    def processed_dir(self) -> str:
+        return osp.join(self.root, self.name, 'processed')
+
+    @property
+    def raw_file_names(self) -> List[str]:
+        return []
+        # names = ['x', 'tx', 'allx', 'y', 'ty', 'ally', 'graph', 'test.index']
+        # return [f'ind.{self.name.lower()}.{name}' for name in names]
+
+    @property
+    def processed_file_names(self) -> str:
+        return 'data.pt'
+
+    def download(self) -> None:
+        fs.cp(f"{self.url}/{self.name.lower()}.zip", self.raw_dir, extract=True)
+
+    def process(self) -> None:
+        pass
+        # data = read_planetoid_data(self.raw_dir, self.name)
+
+        # if self.split == 'geom-gcn':
+        #     train_masks, val_masks, test_masks = [], [], []
+        #     for i in range(10):
+        #         name = f'{self.name.lower()}_split_0.6_0.2_{i}.npz'
+        #         splits = np.load(osp.join(self.raw_dir, name))
+        #         train_masks.append(torch.from_numpy(splits['train_mask']))
+        #         val_masks.append(torch.from_numpy(splits['val_mask']))
+        #         test_masks.append(torch.from_numpy(splits['test_mask']))
+        #     data.train_mask = torch.stack(train_masks, dim=1)
+        #     data.val_mask = torch.stack(val_masks, dim=1)
+        #     data.test_mask = torch.stack(test_masks, dim=1)
+
+        # data = data if self.pre_transform is None else self.pre_transform(data)
+        # self.save([data], self.processed_paths[0])
+
+    def __repr__(self) -> str:
+        return f'{self.name}()'
