@@ -269,9 +269,7 @@ class WikiPages(InMemoryDataset):
 
     @property
     def raw_file_names(self) -> List[str]:
-        return []
-        # names = ['x', 'tx', 'allx', 'y', 'ty', 'ally', 'graph', 'test.index']
-        # return [f'ind.{self.name.lower()}.{name}' for name in names]
+        return ["out1_graph_edges.txt", "out1_node_feature_label.txt"]
 
     @property
     def processed_file_names(self) -> str:
@@ -281,23 +279,32 @@ class WikiPages(InMemoryDataset):
         fs.cp(f"{self.url}/{self.name.lower()}.zip", self.raw_dir, extract=True)
 
     def process(self) -> None:
-        pass
-        # data = read_planetoid_data(self.raw_dir, self.name)
+        edge_index_path = osp.join(self.raw_dir, "out1_graph_edges.txt")
+        data_list = []
+        with open(edge_index_path, 'r') as file:
+            # Skip the header
+            next(file)
+            for line in file:
+                data_list.append([int(number) for number in line.split()])
+        edge_index = torch.tensor(data_list).long().T
 
-        # if self.split == 'geom-gcn':
-        #     train_masks, val_masks, test_masks = [], [], []
-        #     for i in range(10):
-        #         name = f'{self.name.lower()}_split_0.6_0.2_{i}.npz'
-        #         splits = np.load(osp.join(self.raw_dir, name))
-        #         train_masks.append(torch.from_numpy(splits['train_mask']))
-        #         val_masks.append(torch.from_numpy(splits['val_mask']))
-        #         test_masks.append(torch.from_numpy(splits['test_mask']))
-        #     data.train_mask = torch.stack(train_masks, dim=1)
-        #     data.val_mask = torch.stack(val_masks, dim=1)
-        #     data.test_mask = torch.stack(test_masks, dim=1)
-
-        # data = data if self.pre_transform is None else self.pre_transform(data)
-        # self.save([data], self.processed_paths[0])
+        node_feature_label_path = osp.join(self.raw_dir, "out1_node_feature_label.txt")
+        node_feature_list = []
+        node_label_list = []
+        with open(node_feature_label_path, 'r') as file:
+            # Skip the header
+            next(file)
+            for line in file:
+                node_id, feature, label = line.strip().split('\t')
+                node_feature_list.append([int(num) for num in feature.split(',')])
+                node_label_list.append(int(label))
+        x = torch.tensor(node_feature_list)
+        y = torch.tensor(node_label_list)
+        data = Data(x=x, edge_index=edge_index, y=y)
+        
+        
+        data = data if self.pre_transform is None else self.pre_transform(data)
+        self.save([data], self.processed_paths[0])
 
     def __repr__(self) -> str:
         return f'{self.name}()'
