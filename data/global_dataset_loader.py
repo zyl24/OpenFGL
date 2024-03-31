@@ -46,7 +46,21 @@ def load_global_dataset(root, scenairo, dataset):
         elif dataset in ["Actor"]:
             from torch_geometric.datasets import Actor
             return Actor(root=osp.join(root, "fedsubgraph"))
-
+        elif dataset in ["ogbn-arxiv", "ogbn-products"]:
+            from ogb.nodeproppred import PygNodePropPredDataset
+            return PygNodePropPredDataset(root=osp.join(root, "fedsubgraph"), name=dataset)
+        elif dataset in ["Genius"]:
+            from torch_geometric.datasets import LINKXDataset
+            return LINKXDataset(root=osp.join(root, "fedsubgraph"), name=dataset)
+        elif dataset in ["DBLP", "IMDB", "Freebase", "ACM"]:
+            from torch_geometric.datasets import HGBDataset
+            return HGBDataset(root=osp.join(root, "fedsubgraph"), name=dataset)
+        elif dataset in ["OAG-Venue", "OAG-L1-Field"]:
+            pass
+        elif dataset in ["OGB-MAG"]:
+            from torch_geometric.datasets import OGB_MAG
+            return OGB_MAG(root=osp.join(root, "fedsubgraph"), preprocess="metapath2vec")
+        
 
 def cat(seq: List[Optional[torch.Tensor]]) -> Optional[torch.Tensor]:
     values = [v for v in seq if v is not None]

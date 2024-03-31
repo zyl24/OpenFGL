@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser()
 # global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
 parser.add_argument("--scenairo", type=str, default="fedsubgraph")
-parser.add_argument("--dataset", type=list, default=["Squirrel"]) # torch.int64, torch.float64 
+parser.add_argument("--dataset", type=list, default=["OGB-MAG"]) # torch.int64, torch.float64 
 
 # simulation settings
 parser.add_argument("--num_clients", type=int, default=3)
@@ -24,6 +24,7 @@ if len(args.dataset) == 1:
 else:
     glb_dataset = [load_global_dataset(args.root, args.scenairo, dataset) for dataset in args.dataset]
 
+print(glb_dataset)
 print("OK")
 # fedgraph_simulation(args, glb_dataset)
 
