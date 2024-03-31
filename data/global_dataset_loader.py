@@ -40,6 +40,12 @@ def load_global_dataset(root, scenairo, dataset):
             return Coauthor(root=osp.join(root, "fedsubgraph"), name=dataset)
         elif dataset in ["Chameleon", "Squirrel"]:
             return WikiPages(root=osp.join(root, "fedsubgraph"), name=dataset)
+        elif dataset in ["Tolokers", "Roman-empire", "Amazon-ratings"]:
+            from torch_geometric.datasets import HeterophilousGraphDataset
+            return HeterophilousGraphDataset(root=osp.join(root, "fedsubgraph"), name=dataset)
+        elif dataset in ["Actor"]:
+            from torch_geometric.datasets import Actor
+            return Actor(root=osp.join(root, "fedsubgraph"))
 
 
 def cat(seq: List[Optional[torch.Tensor]]) -> Optional[torch.Tensor]:
