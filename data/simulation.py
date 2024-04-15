@@ -38,44 +38,41 @@ def local_graphs_train_val_test_split(local_graphs, split, num_classes=None):
 
 
 
-def fedgraph_noniid_simulation(args, global_dataset, shuffle=True):
-    print("Conducting fedgraph noniid simulation across multiple datasets.")
-    fmt_list = copy.deepcopy(args.dataset)
-    fmt_list = sorted(fmt_list)
-    
-
+def fedgraph_cross_domain(args, global_dataset):
+    print("Conducting fedgraph cross domain simulation across multiple datasets.")
     local_data = []
-    
-    
     for client_id in range(args.num_clients):
         local_graphs = global_dataset[client_id]
-        num_graphs = len(local_graphs)
-        shuffled_graph_idx = list(range(num_graphs))
-        if shuffle:
-            random.shuffle(shuffled_graph_idx)
-        # local_graphs_train_val_test_split(local_graphs[shuffled_graph_idx], args.train_val_test, num_classes=local_graphs.num_classes if local_graphs[0].y.dtype is torch.int64 else None)
-        # torch.save(local_graphs, os.path.join(save_dir, f"client_{client_id}.pt"))
         local_data.append(local_graphs)
     return local_data
 
 
 
-def fedgraph_iid_simulation(args, global_dataset, shuffle=True):
-    print("Conducting fedgraph iid simulation within single dataset.")
+def fedgraph_label_dirichlet(args, global_dataset, shuffle=True):
+    print("Conducting fedgraph label dirichlet simulation within single dataset.")
     num_graphs = len(global_dataset)
-
-    client_indices = [[] for _ in range(args.num_clients)]
-    local_data = []
-    for class_i in range(global_dataset.num_classes):
-        class_i_graph_idx = (global_dataset.y == class_i).nonzero().squeeze().tolist()
-        num_class_i_graphs = len(class_i_graph_idx)
-        
+    graph_labels = global_dataset.y.numpy()
+    num_clients = args.num_clients
+    alpha = args.dirichlet_alpha
+    unique_labels, label_counts = np.unique(graph_labels, return_counts=True)
+    partition_matrix = np.zeros((len(unique_labels), num_clients))
+    for i, label in enumerate(unique_labels):
+        proportions = np.random.dirichlet(alpha*np.ones(num_clients))
+        partition_matrix[i] = np.round(proportions * label_counts[i])
+        partition_matrix[i, -1] = label_counts[i] - partition_matrix[i,:-1].sum()
+    client_indices = [[] for _ in range(num_clients)]
+    for i, label in enumerate(unique_labels):
+        label_indices = np.where(graph_labels == label)[0]
         if shuffle:
-            random.shuffle(class_i_graph_idx)
-        for client_id in range(args.num_clients):
-            client_indices[client_id] += class_i_graph_idx[num_class_i_graphs * client_id // args.num_clients : num_class_i_graphs * (client_id+1) // args.num_clients]
+            np.random.shuffle(label_indices)
+        cum_partitions = np.cumsum(partition_matrix[i]).astype(int)
+        prev_partition = 0
+        for client_id, partition in enumerate(cum_partitions):
+            client_indices[client_id].extend(label_indices[prev_partition:partition])
+            prev_partition = partition
 
-    
+    local_data = []
+
     num_local_graphs = 0
     for client_id in range(args.num_clients):
         local_graphs = global_dataset[client_indices[client_id]]
@@ -116,6 +113,7 @@ def fedsubgraph_label_dirichlet(args, global_dataset, shuffle=True):
     for client_id in range(args.num_clients):
         edge_index, _ = subgraph(client_indices[client_id], edge_index=global_dataset[0].edge_index, relabel_nodes=True)
         local_subgraph = Data(x=global_dataset[0].x[client_indices[client_id]], edge_index=edge_index, y=global_dataset[0].y[client_indices[client_id]])
+        local_subgraph.num_classes = global_dataset.num_classes
         local_data.append(local_subgraph)
 
     return local_data
@@ -159,7 +157,7 @@ def fedsubgraph_louvain_clustering(args, global_dataset):
     for client_id in range(args.num_clients):
         edge_index, _ = subgraph(nodes_each_client[client_id], edge_index=global_dataset[0].edge_index, relabel_nodes=True)
         local_subgraph = Data(x=global_dataset[0].x[nodes_each_client[client_id]], edge_index=edge_index, y=global_dataset[0].y[nodes_each_client[client_id]])
-        # local_subgraph = 
+        local_subgraph.num_classes = global_dataset.num_classes
         local_data.append(local_subgraph)
 
     return local_data
@@ -200,6 +198,7 @@ def fedsubgraph_metis_clustering(args, global_dataset):
     for client_id in range(args.num_clients):
         edge_index, _ = subgraph(nodes_each_client[client_id], edge_index=global_dataset[0].edge_index, relabel_nodes=True)
         local_subgraph = Data(x=global_dataset[0].x[nodes_each_client[client_id]], edge_index=edge_index, y=global_dataset[0].y[nodes_each_client[client_id]])
+        local_subgraph.num_classes = global_dataset.num_classes
         local_data.append(local_subgraph)
     
     return local_data

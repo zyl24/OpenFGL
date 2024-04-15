@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from model.gcn import GCN
-from task.fedsubgraph.node_cls import accuracy
+from utils.metrics import accuracy
 
 class FedAvgClient:
     def __init__(self, client_id, message_pool, args, data):

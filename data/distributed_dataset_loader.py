@@ -42,10 +42,10 @@ class FGLDataset(Dataset):
             assert args.simulation_mode in supported_fedsubgraph_simulation, f"Invalid fedsubgraph simulation mode '{args.simulation_mode}'."
             assert args.task in supported_fedsubgraph_task, f"Invalid fedgraph task '{args.task}'."
         
-        if args.simulation_mode == "fedgraph_noniid":
-            assert len(args.dataset) == args.num_clients , f"For fedgraph non-iid simulation, the number of clients must be equal to the number of used datasets (args.num_clients={args.num_clients}; used_datasets: {args.dataset})."
-        elif args.simulation_mode == "fedgraph_iid":
-            assert len(args.dataset) == 1, f"For fedgraph iid simulation, only single dataset is supported."
+        if args.simulation_mode == "fedgraph_cross_domain":
+            assert len(args.dataset) == args.num_clients , f"For fedgraph cross domain simulation, the number of clients must be equal to the number of used datasets (args.num_clients={args.num_clients}; used_datasets: {args.dataset})."
+        elif args.simulation_mode == "fedgraph_label_dirichlet":
+            assert len(args.dataset) == 1, f"For fedgraph label dirichlet simulation, only single dataset is supported."
         elif args.simulation_mode == "fedsubgraph_label_dirichlet":
             assert len(args.dataset) == 1, f"For fedsubgraph label dirichlet simulation, only single dataset is supported."
         elif args.simulation_mode == "fedsubgraph_louvain_clustering":
@@ -92,12 +92,12 @@ class FGLDataset(Dataset):
         if not osp.exists(self.processed_dir):
             os.makedirs(self.processed_dir)
 
-        if self.args.simulation_mode == "fedgraph_iid":
-            from data.simulation import fedgraph_iid_simulation
-            self.local_data = fedgraph_iid_simulation(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedgraph_iid":
-            from data.simulation import fedgraph_noniid_simulation
-            self.local_data = fedgraph_noniid_simulation(self.args, global_dataset)
+        if self.args.simulation_mode == "fedgraph_label_dirichlet":
+            from data.simulation import fedgraph_label_dirichlet
+            self.local_data = fedgraph_label_dirichlet(self.args, global_dataset)
+        elif self.args.simulation_mode == "fedgraph_cross_domain":
+            from data.simulation import fedgraph_cross_domain
+            self.local_data = fedgraph_cross_domain(self.args, global_dataset)
         elif self.args.simulation_mode == "fedsubgraph_label_dirichlet":
             from data.simulation import fedsubgraph_label_dirichlet
             self.local_data = fedsubgraph_label_dirichlet(self.args, global_dataset)
@@ -109,6 +109,7 @@ class FGLDataset(Dataset):
             self.local_data = fedsubgraph_metis_clustering(self.args, global_dataset)
 
         for client_id in range(self.args.num_clients):
+            
             self.save_client_data(self.local_data[client_id], client_id)
         
 
@@ -117,7 +118,6 @@ class FGLDataset(Dataset):
     def load_data(self):
         # step1. load local data
         self.local_data = [self.get_client_data(client_id) for client_id in range(self.args.num_clients)]
-        
         
         
 # FGLDataset <- args

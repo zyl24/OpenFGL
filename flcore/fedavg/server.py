@@ -10,7 +10,6 @@ class FedAvgServer:
 
    
     def execute(self):
-        self.receive_message()
         with torch.no_grad():
             num_tot_nodes = sum([self.message_pool[f"client_{client_id}"]["num_nodes"] for client_id in self.message_pool[f"sampled_clients"]])
             for it, client_id in enumerate(self.message_pool["sampled_clients"]):

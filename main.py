@@ -5,6 +5,3 @@ from flcore.trainer import FGLTrainer
 
 
 my_dataset = FGLDataset(args)
-
-
-
