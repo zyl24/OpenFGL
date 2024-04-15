@@ -1,4 +1,4 @@
-import os.path as osp
+from os import path as osp
 from typing import Callable, List, Optional
 import torch
 from torch_geometric.data import Data, InMemoryDataset
@@ -6,8 +6,9 @@ from torch_geometric.io import fs
 import pickle
 from torch_geometric.utils import from_scipy_sparse_matrix
 import numpy as np
-from torch_geometric.utils import coalesce, cumsum, one_hot, remove_self_loops
+from torch_geometric.utils import coalesce, cumsum, remove_self_loops
 from typing import Dict, List, Optional, Tuple
+
 
 def load_global_dataset(root, scenairo, dataset):
     if scenairo == "fedgraph":
