@@ -12,7 +12,7 @@ class BaseTask:
         else:
             self.model = custom_model
 
-        self.optim = Adam(self.model, lr=self.args.lr, weight_decay=self.args.weight_decay)
+        self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
         
         self.custom_loss_fn = custom_loss_fn
         

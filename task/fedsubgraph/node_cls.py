@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from task.base import BaseTask
-from utils.basic_utils import extract_floats, idx_to_mask_tensor
+from utils.basic_utils import extract_floats, idx_to_mask_tensor, mask_tensor_to_idx
 from os import path as osp
 from utils.metrics import compute_supervised_metrics
 import os
@@ -107,16 +107,16 @@ class NodeClsTask(BaseTask):
     
 
     def load_train_val_test_split(self):
-        train_path = osp.join(self.train_val_test_path), f"train_{self.client_id}.pt"
-        val_path = osp.join(self.train_val_test_path), f"val_{self.client_id}.pt"
-        test_path = osp.join(self.train_val_test_path), f"test_{self.client_id}.pt"
+        train_path = osp.join(self.train_val_test_path, f"train_{self.client_id}.pt")
+        val_path = osp.join(self.train_val_test_path, f"val_{self.client_id}.pt")
+        test_path = osp.join(self.train_val_test_path, f"test_{self.client_id}.pt")
         
         if osp.exists(train_path) and osp.exists(val_path) and osp.exists(test_path): 
             train_mask = torch.load(train_path)
             val_mask = torch.load(val_path)
             test_mask = torch.load(test_path)
         else:
-            train_mask, val_mask, test_mask = self.local_subgraph_train_val_test_split(self.data, self.args.train_val_test, num_classes=0)
+            train_mask, val_mask, test_mask = self.local_subgraph_train_val_test_split(self.data, self.args.train_val_test)
             
             if not osp.exists(self.train_val_test_path):
                 os.makedirs(self.train_val_test_path)
@@ -134,7 +134,7 @@ class NodeClsTask(BaseTask):
         num_nodes = local_subgraph.x.shape[0]
         
         if split == "default_split":
-            train_, val_, test_ = self.default_train_val_test_split()
+            train_, val_, test_ = self.default_train_val_test_split
         else:
             train_, val_, test_ = extract_floats(split)
         
@@ -144,7 +144,12 @@ class NodeClsTask(BaseTask):
         for class_i in range(local_subgraph.num_classes):
             class_i_node_mask = local_subgraph.y == class_i
             num_class_i_nodes = class_i_node_mask.sum()
-            train_mask += idx_to_mask_tensor(class_i_node_mask.nonzero().squeeze().tolist()[:int(train_ * num_class_i_nodes)], num_nodes)
-            val_mask += idx_to_mask_tensor(class_i_node_mask.nonzero().squeeze().tolist()[int(train_ * num_class_i_nodes) : int((train_+val_) * num_class_i_nodes)], num_nodes)
-            test_mask += idx_to_mask_tensor(class_i_node_mask.nonzero().squeeze().tolist()[int((train_+val_) * num_class_i_nodes): ], num_nodes)
+            train_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask) [:int(train_ * num_class_i_nodes)], num_nodes)
+            val_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask)[int(train_ * num_class_i_nodes) : int((train_+val_) * num_class_i_nodes)], num_nodes)
+            test_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask)[int((train_+val_) * num_class_i_nodes): ], num_nodes)
+        
+        
+        train_mask = train_mask.long()
+        val_mask = val_mask.long()
+        test_mask = test_mask.long()
         return train_mask, val_mask, test_mask

@@ -12,7 +12,7 @@ def load_node_cls_default_model(args, input_dim, output_dim, client_id=None):
     
     if model_name == "gcn":
         from model.gcn import GCN
-        return GCN(input_dim=input_dim, output_dim=output_dim, dropout=args.dropout)
+        return GCN(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, dropout=args.dropout)
     
     
 def load_client(args, client_id, data, data_dir, message_pool):
@@ -56,6 +56,11 @@ def idx_to_mask_tensor(idx_list, length):
 
 
 
+def mask_tensor_to_idx(tensor):
+    result = tensor.nonzero().squeeze().tolist()
+    if type(result) is not list:
+        result = [result]
+    return result
     
     
     

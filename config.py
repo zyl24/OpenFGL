@@ -27,7 +27,7 @@ supported_devices = ["cpu", "cuda:0", "cuda:1", "cuda:2", "cuda:3"]
 
 supported_metrics = ["accuracy", "precision", "f1", "recall"]
 
-
+supported_models = ["gcn"]
 
 parser = argparse.ArgumentParser()
 
@@ -65,7 +65,7 @@ parser.add_argument("--optim", type=str, default="adam")
 parser.add_argument("--weight_decay", type=float, default=5e-4)
 
 # model settings
-parser.add_argument("--model", type=list, default=["GCN"])
+parser.add_argument("--model", type=list, default=["gcn"], choices=supported_models)
 parser.add_argument("--hid_dim", type=int, default=64)
 
 # evaluation settings
