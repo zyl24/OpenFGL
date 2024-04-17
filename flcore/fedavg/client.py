@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
-
+import copy
 
 class FedAvgClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
@@ -11,7 +11,7 @@ class FedAvgClient(BaseClient):
     def execute(self):
         with torch.no_grad():
             for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
-                local_param.data = global_param
+                local_param.data = copy.deepcopy(global_param)
 
         self.task.train()
 
