@@ -13,8 +13,8 @@ from utils.basic_utils import load_node_cls_default_model
     
     
 class NodeClsTask(BaseTask):
-    def __init__(self, args, client_id, data, data_dir, device, custom_model=None, custom_optim=None, custom_loss_fn=None):
-        super(NodeClsTask, self).__init__(args, client_id, data, data_dir, custom_model, custom_loss_fn)
+    def __init__(self, args, client_id, data, data_dir, device, custom_model=None):
+        super(NodeClsTask, self).__init__(args, client_id, data, data_dir, custom_model)
     
     def train(self):
         self.model.train()

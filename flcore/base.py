@@ -11,7 +11,7 @@ class BaseClient:
         self.data_dir = data_dir
         self.message_pool = message_pool
         self.device = device
-        self.task = load_task(args, client_id, data, data_dir, device, custom_model, custom_loss_fn)        
+        self.task = load_task(args, client_id, data, data_dir, device, custom_model)        
     
     def execute(self):
         raise NotImplementedError
@@ -29,7 +29,7 @@ class BaseServer:
         self.global_data = global_data
         self.data_dir = data_dir
         self.device = device
-        self.task = load_task(args, None, global_data, data_dir, device, custom_model, custom_loss_fn)
+        self.task = load_task(args, None, global_data, data_dir, device, custom_model)
 
    
     def execute(self):

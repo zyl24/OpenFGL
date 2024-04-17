@@ -49,10 +49,10 @@ def load_optim(args):
         return Adam
     
     
-def load_task(args, client_id, data, data_dir, device, custom_model=None, custom_loss_fn=None):
+def load_task(args, client_id, data, data_dir, device, custom_model=None):
     if args.task == "node_cls":
         from task.fedsubgraph.node_cls import NodeClsTask
-        return NodeClsTask(args, client_id, data, data_dir, device, custom_model, custom_loss_fn)
+        return NodeClsTask(args, client_id, data, data_dir, device, custom_model)
     
 
 
