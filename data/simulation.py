@@ -12,8 +12,30 @@ from utils.basic_utils import extract_floats, idx_to_mask_tensor
 # from task.fedsubgraph.
 
 
-
-
+def get_subgraph_pyg_data(global_dataset, node_list):
+    global_edge_index = global_dataset.edge_index
+    node_id_set = set(node_list)
+    global_id_to_local_id = {}
+    local_id_to_global_id = {}
+    local_edge_list = []
+    for local_id, global_id in enumerate(node_list):
+        global_id_to_local_id[global_id] = local_id
+        local_id_to_global_id[local_id] = global_id
+        
+    for edge_id in range(global_edge_index.shape[1]):
+        src = global_edge_index[0, edge_id].item()
+        tgt = global_edge_index[1, edge_id].item()
+        if src in node_id_set and tgt in node_id_set:
+            local_id_src = global_id_to_local_id[src]
+            local_id_tgt = global_id_to_local_id[tgt]
+            local_edge_list.append((local_id_src, local_id_tgt))
+    local_edge_index = torch.tensor(local_edge_list).T
+    
+    
+    local_subgraph = Data(x=global_dataset[0].x[node_list], edge_index=local_edge_index, y=global_dataset[0].y[node_list])
+    local_subgraph.global_map = local_id_to_global_id
+    local_subgraph.num_classes = global_dataset.num_classes
+    return local_subgraph
 
 def local_graphs_train_val_test_split(local_graphs, split, num_classes=None):
     num_local_graphs = len(local_graphs)
@@ -73,13 +95,17 @@ def fedgraph_label_dirichlet(args, global_dataset, shuffle=True):
 
     local_data = []
 
-    num_local_graphs = 0
     for client_id in range(args.num_clients):
+        list.sort(client_indices[client_id])
+        
+        local_id_to_global_id = {}
+        for local_id, global_id in enumerate(client_indices[client_id]):
+            local_id_to_global_id[local_id] = global_id
+        
         local_graphs = global_dataset[client_indices[client_id]]
+        local_graphs.global_map = local_id_to_global_id
         local_data.append(local_graphs)
-        num_local_graphs += len(local_graphs)
     
-    assert num_graphs == num_local_graphs
     return local_data
     
     
@@ -111,9 +137,7 @@ def fedsubgraph_label_dirichlet(args, global_dataset, shuffle=True):
     local_data = []
     
     for client_id in range(args.num_clients):
-        edge_index, _ = subgraph(client_indices[client_id], edge_index=global_dataset[0].edge_index, relabel_nodes=True)
-        local_subgraph = Data(x=global_dataset[0].x[client_indices[client_id]], edge_index=edge_index, y=global_dataset[0].y[client_indices[client_id]])
-        local_subgraph.num_classes = global_dataset.num_classes
+        local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
         local_data.append(local_subgraph)
 
     return local_data
@@ -148,16 +172,14 @@ def fedsubgraph_louvain_clustering(args, global_dataset):
 
     clustering_labels = kmeans.labels_
 
-    nodes_each_client = {client_id: [] for client_id in range(args.num_clients)}
+    client_indices = {client_id: [] for client_id in range(args.num_clients)}
     
     for com_id in range(num_communities):
-        nodes_each_client[clustering_labels[com_id]] += communities[com_id]["nodes"]
+        client_indices[clustering_labels[com_id]] += communities[com_id]["nodes"]
         
     local_data = []
     for client_id in range(args.num_clients):
-        edge_index, _ = subgraph(nodes_each_client[client_id], edge_index=global_dataset[0].edge_index, relabel_nodes=True)
-        local_subgraph = Data(x=global_dataset[0].x[nodes_each_client[client_id]], edge_index=edge_index, y=global_dataset[0].y[nodes_each_client[client_id]])
-        local_subgraph.num_classes = global_dataset.num_classes
+        local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
         local_data.append(local_subgraph)
 
     return local_data
@@ -189,16 +211,14 @@ def fedsubgraph_metis_clustering(args, global_dataset):
 
     clustering_labels = kmeans.labels_
 
-    nodes_each_client = {client_id: [] for client_id in range(args.num_clients)}
+    client_indices = {client_id: [] for client_id in range(args.num_clients)}
     
     for com_id in range(num_communities):
-        nodes_each_client[clustering_labels[com_id]] += communities[com_id]["nodes"]
+        client_indices[clustering_labels[com_id]] += communities[com_id]["nodes"]
     
     local_data = []
     for client_id in range(args.num_clients):
-        edge_index, _ = subgraph(nodes_each_client[client_id], edge_index=global_dataset[0].edge_index, relabel_nodes=True)
-        local_subgraph = Data(x=global_dataset[0].x[nodes_each_client[client_id]], edge_index=edge_index, y=global_dataset[0].y[nodes_each_client[client_id]])
-        local_subgraph.num_classes = global_dataset.num_classes
+        local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
         local_data.append(local_subgraph)
     
     return local_data

@@ -116,9 +116,16 @@ class FGLDataset(Dataset):
 
 
     def load_data(self):
-        # step1. load local data
         self.local_data = [self.get_client_data(client_id) for client_id in range(self.args.num_clients)]
         
+
+        if len(self.args.dataset) == 1:
+            global_dataset = load_global_dataset(self.global_root, scenairo=self.args.scenairo, dataset=self.args.dataset[0])
+        else:
+            global_dataset = [load_global_dataset(self.global_root, scenairo=self.args.scenairo, dataset=dataset_i) for dataset_i in self.args.dataset]
+        
+        self.global_data = global_dataset.data
+        self.global_data.num_classes = global_dataset.num_classes
         
 # FGLDataset <- args
 # 1. 全局数据集下载

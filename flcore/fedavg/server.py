@@ -1,12 +1,10 @@
 import torch
-from model.gcn import GCN
+from flcore.base import BaseServer
 
 
-class FedAvgServer:
-    def __init__(self, message_pool):
-        self.model = GCN(1433, 64, 7, 0.5)
-        self.message_pool = message_pool
-        self.message_pool["server"] = {}
+class FedAvgServer(BaseServer):
+    def __init__(self, args, global_data, data_dir, message_pool):
+        super(FedAvgServer, self).__init__(args, global_data, data_dir, message_pool, custom_model=None, custom_optim=None, custom_loss_fn=None)
 
    
     def execute(self):
@@ -20,17 +18,9 @@ class FedAvgServer:
                         global_param.data = weight * local_param
                     else:
                         global_param.data += weight * local_param
-
-
-
-    def receive_message(self):
-        for client_id in self.message_pool["sampled_clients"]:
-            print(f"[server] receive message from client_{client_id}")
-        
         
         
     def send_message(self):
         self.message_pool["server"] = {
-            "weight": self.model.parameters()
+            "weight": self.task.model.parameters()
         }
-        print("[server] send message")

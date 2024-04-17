@@ -16,12 +16,18 @@ supported_fedgraph_simulation = ["fedgraph_cross_domain", "fedgraph_label_dirich
 supported_fedsubgraph_simulation = ["fedsubgraph_label_dirichlet", "fedsubgraph_louvain_clustering", "fedsubgraph_metis_clustering"]
 
 supported_fedgraph_task = ["graph_cls", "graph_reg"]
-supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clus"]
+supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
 
 
 supported_fl_algorithm = ["fedavg"]
 
 supported_devices = ["cpu", "cuda:0", "cuda:1", "cuda:2", "cuda:3"]
+
+
+
+supported_metrics = ["accuracy", "precision", "f1", "recall"]
+
+
 
 parser = argparse.ArgumentParser()
 
@@ -31,7 +37,7 @@ parser.add_argument("--device", type=str, default="cuda:0", choices=supported_de
 # global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
 parser.add_argument("--scenairo", type=str, default="fedgraph", choices=supported_scenairo)
-parser.add_argument("--dataset", type=list, default=["IMDB-BINARY"], choices=supported_fedsubgraph_datasets + supported_fedgraph_datasets)
+parser.add_argument("--dataset", type=list, default=["PROTEINS"])
 
 
 # fl settings
@@ -61,5 +67,7 @@ parser.add_argument("--weight_decay", type=float, default=5e-4)
 parser.add_argument("--model", type=list, default=["GCN"])
 parser.add_argument("--hid_dim", type=int, default=64)
 
-
+# evaluation settings
+parser.add_argument("--metrics", type=list, default=["accuracy"])
+parser.add_argument("--eva_mode", type=str, default="personalize", choices=["personalize", "global"])
 args = parser.parse_args()

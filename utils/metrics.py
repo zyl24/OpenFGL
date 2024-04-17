@@ -1,27 +1,28 @@
 import torch
-from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 
 
-def accuracy(logits, label):
-    pred = logits.max(1)[1]
-    correct = (pred == label).sum()
-    total = logits.shape[0]
-    return correct / total * 100
 
-
-# def precision(logits, labels):
-#     pred = logits.max(1)[1]
+        
+def compute_supervised_metrics(metrics, logits, labels, suffix):
+    result = {}
     
-    
-    
-    
-def precision_recall_f1(logits, labels):
     _, preds = torch.max(logits, 1)
-    preds = preds.cpu().numpy()  # 转换为numpy数组
-    labels = labels.cpu().numpy()  # 转换为numpy数组
+    preds = preds.cpu().numpy()
+    labels = labels.cpu().numpy()
     
-    precision = precision_score(labels, preds, average='macro')
-    recall = recall_score(labels, preds, average='macro')
-    f1 = f1_score(labels, preds, average='macro')
+    if "accuracy" in metrics:
+        result[f"accuracy_{suffix}"] = accuracy_score(labels, preds)
     
-    return precision, recall, f1
+    if "precision" in metrics:
+        result[f"precision_{suffix}"] = precision_score(labels, preds, average='macro')
+
+    if "recall" in metrics:
+        result[f"recall_{suffix}"] = recall_score(labels, preds, average='macro')
+        
+    if "f1" in metrics:
+        result[f"f1_{suffix}"] = f1_score(labels, preds, average='macro')
+        
+    
+    return result
+

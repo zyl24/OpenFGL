@@ -1,47 +1,90 @@
 import torch
 import torch.nn as nn
+from task.base import BaseTask
 from utils.basic_utils import extract_floats, idx_to_mask_tensor
 from os import path as osp
+from utils.metrics import compute_supervised_metrics
 import os
-
+import torch
+from utils.basic_utils import load_node_cls_default_model
 
 
 
     
     
-class NodeClsTask():
-    def __init__(self, args, client_id, data, data_dir, model, optim, ):
-        self.client_id = client_id
-        self.data = data
-        self.data_dir = data_dir
-        self.args = args
-        self.model = model
-        self.optim = optim
-        self.load_train_val_test_split()
-    
+class NodeClsTask(BaseTask):
+    def __init__(self, args, client_id, data, data_dir, custom_model=None, custom_optim=None, custom_loss_fn=None):
+        super(NodeClsTask, self).__init__(args, client_id, data, data_dir, custom_model, custom_optim, custom_loss_fn)
     
     def train(self):
         self.model.train()
         for _ in range(self.args.num_epochs):
             self.optim.zero_grad()
             embedding, logits = self.model.forward(self.data)
-            
-            
-            
-        self.model.eval()
+            if self.custom_loss_fn is None:
+                loss_train = self.default_loss_fn(logits[self.train_mask], self.data.y[self.train_mask])
+            else:
+                loss_train = self.custom_loss_fn(logits, embedding, self.data, self.train_mask, self.val_mask, self.test_mask)
+            loss_train.backward()
+            self.optim.step()
         
     def evaluate(self):
+        eval_output = {}
         self.model.eval()
+        with torch.no_grad():
+            embedding, logits = self.model.forward(self.data)
+            if self.custom_loss_fn is None:
+                loss_train = self.default_loss_fn(logits[self.train_mask], self.data.y[self.train_mask])
+                loss_val   = self.default_loss_fn(logits[self.val_mask], self.data.y[self.val_mask])
+                loss_test  = self.default_loss_fn(logits[self.test_mask], self.data.y[self.test_mask])
+            else:
+                loss_train = self.custom_loss_fn(logits, embedding, self.data, self.train_mask, self.val_mask, self.test_mask, self.train_mask)
+                loss_train = self.custom_loss_fn(logits, embedding, self.data, self.train_mask, self.val_mask, self.test_mask, self.val_mask)
+                loss_train = self.custom_loss_fn(logits, embedding, self.data, self.train_mask, self.val_mask, self.test_mask, self.test_mask)
+        
+
+        eval_output["loss_train"] = loss_train
+        eval_output["loss_val"]   = loss_val
+        eval_output["loss_test"]  = loss_test
         
         
+        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.train_mask], labels=self.data.y[self.train_mask], suffix="train")
+        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.val_mask], labels=self.data.y[self.val_mask], suffix="val")
+        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.test_mask], labels=self.data.y[self.test_mask], suffix="test")
+        eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
         
+        info = ""
+        for key, val in eval_output.items():
+            info += f"\t{key}: {val:.4f}"
+                   
+            
+        prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
+        print(prefix+info)
+        return eval_output
         
-        
-        
-        
-    def loss_fn(self):
-        pass
+    @property
+    def default_model(self):            
+        return load_node_cls_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_classes, client_id=self.client_id)
     
+    @property
+    def default_optim(self):
+        return self.args.optim
+    
+    @property
+    def num_nodes(self):
+        return self.data.x.shape[0]
+    
+    @property
+    def num_feats(self):
+        return self.data.x.shape[1]
+    
+    @property
+    def num_classes(self):
+        return self.data.num_classes
+    
+    @property
+    def default_loss_fn(self):
+        return nn.CrossEntropyLoss()
     
     @property
     def default_train_val_test_split(self):
@@ -60,11 +103,7 @@ class NodeClsTask():
     def train_val_test_path(self):
         return osp.join(self.data_dir, "node_cls")
     
-        
-    @property
-    def basic_loss_fn(self):
-        return nn.CrossEntropyLoss()
-    
+
     def load_train_val_test_split(self):
         train_path = osp.join(self.train_val_test_path), f"train_{self.client_id}.pt"
         val_path = osp.join(self.train_val_test_path), f"val_{self.client_id}.pt"
@@ -87,6 +126,7 @@ class NodeClsTask():
         self.train_mask = train_mask
         self.val_mask = val_mask
         self.test_mask = test_mask
+            
             
     def local_subgraph_train_val_test_split(self, local_subgraph, split):
         num_nodes = local_subgraph.x.shape[0]
