@@ -24,8 +24,7 @@ class FedProxClient(BaseClient):
     
     def execute(self):
         with torch.no_grad():
-            for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
-                
+            for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):   
                 local_param.data = copy.deepcopy(global_param)
 
 
