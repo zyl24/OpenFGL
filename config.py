@@ -19,7 +19,7 @@ supported_fedgraph_task = ["graph_cls", "graph_reg"]
 supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
 
 
-supported_fl_algorithm = ["fedavg"]
+supported_fl_algorithm = ["fedavg", "fedprox"]
 
 
 supported_metrics = ["accuracy", "precision", "f1", "recall"]
@@ -50,7 +50,7 @@ parser.add_argument("--client_frac", type=float, default=1.0)
 
 # simulation settings
 parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_label_dirichlet", choices=supported_fedgraph_simulation + supported_fedsubgraph_simulation)
-parser.add_argument("--dirichlet_alpha", type=float, default=0.5)
+parser.add_argument("--dirichlet_alpha", type=float, default=0.2)
 parser.add_argument("--louvain_resolution", type=float, default=10)
 parser.add_argument("--metis_num_coms", type=float, default=100)
 

@@ -13,7 +13,7 @@ from utils.basic_utils import load_node_cls_default_model
     
     
 class NodeClsTask(BaseTask):
-    def __init__(self, args, client_id, data, data_dir, device, custom_model=None, custom_loss_fn=None):
+    def __init__(self, args, client_id, data, data_dir, device, custom_model=None, custom_optim=None, custom_loss_fn=None):
         super(NodeClsTask, self).__init__(args, client_id, data, data_dir, custom_model, custom_loss_fn)
     
     def train(self):
@@ -24,7 +24,7 @@ class NodeClsTask(BaseTask):
             if self.custom_loss_fn is None:
                 loss_train = self.default_loss_fn(logits[self.train_mask], self.data.y[self.train_mask])
             else:
-                loss_train = self.custom_loss_fn(logits, embedding, self.data, self.train_mask, self.val_mask, self.test_mask)
+                loss_train = self.custom_loss_fn(embedding, logits, self.train_mask)
             loss_train.backward()
             self.optim.step()
         
@@ -38,9 +38,10 @@ class NodeClsTask(BaseTask):
                 loss_val   = self.default_loss_fn(logits[self.val_mask], self.data.y[self.val_mask])
                 loss_test  = self.default_loss_fn(logits[self.test_mask], self.data.y[self.test_mask])
             else:
-                loss_train = self.custom_loss_fn(logits, embedding, self.data, self.train_mask, self.val_mask, self.test_mask, self.train_mask)
-                loss_train = self.custom_loss_fn(logits, embedding, self.data, self.train_mask, self.val_mask, self.test_mask, self.val_mask)
-                loss_train = self.custom_loss_fn(logits, embedding, self.data, self.train_mask, self.val_mask, self.test_mask, self.test_mask)
+                loss_train = self.custom_loss_fn(embedding, logits, self.train_mask)
+                loss_val = self.custom_loss_fn(embedding, logits, self.val_mask)
+                loss_test = self.custom_loss_fn(embedding, logits, self.test_mask)
+
         
 
         eval_output["loss_train"] = loss_train
