@@ -13,7 +13,7 @@ from utils.basic_utils import load_node_cls_default_model
     
     
 class NodeClsTask(BaseTask):
-    def __init__(self, args, client_id, data, data_dir, custom_model=None, custom_loss_fn=None):
+    def __init__(self, args, client_id, data, data_dir, device, custom_model=None, custom_loss_fn=None):
         super(NodeClsTask, self).__init__(args, client_id, data, data_dir, custom_model, custom_loss_fn)
     
     def train(self):
@@ -131,9 +131,10 @@ class NodeClsTask(BaseTask):
                 torch.save(val_mask, val_path)
                 torch.save(test_mask, test_path)
             
-            self.train_mask = train_mask
-            self.val_mask = val_mask
-            self.test_mask = test_mask
+            self.train_mask = train_mask.to(self.device)
+            self.val_mask = val_mask.to(self.device)
+            self.test_mask = test_mask.to(self.device)
+            
             
             
     def local_subgraph_train_val_test_split(self, local_subgraph, split):
@@ -155,7 +156,7 @@ class NodeClsTask(BaseTask):
             test_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask)[int((train_+val_) * num_class_i_nodes): ], num_nodes)
         
         
-        train_mask = train_mask.long()
-        val_mask = val_mask.long()
-        test_mask = test_mask.long()
+        train_mask = train_mask.bool()
+        val_mask = val_mask.bool()
+        test_mask = test_mask.bool()
         return train_mask, val_mask, test_mask

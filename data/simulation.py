@@ -61,7 +61,7 @@ def local_graphs_train_val_test_split(local_graphs, split, num_classes=None):
 
 
 def fedgraph_cross_domain(args, global_dataset):
-    print("Conducting fedgraph cross domain simulation across multiple datasets.")
+    print("Conducting fedgraph cross domain simulation...")
     local_data = []
     for client_id in range(args.num_clients):
         local_graphs = global_dataset[client_id]
@@ -71,7 +71,7 @@ def fedgraph_cross_domain(args, global_dataset):
 
 
 def fedgraph_label_dirichlet(args, global_dataset, shuffle=True):
-    print("Conducting fedgraph label dirichlet simulation within single dataset.")
+    print("Conducting fedgraph label dirichlet simulation...")
     num_graphs = len(global_dataset)
     graph_labels = global_dataset.y.numpy()
     num_clients = args.num_clients
@@ -113,7 +113,7 @@ def fedgraph_label_dirichlet(args, global_dataset, shuffle=True):
     
     
 def fedsubgraph_label_dirichlet(args, global_dataset, shuffle=True):
-    print("Conducting fedsubgraph label dirichlet simulation across multiple datasets.")
+    print("Conducting fedsubgraph label dirichlet simulation...")
     node_labels = global_dataset[0].y.numpy()
     num_clients = args.num_clients
     alpha = args.dirichlet_alpha
@@ -144,7 +144,7 @@ def fedsubgraph_label_dirichlet(args, global_dataset, shuffle=True):
 
 
 def fedsubgraph_louvain_clustering(args, global_dataset):
-    print("Conducting fedsubgraph louvain clustering simulation across multiple datasets.")
+    print("Conducting fedsubgraph louvain clustering simulation...")
     louvain = Louvain(modularity='newman', resolution=args.louvain_resolution, return_aggregate=True) # resolution 越大产生的社区越多, 社区粒度越小
     adj_csr = to_scipy_sparse_matrix(global_dataset[0].edge_index)
     fit_result = louvain.fit_predict(adj_csr)
@@ -186,7 +186,7 @@ def fedsubgraph_louvain_clustering(args, global_dataset):
 
 
 def fedsubgraph_metis_clustering(args, global_dataset):
-    print("Conducting fedsubgraph metis clustering simulation across multiple datasets.")
+    print("Conducting fedsubgraph metis clustering simulation...")
     graph_nx = to_networkx(global_dataset[0], to_undirected=True)
     communities = {com_id: {"nodes":[], "num_nodes":0, "label_distribution":[0] * global_dataset.num_classes} 
                             for com_id in range(args.metis_num_coms)}

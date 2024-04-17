@@ -1,16 +1,17 @@
 from torch.optim import Adam
     
 class BaseTask:
-    def __init__(self, args, client_id, data, data_dir, custom_model=None, custom_loss_fn=None):
+    def __init__(self, args, client_id, data, data_dir, device, custom_model=None, custom_loss_fn=None):
         self.client_id = client_id
-        self.data = data
+        self.data = data.to(device)
         self.data_dir = data_dir
         self.args = args
+        self.device = device
 
         if custom_model is None:
-            self.model = self.default_model
+            self.model = self.default_model.to(device)
         else:
-            self.model = custom_model
+            self.model = custom_model.to(device)
 
         self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
         

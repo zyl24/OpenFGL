@@ -1,7 +1,18 @@
 import torch
+import random
+import numpy as np
 
 
-
+def seed_everything(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.enabled = False
+    
     
 def load_node_cls_default_model(args, input_dim, output_dim, client_id=None):
     if client_id is not None and len(args.model) > 1:
@@ -15,17 +26,17 @@ def load_node_cls_default_model(args, input_dim, output_dim, client_id=None):
         return GCN(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, dropout=args.dropout)
     
     
-def load_client(args, client_id, data, data_dir, message_pool):
+def load_client(args, client_id, data, data_dir, message_pool, device):
     if args.fl_algorithm == "fedavg":
         from flcore.fedavg.client import FedAvgClient
-        return FedAvgClient(args, client_id, data, data_dir, message_pool)
+        return FedAvgClient(args, client_id, data, data_dir, message_pool, device)
 
 
 
-def load_server(args, global_data, data_dir, message_pool):
+def load_server(args, global_data, data_dir, message_pool, device):
     if args.fl_algorithm == "fedavg":
         from flcore.fedavg.server import FedAvgServer
-        return FedAvgServer(args, global_data, data_dir, message_pool)
+        return FedAvgServer(args, global_data, data_dir, message_pool, device)
     
 def load_optim(args):
     if args.optim == "adam":
@@ -33,10 +44,10 @@ def load_optim(args):
         return Adam
     
     
-def load_task(args, client_id, data, data_dir, custom_model=None, custom_loss_fn=None):
+def load_task(args, client_id, data, data_dir, device, custom_model=None, custom_loss_fn=None):
     if args.task == "node_cls":
         from task.fedsubgraph.node_cls import NodeClsTask
-        return NodeClsTask(args, client_id, data, data_dir, custom_model, custom_loss_fn)
+        return NodeClsTask(args, client_id, data, data_dir, device, custom_model, custom_loss_fn)
     
 
 

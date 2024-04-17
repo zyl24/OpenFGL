@@ -1,3 +1,4 @@
+import torch
 import random
 from data.distributed_dataset_loader import FGLDataset
 from utils.basic_utils import load_client, load_server
@@ -8,8 +9,10 @@ class FGLTrainer:
         self.args = args
         self.message_pool = {}
         fgl_dataset = FGLDataset(args)
-        self.clients = [load_client(args, client_id, fgl_dataset.local_data[client_id], fgl_dataset.processed_dir, self.message_pool) for client_id in range(self.args.num_clients)]
-        self.server = load_server(args, fgl_dataset.global_data, fgl_dataset.processed_dir, self.message_pool)
+        self.device = torch.device(f"cuda:{args.gpuid}" if (torch.cuda.is_available() and args.use_cuda) else "cpu")
+        self.clients = [load_client(args, client_id, fgl_dataset.local_data[client_id], fgl_dataset.processed_dir, self.message_pool, self.device) for client_id in range(self.args.num_clients)]
+        self.server = load_server(args, fgl_dataset.global_data, fgl_dataset.processed_dir, self.message_pool, self.device)
+        
     
     def train(self):
         

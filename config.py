@@ -21,9 +21,6 @@ supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
 
 supported_fl_algorithm = ["fedavg"]
 
-supported_devices = ["cpu", "cuda:0", "cuda:1", "cuda:2", "cuda:3"]
-
-
 
 supported_metrics = ["accuracy", "precision", "f1", "recall"]
 
@@ -34,7 +31,9 @@ supported_evaluation_modes = ["personalized", "global"]
 parser = argparse.ArgumentParser()
 
 # environment settings
-parser.add_argument("--device", type=str, default="cuda:0", choices=supported_devices)
+parser.add_argument("--use_cuda", type=bool, default=True)
+parser.add_argument("--gpuid", type=int, default=0)
+parser.add_argument("--seed", type=int, default=2024)
 
 # global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
