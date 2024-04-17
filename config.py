@@ -36,8 +36,8 @@ parser.add_argument("--device", type=str, default="cuda:0", choices=supported_de
 
 # global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
-parser.add_argument("--scenairo", type=str, default="fedgraph", choices=supported_scenairo)
-parser.add_argument("--dataset", type=list, default=["PROTEINS"])
+parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=supported_scenairo)
+parser.add_argument("--dataset", type=list, default=["Cora"])
 
 
 # fl settings
@@ -48,19 +48,20 @@ parser.add_argument("--client_frac", type=float, default=1.0)
 
 
 # simulation settings
-parser.add_argument("--simulation_mode", type=str, default="fedgraph_label_dirichlet", choices=supported_fedgraph_simulation + supported_fedsubgraph_simulation)
+parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_louvain_clustering", choices=supported_fedgraph_simulation + supported_fedsubgraph_simulation)
 parser.add_argument("--dirichlet_alpha", type=float, default=0.5)
 parser.add_argument("--louvain_resolution", type=float, default=10)
 parser.add_argument("--metis_num_coms", type=float, default=100)
 
 # task settings
-parser.add_argument("--task", type=str, default="graph_cls", choices=supported_fedgraph_task + supported_fedsubgraph_task)
+parser.add_argument("--task", type=str, default="node_cls", choices=supported_fedgraph_task + supported_fedsubgraph_task)
 
 # training settings
 parser.add_argument("--train_val_test", type=str, default="default_split")
 parser.add_argument("--num_epochs", type=int, default=3)
 parser.add_argument("--dropout", type=float, default=0.5)
 parser.add_argument("--lr", type=float, default=1e-2)
+parser.add_argument("--optim", type=str, default="adam")
 parser.add_argument("--weight_decay", type=float, default=5e-4)
 
 # model settings

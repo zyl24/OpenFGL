@@ -1,7 +1,7 @@
-from utils.basic_utils import load_model, load_optim
+from torch.optim import Adam
     
 class BaseTask:
-    def __init__(self, args, client_id, data, data_dir, custom_model=None, custom_optim=None, custom_loss_fn=None):
+    def __init__(self, args, client_id, data, data_dir, custom_model=None, custom_loss_fn=None):
         self.client_id = client_id
         self.data = data
         self.data_dir = data_dir
@@ -12,10 +12,7 @@ class BaseTask:
         else:
             self.model = custom_model
 
-        if custom_optim is None:
-            self.optim = self.default_optim(args, self.model)
-        else:
-            self.optim = custom_optim(args, self.model)
+        self.optim = Adam(self.model, lr=self.args.lr, weight_decay=self.args.weight_decay)
         
         self.custom_loss_fn = custom_loss_fn
         
