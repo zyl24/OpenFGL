@@ -13,11 +13,11 @@ class FedProxClient(BaseClient):
         
         
     def get_custom_loss_fn(self):
-        def custom_loss_fn(embedding, logits, selected_mask):
+        def custom_loss_fn(embedding, logits, mask):
             loss_fedprox = 0
             for local_param, global_param in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
                 loss_fedprox += self.fedprox_mu / 2 * (local_param - global_param).norm(2)**2
-            return self.task.default_loss_fn(logits[selected_mask], self.task.data.y[selected_mask]) + loss_fedprox
+            return self.task.default_loss_fn(logits[mask], self.task.data.y[mask]) + loss_fedprox
         
         return custom_loss_fn    
     

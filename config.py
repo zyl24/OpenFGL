@@ -44,7 +44,7 @@ parser.add_argument("--dataset", type=list, default=["Cora"])
 # fl settings
 parser.add_argument("--num_clients", type=int, default=10)
 parser.add_argument("--num_rounds", type=int, default=100)
-parser.add_argument("--fl_algorithm", type=str, default="fedprox", choices=supported_fl_algorithm)
+parser.add_argument("--fl_algorithm", type=str, default="fedavg", choices=supported_fl_algorithm)
 parser.add_argument("--client_frac", type=float, default=1.0)
 
 
