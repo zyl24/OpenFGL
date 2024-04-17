@@ -107,27 +107,33 @@ class NodeClsTask(BaseTask):
     
 
     def load_train_val_test_split(self):
-        train_path = osp.join(self.train_val_test_path, f"train_{self.client_id}.pt")
-        val_path = osp.join(self.train_val_test_path, f"val_{self.client_id}.pt")
-        test_path = osp.join(self.train_val_test_path, f"test_{self.client_id}.pt")
-        
-        if osp.exists(train_path) and osp.exists(val_path) and osp.exists(test_path): 
-            train_mask = torch.load(train_path)
-            val_mask = torch.load(val_path)
-            test_mask = torch.load(test_path)
-        else:
-            train_mask, val_mask, test_mask = self.local_subgraph_train_val_test_split(self.data, self.args.train_val_test)
+        if self.client_id is None: # server
+            train_list = []
+            val_list = []
+            test_list = []
             
-            if not osp.exists(self.train_val_test_path):
-                os.makedirs(self.train_val_test_path)
+        else:        
+            train_path = osp.join(self.train_val_test_path, f"train_{self.client_id}.pt")
+            val_path = osp.join(self.train_val_test_path, f"val_{self.client_id}.pt")
+            test_path = osp.join(self.train_val_test_path, f"test_{self.client_id}.pt")
+            
+            if osp.exists(train_path) and osp.exists(val_path) and osp.exists(test_path): 
+                train_mask = torch.load(train_path)
+                val_mask = torch.load(val_path)
+                test_mask = torch.load(test_path)
+            else:
+                train_mask, val_mask, test_mask = self.local_subgraph_train_val_test_split(self.data, self.args.train_val_test)
                 
-            torch.save(train_mask, train_path)
-            torch.save(val_mask, val_path)
-            torch.save(test_mask, test_path)
-        
-        self.train_mask = train_mask
-        self.val_mask = val_mask
-        self.test_mask = test_mask
+                if not osp.exists(self.train_val_test_path):
+                    os.makedirs(self.train_val_test_path)
+                    
+                torch.save(train_mask, train_path)
+                torch.save(val_mask, val_path)
+                torch.save(test_mask, test_path)
+            
+            self.train_mask = train_mask
+            self.val_mask = val_mask
+            self.test_mask = test_mask
             
             
     def local_subgraph_train_val_test_split(self, local_subgraph, split):

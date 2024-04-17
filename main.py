@@ -4,3 +4,4 @@ from flcore.trainer import FGLTrainer
 
 trainer = FGLTrainer(args)
 trainer.train()
+

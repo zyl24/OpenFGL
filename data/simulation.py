@@ -184,6 +184,7 @@ def fedsubgraph_louvain_clustering(args, global_dataset):
 
     return local_data
 
+
 def fedsubgraph_metis_clustering(args, global_dataset):
     print("Conducting fedsubgraph metis clustering simulation across multiple datasets.")
     graph_nx = to_networkx(global_dataset[0], to_undirected=True)
