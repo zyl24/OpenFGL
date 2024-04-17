@@ -18,7 +18,7 @@ class FedAvgClient(BaseClient):
 
     def send_message(self):
         self.message_pool[f"client_{self.client_id}"] = {
-                "num_nodes": self.task.num_nodes,
+                "num_samples": self.task.num_samples,
                 "weight": self.task.model.parameters()
             }
         

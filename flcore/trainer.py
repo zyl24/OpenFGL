@@ -45,7 +45,7 @@ class FGLTrainer:
         for client_id in range(self.args.num_clients):
             result = self.clients[client_id].personalized_evaluate()
             val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
-            num_nodes = self.clients[client_id].task.num_nodes
+            num_nodes = self.clients[client_id].task.num_samples
             global_val_acc += val_acc * num_nodes
             global_test_acc += test_acc * num_nodes
             tot_nodes += num_nodes

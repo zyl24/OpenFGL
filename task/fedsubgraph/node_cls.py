@@ -73,7 +73,7 @@ class NodeClsTask(BaseTask):
             return Adam
     
     @property
-    def num_nodes(self):
+    def num_samples(self):
         return self.data.x.shape[0]
     
     @property

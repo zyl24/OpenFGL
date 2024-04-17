@@ -26,6 +26,10 @@ class BaseTask:
     def evaluate(self):
         raise NotImplementedError
     
+    
+    @property
+    def num_samples(self):
+        raise NotImplementedError
     @property
     def default_model(self):
         raise NotImplementedError
