@@ -1,7 +1,6 @@
 import torch
 from flcore.base import BaseServer
 
-
 class FedAvgServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
         super(FedAvgServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None, custom_loss_fn=None)
@@ -15,7 +14,7 @@ class FedAvgServer(BaseServer):
                 
                 for (local_param, global_param) in zip(self.message_pool[f"client_{client_id}"]["weight"], self.task.model.parameters()):
                     if it == 0:
-                        global_param.data = weight * local_param
+                        global_param.data.copy_(weight * local_param)
                     else:
                         global_param.data += weight * local_param
         

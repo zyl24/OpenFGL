@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
-import copy
 
 
 
@@ -25,7 +24,7 @@ class FedProxClient(BaseClient):
     def execute(self):
         with torch.no_grad():
             for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):   
-                local_param.data = copy.deepcopy(global_param)
+                local_param.data.copy_(global_param)
 
 
         self.task.custom_loss_fn = self.get_custom_loss_fn()

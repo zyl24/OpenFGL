@@ -1,4 +1,5 @@
 import torch
+import copy
 from flcore.base import BaseServer
 
 
@@ -15,7 +16,7 @@ class FedProxServer(BaseServer):
                 
                 for (local_param, global_param) in zip(self.message_pool[f"client_{client_id}"]["weight"], self.task.model.parameters()):
                     if it == 0:
-                        global_param.data = weight * local_param
+                        global_param.data.copy_(weight * local_param)
                     else:
                         global_param.data += weight * local_param
         
