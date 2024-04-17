@@ -29,6 +29,8 @@ supported_metrics = ["accuracy", "precision", "f1", "recall"]
 
 supported_models = ["gcn"]
 
+supported_evaluation_modes = ["personalized", "global"]
+
 parser = argparse.ArgumentParser()
 
 # environment settings
@@ -70,5 +72,5 @@ parser.add_argument("--hid_dim", type=int, default=64)
 
 # evaluation settings
 parser.add_argument("--metrics", type=list, default=["accuracy"])
-parser.add_argument("--eva_mode", type=str, default="personalize", choices=["personalize", "global"])
+parser.add_argument("--evaluate_mode", type=str, default="personalized", choices=supported_evaluation_modes)
 args = parser.parse_args()

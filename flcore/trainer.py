@@ -14,7 +14,7 @@ class FGLTrainer:
     def train(self):
         
         for round_id in range(self.args.num_rounds):
-            sampled_clients = random.sample(list(range(self.args.num_clients)), int(self.args.num_clients * self.args.client_frac))
+            sampled_clients = sorted(random.sample(list(range(self.args.num_clients)), int(self.args.num_clients * self.args.client_frac)))
             print(f"sampled_clients: {sampled_clients}")
             self.message_pool["round"] = round_id
             self.message_pool["sampled_clients"] = sampled_clients
@@ -23,6 +23,9 @@ class FGLTrainer:
                 self.clients[client_id].execute()
                 self.clients[client_id].send_message()
             self.server.execute()
+            
+            if self.args.evaluate_mode == "personalized":
+                self.personalized_evaluation(round_id)
             
             
     

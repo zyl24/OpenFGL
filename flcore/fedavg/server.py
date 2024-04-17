@@ -13,7 +13,7 @@ class FedAvgServer(BaseServer):
             for it, client_id in enumerate(self.message_pool["sampled_clients"]):
                 weight = self.message_pool[f"client_{client_id}"]["num_nodes"] / num_tot_nodes
                 
-                for (local_param, global_param) in zip(self.message_pool[f"client_{client_id}"]["weight"], self.model.parameters()):
+                for (local_param, global_param) in zip(self.message_pool[f"client_{client_id}"]["weight"], self.task.model.parameters()):
                     if it == 0:
                         global_param.data = weight * local_param
                     else:
