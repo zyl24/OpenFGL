@@ -20,5 +20,5 @@ class FedAvgServer(BaseServer):
         
     def send_message(self):
         self.message_pool["server"] = {
-            "weight": list(self.task.model.parameters()) # 需要变为 list 因为迭代器只能遍历一次
+            "weight": list(self.task.model.parameters())
         }
