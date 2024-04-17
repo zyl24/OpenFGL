@@ -43,14 +43,14 @@ parser.add_argument("--dataset", type=list, default=["Cora"])
 
 
 # fl settings
-parser.add_argument("--num_clients", type=int, default=3)
+parser.add_argument("--num_clients", type=int, default=10)
 parser.add_argument("--num_rounds", type=int, default=100)
 parser.add_argument("--fl_algorithm", type=str, default="fedavg", choices=supported_fl_algorithm)
 parser.add_argument("--client_frac", type=float, default=1.0)
 
 
 # simulation settings
-parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_louvain_clustering", choices=supported_fedgraph_simulation + supported_fedsubgraph_simulation)
+parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_label_dirichlet", choices=supported_fedgraph_simulation + supported_fedsubgraph_simulation)
 parser.add_argument("--dirichlet_alpha", type=float, default=0.5)
 parser.add_argument("--louvain_resolution", type=float, default=10)
 parser.add_argument("--metis_num_coms", type=float, default=100)
