@@ -7,3 +7,6 @@ seed_everything(args.seed)
 trainer = FGLTrainer(args)
 trainer.train()
 
+# fedavg    73.42
+# fedprox   74.57
+# scaffold  75.69
