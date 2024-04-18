@@ -58,6 +58,7 @@ class FGLTrainer:
             self.best_test_acc = global_test_acc
             self.best_round = round_id
         
+        print(f"curr_round: {round_id}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
         print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
         print("-"*50)
             
