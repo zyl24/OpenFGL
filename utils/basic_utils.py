@@ -23,6 +23,9 @@ def load_client(args, client_id, data, data_dir, message_pool, device):
     elif args.fl_algorithm == "fedprox":
         from flcore.fedprox.client import FedProxClient
         return FedProxClient(args, client_id, data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "scaffold":
+        from flcore.scaffold.client import ScaffoldClient
+        return ScaffoldClient(args, client_id, data, data_dir, message_pool, device)
 
 
 def load_server(args, global_data, data_dir, message_pool, device):
@@ -32,6 +35,9 @@ def load_server(args, global_data, data_dir, message_pool, device):
     elif args.fl_algorithm == "fedprox":
         from flcore.fedprox.server import FedProxServer
         return FedProxServer(args, global_data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "scaffold":
+        from flcore.scaffold.server import ScaffoldServer
+        return ScaffoldServer(args, global_data, data_dir, message_pool, device)
     
 def load_optim(args):
     if args.optim == "adam":

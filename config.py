@@ -19,7 +19,7 @@ supported_fedgraph_task = ["graph_cls", "graph_reg"]
 supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
 
 
-supported_fl_algorithm = ["fedavg", "fedprox"]
+supported_fl_algorithm = ["fedavg", "fedprox", "scaffold"]
 
 
 supported_metrics = ["accuracy", "precision", "f1", "recall"]
@@ -44,7 +44,7 @@ parser.add_argument("--dataset", type=list, default=["Cora"])
 # fl settings
 parser.add_argument("--num_clients", type=int, default=10)
 parser.add_argument("--num_rounds", type=int, default=100)
-parser.add_argument("--fl_algorithm", type=str, default="fedavg", choices=supported_fl_algorithm)
+parser.add_argument("--fl_algorithm", type=str, default="scaffold", choices=supported_fl_algorithm)
 parser.add_argument("--client_frac", type=float, default=1.0)
 
 

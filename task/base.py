@@ -15,6 +15,8 @@ class BaseTask:
             self.model = custom_model.to(device)
             
         self.custom_loss_fn = None
+        
+        self.postprocess_each_train_epoch = None
 
         self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
         
@@ -31,6 +33,7 @@ class BaseTask:
     @property
     def num_samples(self):
         raise NotImplementedError
+    
     @property
     def default_model(self):
         raise NotImplementedError
