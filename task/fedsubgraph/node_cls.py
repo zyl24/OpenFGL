@@ -46,7 +46,7 @@ class NodeClsTask(BaseTask):
             
 
         
-    def evaluate(self):
+    def evaluate(self, mute=False):
         eval_output = {}
         self.model.eval()
         with torch.no_grad():
@@ -61,7 +61,8 @@ class NodeClsTask(BaseTask):
                 loss_test = self.custom_loss_fn(embedding, logits, self.test_mask)
 
         
-
+        eval_output["embedding"] = embedding
+        eval_output["logits"] = logits
         eval_output["loss_train"] = loss_train
         eval_output["loss_val"]   = loss_val
         eval_output["loss_test"]  = loss_test
@@ -74,7 +75,11 @@ class NodeClsTask(BaseTask):
         
         info = ""
         for key, val in eval_output.items():
-            info += f"\t{key}: {val:.4f}"
+            try:
+                info += f"\t{key}: {val:.4f}"
+            except:
+                continue
+            
                    
             
         prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"

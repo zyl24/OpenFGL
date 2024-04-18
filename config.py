@@ -19,7 +19,7 @@ supported_fedgraph_task = ["graph_cls", "graph_reg"]
 supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
 
 
-supported_fl_algorithm = ["fedavg", "fedprox", "scaffold"]
+supported_fl_algorithm = ["fedavg", "fedprox", "scaffold", "moon"]
 
 
 supported_metrics = ["accuracy", "precision", "f1", "recall"]
