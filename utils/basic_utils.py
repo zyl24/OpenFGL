@@ -29,7 +29,11 @@ def load_client(args, client_id, data, data_dir, message_pool, device):
     elif args.fl_algorithm == "moon":
         from flcore.moon.client import MoonClient
         return MoonClient(args, client_id, data, data_dir, message_pool, device)
-
+    elif args.fl_algorithm == "feddc":
+        from flcore.feddc.client import FedDCClient
+        return FedDCClient(args, client_id, data, data_dir, message_pool, device)
+    
+    
 def load_server(args, global_data, data_dir, message_pool, device):
     if args.fl_algorithm == "fedavg":
         from flcore.fedavg.server import FedAvgServer
@@ -43,6 +47,9 @@ def load_server(args, global_data, data_dir, message_pool, device):
     elif args.fl_algorithm == "moon":
         from flcore.moon.server import MoonServer
         return MoonServer(args, global_data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "feddc":
+        from flcore.feddc.server import FedDCServer
+        return FedDCServer(args, global_data, data_dir, message_pool, device)
     
 def load_optim(args):
     if args.optim == "adam":
