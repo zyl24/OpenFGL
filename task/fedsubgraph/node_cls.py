@@ -37,10 +37,11 @@ class NodeClsTask(BaseTask):
             else:
                 loss_train = self.custom_loss_fn(embedding, logits, self.train_mask)
             loss_train.backward()
-            self.optim.step()
-            
             if self.postprocess_each_train_epoch is not None:
                 self.postprocess_each_train_epoch()
+            self.optim.step()
+            
+
         
     def evaluate(self):
         eval_output = {}

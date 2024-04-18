@@ -9,7 +9,7 @@ class FedProxClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedProxClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
         
-        self.fedprox_mu = 0.1
+        self.fedprox_mu = 1e-3
         
         
     def get_custom_loss_fn(self):

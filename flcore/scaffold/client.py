@@ -28,12 +28,13 @@ class ScaffoldClient(BaseClient):
     def postprocess_each_train_epoch(self):
         with torch.no_grad():    
             for local_param, local_control, global_control in zip(self.task.model.parameters(), self.local_control, self.message_pool["server"]["global_control"]):
-                local_param.data -= (global_control-local_control) * self.args.lr
+                # local_param.data -= (global_control-local_control) * self.args.lr
+                local_param.grad += (global_control-local_control)
 
     def update_local_control(self):
         with torch.no_grad():
             for it, (local_state, global_state, global_control) in enumerate(zip(self.task.model.parameters(), self.message_pool["server"]["weight"], self.message_pool["server"]["global_control"])):
-                self.local_control[it] = self.local_control[it] - global_control + (global_state - local_state) / (self.args.num_epochs)
+                self.local_control[it] = self.local_control[it] - global_control + (global_state - local_state) / self.args.num_epochs
         
 
     def send_message(self):
