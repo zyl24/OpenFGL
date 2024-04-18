@@ -26,7 +26,7 @@ def load_node_cls_default_model(args, input_dim, output_dim, client_id=None):
 class NodeClsTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device, custom_model=None):
         super(NodeClsTask, self).__init__(args, client_id, data, data_dir, device, custom_model)
-    
+        self.postprocess = None
     def train(self):
         self.model.train()
         for _ in range(self.args.num_epochs):
@@ -37,6 +37,8 @@ class NodeClsTask(BaseTask):
             else:
                 loss_train = self.custom_loss_fn(embedding, logits, self.train_mask)
             loss_train.backward()
+            if self.postprocess is not None:
+                self.postprocess()
             self.optim.step()
             
 

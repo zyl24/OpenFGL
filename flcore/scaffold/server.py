@@ -5,7 +5,7 @@ import copy
 class ScaffoldServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
         super(ScaffoldServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None)
-        self.global_control  =  [torch.zeros_like(p, requires_grad=False) for p in self.task.model.parameters()]
+        self.global_control  =  [torch.zeros_like(p.data, requires_grad=False) for p in self.task.model.parameters()]
    
     def execute(self):
         with torch.no_grad():
@@ -15,9 +15,9 @@ class ScaffoldServer(BaseServer):
                 
                 for (local_param, global_param) in zip(self.message_pool[f"client_{client_id}"]["weight"], self.task.model.parameters()):
                     if it == 0:
-                        global_param.data.copy_(weight * local_param)
+                        global_param.data.copy_(weight * local_param.data)
                     else:
-                        global_param.data += weight * local_param
+                        global_param.data += weight * local_param.data
         
         self.update_global_control()
         
