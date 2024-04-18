@@ -13,7 +13,10 @@ class FGLTrainer:
         self.clients = [load_client(args, client_id, fgl_dataset.local_data[client_id], fgl_dataset.processed_dir, self.message_pool, self.device) for client_id in range(self.args.num_clients)]
         self.server = load_server(args, fgl_dataset.global_data, fgl_dataset.processed_dir, self.message_pool, self.device)
         
-    
+        self.best_val_acc = 0
+        self.best_test_acc = 0
+        self.best_round = 0
+        
     def train(self):
         
         for round_id in range(self.args.num_rounds):
@@ -33,9 +36,7 @@ class FGLTrainer:
             
     
     def personalized_evaluation(self, round_id):
-        self.best_val_acc = 0
-        self.best_test_acc = 0
-        self.best_round = 0
+
         
 
         global_val_acc = 0
