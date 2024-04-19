@@ -28,6 +28,8 @@ supported_models = ["gcn"]
 
 supported_evaluation_modes = ["personalized", "global"]
 
+supported_data_processing = ["feature_mask"]
+
 parser = argparse.ArgumentParser()
 
 # environment settings
@@ -39,6 +41,7 @@ parser.add_argument("--seed", type=int, default=2024)
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
 parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=supported_scenairo)
 parser.add_argument("--dataset", type=list, default=["Cora"])
+parser.add_argument("--processing", type=str, default="feature_mask", choices=supported_data_processing)
 
 
 # fl settings

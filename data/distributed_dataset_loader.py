@@ -108,6 +108,11 @@ class FGLDataset(Dataset):
             from data.simulation import fedsubgraph_metis_clustering
             self.local_data = fedsubgraph_metis_clustering(self.args, global_dataset)
 
+
+        # data processing
+        
+
+        
         for client_id in range(self.args.num_clients):
             
             self.save_client_data(self.local_data[client_id], client_id)
