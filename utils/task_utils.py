@@ -1,5 +1,7 @@
 def load_node_cls_default_model(args, input_dim, output_dim, client_id=None):
-    if client_id is not None and len(args.model) > 1:
+    if client_id is None and len(args.model) > 1:
+        return None
+    elif client_id is not None and len(args.model) > 1:
         model_id = int(len(args.model) * args.client_id / args.num_clients)
         model_name = args.model[model_id]
     else:

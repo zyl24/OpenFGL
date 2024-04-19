@@ -22,10 +22,7 @@ class NodeClsTask(BaseTask):
         for _ in range(self.args.num_epochs):
             self.optim.zero_grad()
             embedding, logits = self.model.forward(self.data)
-            if self.custom_loss_fn is None:
-                loss_train = self.default_loss_fn(logits[self.train_mask], self.data.y[self.train_mask])
-            else:
-                loss_train = self.custom_loss_fn(embedding, logits, self.train_mask)
+            loss_train = self.loss_fn(embedding, logits, self.train_mask)
             loss_train.backward()
             
             if self.step_preprocess is not None:
@@ -40,14 +37,9 @@ class NodeClsTask(BaseTask):
         self.model.eval()
         with torch.no_grad():
             embedding, logits = self.model.forward(self.data)
-            if self.custom_loss_fn is None:
-                loss_train = self.default_loss_fn(logits[self.train_mask], self.data.y[self.train_mask])
-                loss_val   = self.default_loss_fn(logits[self.val_mask], self.data.y[self.val_mask])
-                loss_test  = self.default_loss_fn(logits[self.test_mask], self.data.y[self.test_mask])
-            else:
-                loss_train = self.custom_loss_fn(embedding, logits, self.train_mask)
-                loss_val = self.custom_loss_fn(embedding, logits, self.val_mask)
-                loss_test = self.custom_loss_fn(embedding, logits, self.test_mask)
+            loss_train = self.loss_fn(embedding, logits, self.train_mask)
+            loss_val = self.loss_fn(embedding, logits, self.val_mask)
+            loss_test = self.loss_fn(embedding, logits, self.test_mask)
 
         
         eval_output["embedding"] = embedding
@@ -74,6 +66,12 @@ class NodeClsTask(BaseTask):
         prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
         print(prefix+info)
         return eval_output
+    
+    def loss_fn(self, embedding, logits, mask):
+        if self.custom_loss_fn is None:
+            return self.default_loss_fn(logits[mask], self.data.y[mask])
+        else:
+            return self.custom_loss_fn(embedding, logits, mask)
         
     @property
     def default_model(self):            
@@ -95,8 +93,8 @@ class NodeClsTask(BaseTask):
     
     @property
     def num_classes(self):
-        return self.data.num_classes
-    
+        return self.data.num_classes        
+        
     @property
     def default_loss_fn(self):
         return nn.CrossEntropyLoss()
