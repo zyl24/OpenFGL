@@ -8,5 +8,10 @@ trainer = FGLTrainer(args)
 trainer.train()
 
 # fedavg    73.42
-# fedprox   74.57
+# fedprox   74.48
 # scaffold  75.69
+# moon      75.59
+# feddc     
+# fedproto
+# fedtgp
+
