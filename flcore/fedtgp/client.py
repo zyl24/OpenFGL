@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 from flcore.base import BaseClient
 
-class FedProtoClient(BaseClient):
-    def __init__(self, args, client_id, data, data_dir, message_pool, device, fedproto_lambda=1):
-        super(FedProtoClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
-        self.fedproto_lambda = fedproto_lambda
+class FedTGPClient(BaseClient):
+    def __init__(self, args, client_id, data, data_dir, message_pool, device, fedtgp_lambda=1):
+        super(FedTGPClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
+        self.fedtgp_lambda = fedtgp_lambda
         self.local_prototype = {}
     
     
@@ -20,15 +20,15 @@ class FedProtoClient(BaseClient):
             if self.message_pool["round"] == 0:
                 return self.task.default_loss_fn(logits[mask], self.task.data.y[mask]) 
             else:
-                loss_fedproto = 0
+                loss_fedtgp = 0
                 for class_i in range(self.task.data.num_classes):
                     selected_idx = self.task.train_mask & (self.task.data.y == class_i)
                     if selected_idx.sum() == 0:
                         continue
                     input = embedding[selected_idx]
                     target = self.message_pool["server"]["global_prototype"][class_i].expand_as(input)
-                    loss_fedproto += nn.MSELoss()(input, target)
-                return self.task.default_loss_fn(logits[mask], self.task.data.y[mask]) + self.fedproto_lambda * loss_fedproto 
+                    loss_fedtgp += nn.MSELoss()(input, target)
+                return self.task.default_loss_fn(logits[mask], self.task.data.y[mask]) + self.fedtgp_lambda * loss_fedtgp
         return custom_loss_fn    
     
     

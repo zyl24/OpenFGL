@@ -21,6 +21,5 @@ class FedProtoServer(BaseServer):
         
     def send_message(self):
         self.message_pool["server"] = {
-            "weight": list(self.task.model.parameters()),
             "global_prototype": self.global_prototype
         }

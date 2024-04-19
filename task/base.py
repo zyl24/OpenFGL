@@ -10,13 +10,17 @@ class BaseTask:
         
 
         if custom_model is None:
-            self.model = self.default_model.to(device)
+            self.model = self.default_model
         else:
-            self.model = custom_model.to(device)
+            self.model = custom_model
+        
+        if self.model is not None:
+            self.model = self.model.to(device)
+            self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
             
         self.custom_loss_fn = None
 
-        self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
+        
         
         self.load_train_val_test_split()
     

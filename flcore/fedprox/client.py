@@ -6,10 +6,9 @@ from flcore.base import BaseClient
 
 
 class FedProxClient(BaseClient):
-    def __init__(self, args, client_id, data, data_dir, message_pool, device):
+    def __init__(self, args, client_id, data, data_dir, message_pool, device, fedprox_mu = 1e-3):
         super(FedProxClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
-        
-        self.fedprox_mu = 1e-3
+        self.fedprox_mu = fedprox_mu
         
         
     def get_custom_loss_fn(self):

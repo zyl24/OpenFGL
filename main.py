@@ -2,7 +2,8 @@ from config import args
 from flcore.trainer import FGLTrainer
 from utils.basic_utils import seed_everything
 
-args.fl_algorithm = "feddc"
+args.fl_algorithm = "fedtgp"
+args.model = ["gcn", "gat", "graphsage"]
 seed_everything(args.seed)
 trainer = FGLTrainer(args)
 trainer.train()
@@ -12,6 +13,6 @@ trainer.train()
 # scaffold  75.69
 # moon      75.59
 # feddc     69.92
-# fedproto
-# fedtgp
+# fedproto  67.54
+# fedtgp    66.65
 
