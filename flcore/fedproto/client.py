@@ -34,7 +34,7 @@ class FedProtoClient(BaseClient):
     
     def update_local_prototype(self):
         with torch.no_grad():
-            embedding = self.task.evaluate()["embedding"]
+            embedding = self.task.evaluate(mute=True)["embedding"]
             for class_i in range(self.task.data.num_classes):
                 selected_idx = selected_idx = self.task.train_mask & (self.task.data.y == class_i)
                 if selected_idx.sum() == 0:
