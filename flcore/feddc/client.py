@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
-
+import copy
 
 
 
@@ -22,6 +22,7 @@ class FedDCClient(BaseClient):
             if self.message_pool["round"] != 0:
                 loss_drift = 0
                 loss_grad = 0        
+                
                 for local_state, global_state, drift_param, update_param, avg_param in zip(self.task.model.parameters(), self.message_pool["server"]["weight"], self.local_drift, self.last_update, self.message_pool["server"]["avg_update"]):
                     loss_drift += torch.sum(torch.pow(drift_param + local_state - global_state, 2))
                     loss_grad += torch.sum(local_state * update_param - avg_param)
@@ -51,7 +52,8 @@ class FedDCClient(BaseClient):
         self.message_pool[f"client_{self.client_id}"] = {
                 "num_samples": self.task.num_samples,
                 "weight": list(self.task.model.parameters()),
-                "last_update": self.last_update
+                "last_update": self.last_update,
+                "local_drift": self.local_drift
             }
         
     def personalized_evaluate(self):
