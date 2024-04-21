@@ -72,10 +72,12 @@ OpenFGL supports loading mainstream datasets for above-mentioned scenairos. Thes
 ```python
 parser.add_argument("--dataset", type=list, default=["Cora"])
 ```
+    
+Moreover, we also provide a user-friendly interface to facilitate the import of your custom datasets. Please refer to this **[tutorial]()**.
 </details>
 
 
-To facilitate the import of your custom datasets, we also provide a user-friendly interface. For details, please refer to this **[tutorial]()**.
+
 
 
 
