@@ -11,7 +11,7 @@ from utils.task_utils import load_node_cls_default_model
 
 
     
-    
+
 class NodeClsTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device, custom_model=None):
         super(NodeClsTask, self).__init__(args, client_id, data, data_dir, device, custom_model)
