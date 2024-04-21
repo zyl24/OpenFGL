@@ -1,12 +1,13 @@
 # OpenFGL
 
-**OpenFGL** (Open Federated Graph Learning) is a comprehensive, user-friendly algorithm library, complemented by an integrated evaluation platform, designed specifically for newcomers to the field of federated graph learning (FGL).
+**OpenFGL** (Open Federated Graph Learning) is a comprehensive, user-friendly algorithm library, complemented by an integrated evaluation platform, designed specifically for researchers in the field of federated graph learning (FGL).
 
 
 
 [![Stars](https://img.shields.io/github/stars/zyl24/OpenFGL.svg?color=orange)](https://github.com/zyl24/OpenFGL/stargazers) ![](https://img.shields.io/github/last-commit/zyl24/OpenFGL) 
 
 <!-- [![arXiv](https://img.shields.io/badge/arXiv-2312.04992-b31b1b.svg)](https://arxiv.org/abs/2312.04992) -->
+ 
 
 
 
@@ -45,6 +46,14 @@ Here we present a summary of papers in the FGL field, featured in top-tier confe
 
 
 ## Get Started
+You can modify the experimental settings in the `/config.py` file as needed, and then run `/main.py` to start your work with OpenFGL. Moreover, we provide various configured jupyter notebook examples, all of which can be found in `/examples`.
+
+### Select Your Scenairo and Dataset(s)
+
+
+
+
+
 
 ## Cite
 Please cite our paper (and the respective papers of the methods used) if you use this code in your own work:
