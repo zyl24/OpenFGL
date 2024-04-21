@@ -58,7 +58,7 @@ You can modify the experimental settings in the `/config.py` file as needed, and
 <details>
   <summary>Scenairo Setting</summary>
     
-OpenFGL supports two representative FGL settings: **Fed-Graph** and **Fed-Subgraph**. You should change this setting in the `config.py`:
+OpenFGL supports two representative FGL settings: **Fed-Graph** and **Fed-Subgraph**. Please change this setting in the `config.py`:
 ```python
 parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=supported_scenairo)
 ```
@@ -67,13 +67,15 @@ parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=suppo
 <details>
   <summary>Dataset Setting</summary>
     
-For each scenario, OpenFGL supports loading mainstream datasets, which are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. Please change this setting in the `config.py`:
+OpenFGL supports loading mainstream datasets for above-mentioned scenairos. These datasets are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. Please change this setting in the `config.py`:
 
 ```python
 parser.add_argument("--dataset", type=list, default=["Cora"])
 ```
 </details>
 
+
+To facilitate the import of your custom datasets, we also provide a user-friendly interface. For details, please refer to this **[tutorial]()**.
 
 
 
