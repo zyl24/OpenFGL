@@ -1,4 +1,4 @@
-# OpenFGL
+# OpenFGL: A Comprehensive Library and Benchmarks for Federated Graph Learning. 
 
 **OpenFGL** (Open Federated Graph Learning) is a comprehensive, user-friendly algorithm library, complemented by an integrated evaluation platform, designed specifically for researchers in the field of federated graph learning (FGL).
 
