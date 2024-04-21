@@ -4,7 +4,7 @@
 
 
 
-[![Stars](https://img.shields.io/github/stars/zyl24/OpenFGL.svg?color=orange)](https://github.com/zyl24/OpenFGL/stargazers) ![](https://img.shields.io/github/last-commit/zyl24/OpenFGL) 
+[![Stars](https://img.shields.io/github/stars/zyl24/OpenFGL.svg?color=orange)](https://github.com/zyl24/OpenFGL/stargazers) ![](https://img.shields.io/github/last-commit/zyl24/OpenFGL) [![arXiv](https://img.shields.io/badge/arXiv-2312.04992-b31b1b.svg)](https://arxiv.org/abs/2312.04992)
 
 <!-- [![arXiv](https://img.shields.io/badge/arXiv-2312.04992-b31b1b.svg)](https://arxiv.org/abs/2312.04992) -->
  
@@ -58,15 +58,20 @@ You can modify the experimental settings in the `/config.py` file as needed, and
 <details>
   <summary>Scenairo Setting</summary>
     
-OpenFGL supports two representative FGL settings: **Fed-Graph** and **Fed-Subgraph**. Please change this setting in the `config.py`:
+OpenFGL supports two representative FGL settings: `Fed-Graph` and `Fed-Subgraph`. Please change the `--scenairo` argument in the `config.py`:
 ```python
-parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=supported_scenairo)
+parser.add_argument("--scenairo", type=str, default="fedsubgraph")
 ```
 </details>
 
 <details>
   <summary>Dataset Setting</summary>
-    
+
+OpenFGL is designed to automatically download and process multiple graph datasets. Before using this feature, please ensure that you modify the `--root` argument to specify the root directory where your datasets are stored. For example:
+```python
+parser.add_argument("--root", type=str, default="/mnt/data")
+```
+
 OpenFGL supports loading mainstream datasets for above-mentioned scenairos. These datasets are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. Please change this setting in the `config.py`:
 
 ```python
