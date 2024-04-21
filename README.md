@@ -15,7 +15,9 @@
 
 
 ## FGL Studies in Top-tier Conferences and Journals
-Here we present a summary of papers in the FGL field, featured in top-tier conferences and journals. 
+Here we present a summary of papers in the FGL field, featured in top-tier conferences and journals.
+
+
 
 
 <details>
@@ -51,8 +53,26 @@ Here we present a summary of papers in the FGL field, featured in top-tier confe
 ## Get Started
 You can modify the experimental settings in the `/config.py` file as needed, and then run `/main.py` to start your work with OpenFGL. Moreover, we provide various configured jupyter notebook examples, all of which can be found in `/examples`.
 
-### Select Your Scenairo and Dataset(s)
+### Scenairo and Dataset(s)
 
+<details>
+  <summary>Scenairo Setting</summary>
+    
+OpenFGL supports two representative FGL settings: **Fed-Graph** and **Fed-Subgraph**. You should change this setting in the `config.py`:
+```python
+parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=supported_scenairo)
+```
+</details>
+
+<details>
+  <summary>Dataset Setting</summary>
+    
+For each scenario, OpenFGL supports loading mainstream datasets, which are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. Please change this setting in the `config.py`:
+
+```python
+parser.add_argument("--dataset", type=list, default=["Cora"])
+```
+</details>
 
 
 
