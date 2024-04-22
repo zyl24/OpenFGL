@@ -11,7 +11,16 @@
 
 
 
-## Library Highlights
+## Library Highlights :rocket: 
+
+- FGL Scenairo
+- FGL Algorithm
+- FGL Dataset
+- GNN Models
+- Downstream Task
+- Analysis
+
+
 
 
 ## FGL Studies in Top-tier Conferences and Journals
@@ -41,8 +50,10 @@ Here we present a summary of papers in the FGL field, featured in top-tier confe
 | Subgraph Federated Learning with Missing Neighbor Generation | NeurIPS  | 2021 | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/34adeb8e3242824038aa65460a47c29e-Abstract.html) [[Code]](https://github.com/zkhku/fedsage)    |
 |AdaFGL: A New Paradigm for Federated Node Classification with Topology Heterogeneity| ICDE| 2024 | [[Paper]](https://arxiv.org/abs/2401.11750) [[Code]](https://github.com/xkLi-Allen/AdaFGL) |
 |FedGTA: Topology-aware Averaging for Federated Graph Learning | VLDB | 2024| [[Paper]](https://dl.acm.org/doi/abs/10.14778/3617838.3617842) [[Code]](https://github.com/xkLi-Allen/FedGTA)|
+|Federated Graph Learning under Domain Shift with Generalizable Prototypes | AAAI | 2024 |[[Paper]](https://ojs.aaai.org/index.php/AAAI/article/view/29468) [[Code]](https://github.com/GuanchengWan/FGGP) | 
 
-
+    
+    
 </details>
 
 
@@ -51,14 +62,14 @@ Here we present a summary of papers in the FGL field, featured in top-tier confe
 
 
 ## Get Started
-You can modify the experimental settings in the `/config.py` file as needed, and then run `/main.py` to start your work with OpenFGL. Moreover, we provide various configured jupyter notebook examples, all of which can be found in `/examples`.
+You can modify the experimental settings in `/config.py` as needed, and then run `/main.py` to start your work with OpenFGL. Moreover, we provide various configured jupyter notebook examples, all of which can be found in `/examples`.
 
 ### Scenairo and Dataset(s)
 
 <details>
   <summary>Scenairo Setting</summary>
     
-OpenFGL supports two representative FGL settings: `Fed-Graph` and `Fed-Subgraph`. Please change the `--scenairo` argument in the `config.py`:
+OpenFGL supports two representative FGL settings: `Fed-Graph` and `Fed-Subgraph`. Please change the `--scenairo` argument. For example:
 ```python
 parser.add_argument("--scenairo", type=str, default="fedsubgraph")
 ```
@@ -67,18 +78,20 @@ parser.add_argument("--scenairo", type=str, default="fedsubgraph")
 <details>
   <summary>Dataset Setting</summary>
 
-OpenFGL is designed to automatically download and process multiple graph datasets. Before using this feature, please ensure that you modify the `--root` argument to specify the root directory where your datasets are stored. For example:
+OpenFGL is designed to automatically download and process FGL datasets. Before using this feature, please ensure that you modify the `--root` argument to specify the root directory where your datasets are stored. For example:
 ```python
 parser.add_argument("--root", type=str, default="/mnt/data")
 ```
 
-OpenFGL supports loading mainstream datasets for above-mentioned scenairos. These datasets are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. Please change this setting in the `config.py`:
+OpenFGL supports loading mainstream datasets for above-mentioned scenairos. These datasets are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. Moreover, we also provide a user-friendly interface to facilitate the import of your custom datasets. Please refer to this **[tutorial]()**. 
+    
+To change the dataset(s) you use, please change the `--dataset` argument.For example:
 
 ```python
 parser.add_argument("--dataset", type=list, default=["Cora"])
 ```
     
-Moreover, we also provide a user-friendly interface to facilitate the import of your custom datasets. Please refer to this **[tutorial]()**.
+Note that in some cross-domain FGL settings (see [Here]()), you can specify the dataset of each client, so the `--dataset` is describled as a list.
 </details>
 
 
