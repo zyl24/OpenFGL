@@ -106,7 +106,7 @@ You can modify the experimental settings in `/config.py` as needed, and then run
 
 ```python
 --metrics            # performance evaluation metric
---evaluation_mode   # personalized evaluation / global evaluation
+--evaluation_mode    # personalized evaluation / global evaluation
 ```
 ## Cite
 Please cite our paper (and the respective papers of the methods used) if you use this code in your own work:
