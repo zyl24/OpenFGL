@@ -30,7 +30,7 @@ class FGLTrainer:
                 self.clients[client_id].send_message()
             self.server.execute()
             
-            if self.args.evaluate_mode == "personalized":
+            if self.args.evaluation_mode == "personalized":
                 self.personalized_evaluation(round_id)
             
             
