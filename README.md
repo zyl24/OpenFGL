@@ -13,7 +13,7 @@
 
 ## Library Highlights :rocket: 
 
-- Two FGL Scenairos: Fed-Graph and Fed-Subgraph
+- Two FGL Scenarios: Fed-Graph and Fed-Subgraph
 - xxx FGL Algorithms
 - xxx FGL Datasets
 - xxx GNN Models
@@ -64,14 +64,14 @@ Here we present a summary of papers in the FGL field, featured in top-tier confe
 ## Get Started
 You can modify the experimental settings in `/config.py` as needed, and then run `/main.py` to start your work with OpenFGL. Moreover, we provide various configured jupyter notebook examples, all of which can be found in `/examples`.
 
-### Scenairo and Dataset Simulation
+### Scenario and Dataset Simulation
 
 <details>
-  <summary>Scenairo Setting</summary>
+  <summary>Scenario Setting</summary>
     
-OpenFGL supports two representative FGL settings: `Fed-Graph` and `Fed-Subgraph`. Please change the `--scenairo` argument. For example:
+OpenFGL supports two representative FGL settings: `Fed-Graph` and `Fed-Subgraph`. Please change the `--scenario` argument. For example:
 ```python
-parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=supported_scenairo)
+parser.add_argument("--scenario", type=str, default="fedsubgraph", choices=supported_scenario)
 ```
 </details>
 
@@ -83,7 +83,7 @@ OpenFGL is designed to automatically download and process FGL datasets. Before u
 parser.add_argument("--root", type=str, default="/mnt/data")
 ```
 
-OpenFGL supports loading mainstream datasets for above-mentioned scenairos. These datasets are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. To change the dataset(s) you use, please change the `--dataset` argument.For example:
+OpenFGL supports loading mainstream datasets for above-mentioned scenarios. These datasets are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. To change the dataset(s) you use, please change the `--dataset` argument.For example:
 
 ```python
 parser.add_argument("--dataset", type=list, default=["Cora"])
@@ -96,7 +96,7 @@ Note that in some cross-domain FGL settings (e.g., `fedgraph_cross_domain`), you
 <details>
   <summary>Simulation Setting</summary>
     
-OpenFGL provides various FGL dataset simulation strategies, which are defined in two variables, `supported_fedgraph_simulations` and `supported_fedsubgraph_simulations`. Please change the `--scenairo` argument. For example:
+OpenFGL provides various FGL dataset simulation strategies, which are defined in two variables, `supported_fedgraph_simulations` and `supported_fedsubgraph_simulations`. Please change the `--scenario` argument. For example:
 ```python
 parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_label_dirichlet", choices=supported_fedgraph_simulations + supported_fedsubgraph_simulations)
 ```
@@ -105,6 +105,10 @@ parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_label_di
 
 <details>
     <summary> Create Your Custom Dataset</summary>
+
+
+
+
 </details>
 
 <details>
