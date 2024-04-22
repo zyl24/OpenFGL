@@ -22,9 +22,17 @@
 
 
 
-
 ## FGL Studies in Top-tier Conferences and Journals
 Here we present a summary of papers in the FGL field, featured in top-tier conferences and journals.
+
+
+## FGL Datasets 
+Here we categorize various commonly used graph datasets in recent FGL studies
+
+
+| Name | Node Feature | Node Label | Edge Feature | Edge Label | Graph Label | # Graphs | Materials |
+| ---- | ------------ | ---------- | ------------ | ---------- | ---------- | -------- | --------- |
+|      |              |            |              |            |            |          |           |
 
 
 
