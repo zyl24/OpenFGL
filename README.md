@@ -13,12 +13,12 @@
 
 ## Library Highlights :rocket: 
 
-- FGL Scenairo
-- FGL Algorithm
-- FGL Dataset
-- GNN Models
-- Downstream Task
-- Analysis
+- Two FGL Scenairos: Fed-Graph and Fed-Subgraph
+- xxx FGL Algorithms
+- xxx FGL Datasets
+- xxx GNN Models
+- xxx Downstream Tasks
+- Comprehensive FGL Data Property Analysis
 
 
 
@@ -83,9 +83,7 @@ OpenFGL is designed to automatically download and process FGL datasets. Before u
 parser.add_argument("--root", type=str, default="/mnt/data")
 ```
 
-OpenFGL supports loading mainstream datasets for above-mentioned scenairos. These datasets are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. Moreover, we also provide a user-friendly interface to facilitate the import of your custom datasets. Please refer to this **[tutorial]()**. 
-    
-To change the dataset(s) you use, please change the `--dataset` argument.For example:
+OpenFGL supports loading mainstream datasets for above-mentioned scenairos. These datasets are defined in two variables, `supported_fedgraph_datasets` and `supported_fedsubgraph_datasets`. To change the dataset(s) you use, please change the `--dataset` argument.For example:
 
 ```python
 parser.add_argument("--dataset", type=list, default=["Cora"])
@@ -102,12 +100,16 @@ OpenFGL provides various FGL dataset simulation strategies, which are defined in
 ```python
 parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_label_dirichlet", choices=supported_fedgraph_simulations + supported_fedsubgraph_simulations)
 ```
-Moreover, we also provide a user-friendly interface to facilitate the import of your custom simulation strategy. Please refer to this **[tutorial]()**.
 </details>
 
 
+<details>
+    <summary> Create Your Custom Dataset</summary>
+</details>
 
-
+<details>
+    <summary> Create Your Custom Simulation Strategy</summary>
+</details>
 
 ## Cite
 Please cite our paper (and the respective papers of the methods used) if you use this code in your own work:
