@@ -10,8 +10,8 @@ from torch_geometric.utils import coalesce, cumsum, remove_self_loops
 from typing import Dict, List, Optional, Tuple
 
 
-def load_global_dataset(root, scenairo, dataset):
-    if scenairo == "fedgraph":
+def load_global_dataset(root, scenario, dataset):
+    if scenario == "fedgraph":
         if dataset in  ["AIDS",
                         "BZR",
                         "COLLAB", "COX2",
@@ -29,7 +29,7 @@ def load_global_dataset(root, scenairo, dataset):
         
         
                 
-    elif scenairo == "fedsubgraph":
+    elif scenario == "fedsubgraph":
         if dataset in ["Cora", "CiteSeer", "PubMed"]:
             from torch_geometric.datasets import Planetoid
             return Planetoid(root=osp.join(root, "fedsubgraph"), name=dataset)

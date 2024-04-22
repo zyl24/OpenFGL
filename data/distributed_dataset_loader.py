@@ -27,7 +27,7 @@ class FGLDataset(Dataset):
         return self.root
 
     def check_args(self, args):
-        if args.scenairo == "fedgraph":
+        if args.scenario == "fedgraph":
             from config import supported_fedgraph_datasets, supported_fedgraph_simulations, supported_fedgraph_task
             for dataset in args.dataset:
                 assert dataset in supported_fedgraph_datasets, f"Invalid fedgraph dataset '{dataset}'."
@@ -35,7 +35,7 @@ class FGLDataset(Dataset):
             assert args.task in supported_fedgraph_task, f"Invalid fedgraph task '{args.task}'."
             
             
-        elif args.scenairo == "fedsubgraph":
+        elif args.scenario == "fedsubgraph":
             from config import supported_fedsubgraph_datasets, supported_fedsubgraph_simulations, supported_fedsubgraph_task
             for dataset in args.dataset:
                 assert dataset in supported_fedsubgraph_datasets, f"Invalid fedsubgraph dataset '{dataset}'."
@@ -85,9 +85,9 @@ class FGLDataset(Dataset):
 
     def process(self):
         if len(self.args.dataset) == 1:
-            global_dataset = load_global_dataset(self.global_root, scenairo=self.args.scenairo, dataset=self.args.dataset[0])
+            global_dataset = load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=self.args.dataset[0])
         else:
-            global_dataset = [load_global_dataset(self.global_root, scenairo=self.args.scenairo, dataset=dataset_i) for dataset_i in self.args.dataset]
+            global_dataset = [load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=dataset_i) for dataset_i in self.args.dataset]
 
         if not osp.exists(self.processed_dir):
             os.makedirs(self.processed_dir)
@@ -125,9 +125,9 @@ class FGLDataset(Dataset):
         
 
         if len(self.args.dataset) == 1:
-            global_dataset = load_global_dataset(self.global_root, scenairo=self.args.scenairo, dataset=self.args.dataset[0])
+            global_dataset = load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=self.args.dataset[0])
         else:
-            global_dataset = [load_global_dataset(self.global_root, scenairo=self.args.scenairo, dataset=dataset_i) for dataset_i in self.args.dataset]
+            global_dataset = [load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=dataset_i) for dataset_i in self.args.dataset]
         
         self.global_data = global_dataset.data
         self.global_data.num_classes = global_dataset.num_classes
