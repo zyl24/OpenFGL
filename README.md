@@ -64,14 +64,14 @@ Here we present a summary of papers in the FGL field, featured in top-tier confe
 ## Get Started
 You can modify the experimental settings in `/config.py` as needed, and then run `/main.py` to start your work with OpenFGL. Moreover, we provide various configured jupyter notebook examples, all of which can be found in `/examples`.
 
-### Scenairo and Dataset(s)
+### Scenairo and Dataset Simulation
 
 <details>
   <summary>Scenairo Setting</summary>
     
 OpenFGL supports two representative FGL settings: `Fed-Graph` and `Fed-Subgraph`. Please change the `--scenairo` argument. For example:
 ```python
-parser.add_argument("--scenairo", type=str, default="fedsubgraph")
+parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=supported_scenairo)
 ```
 </details>
 
@@ -91,10 +91,19 @@ To change the dataset(s) you use, please change the `--dataset` argument.For exa
 parser.add_argument("--dataset", type=list, default=["Cora"])
 ```
     
-Note that in some cross-domain FGL settings (see [Here]()), you can specify the dataset of each client, so the `--dataset` is describled as a list.
+Note that in some cross-domain FGL settings (e.g., `fedgraph_cross_domain`), you can specify the dataset of each client, so the `--dataset` is describled as a list.
 </details>
 
 
+<details>
+  <summary>Simulation Setting</summary>
+    
+OpenFGL provides various FGL dataset simulation strategies, which are defined in two variables, `supported_fedgraph_simulations` and `supported_fedsubgraph_simulations`. Please change the `--scenairo` argument. For example:
+```python
+parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_label_dirichlet", choices=supported_fedgraph_simulations + supported_fedsubgraph_simulations)
+```
+Moreover, we also provide a user-friendly interface to facilitate the import of your custom simulation strategy. Please refer to this **[tutorial]()**.
+</details>
 
 
 

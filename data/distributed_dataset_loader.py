@@ -28,18 +28,18 @@ class FGLDataset(Dataset):
 
     def check_args(self, args):
         if args.scenairo == "fedgraph":
-            from config import supported_fedgraph_datasets, supported_fedgraph_simulation, supported_fedgraph_task
+            from config import supported_fedgraph_datasets, supported_fedgraph_simulations, supported_fedgraph_task
             for dataset in args.dataset:
                 assert dataset in supported_fedgraph_datasets, f"Invalid fedgraph dataset '{dataset}'."
-            assert args.simulation_mode in supported_fedgraph_simulation, f"Invalid fedgraph simulation mode '{args.simulation_mode}'."
+            assert args.simulation_mode in supported_fedgraph_simulations, f"Invalid fedgraph simulation mode '{args.simulation_mode}'."
             assert args.task in supported_fedgraph_task, f"Invalid fedgraph task '{args.task}'."
             
             
         elif args.scenairo == "fedsubgraph":
-            from config import supported_fedsubgraph_datasets, supported_fedsubgraph_simulation, supported_fedsubgraph_task
+            from config import supported_fedsubgraph_datasets, supported_fedsubgraph_simulations, supported_fedsubgraph_task
             for dataset in args.dataset:
                 assert dataset in supported_fedsubgraph_datasets, f"Invalid fedsubgraph dataset '{dataset}'."
-            assert args.simulation_mode in supported_fedsubgraph_simulation, f"Invalid fedsubgraph simulation mode '{args.simulation_mode}'."
+            assert args.simulation_mode in supported_fedsubgraph_simulations, f"Invalid fedsubgraph simulation mode '{args.simulation_mode}'."
             assert args.task in supported_fedsubgraph_task, f"Invalid fedgraph task '{args.task}'."
         
         if args.simulation_mode == "fedgraph_cross_domain":
