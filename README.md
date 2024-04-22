@@ -66,7 +66,7 @@ Here we present a summary of papers in the FGL field, featured in top-tier confe
 ## Get Started
 You can modify the experimental settings in `/config.py` as needed, and then run `/main.py` to start your work with OpenFGL. Moreover, we provide various configured jupyter notebook examples, all of which can be found in `/examples`.
 
-### Scenario and Dataset Simulation
+### Scenario and Dataset Simulation Settings
 
 ```python
 --scenario           # fgl scenario
@@ -81,6 +81,32 @@ You can modify the experimental settings in `/config.py` as needed, and then run
 --num_clients        # number of clients
 --num_rounds         # number of communication rounds
 --client_frac        # client activation fraction
+```
+
+### FL/FGL Algorithm Settings
+```python
+--fl_algorithm       # used fl/fgl algorithm
+```
+
+### Model and Task Settings
+```python
+--task               # downstream task
+--train_val_test     # train/validatoin/test split proportion
+--num_epochs         # number of local epochs
+--dropout            # dropout
+--lr                 # learning rate
+--optim              # optimizer
+--weight_decay       # weight decay
+--model              # gnn backbone
+--hid_dim            # number of hidden layer units
+```
+
+
+### Evaluation Settings
+
+```python
+--metrics            # performance evaluation metric
+--evaluation_mode   # personalized evaluation / global evaluation
 ```
 ## Cite
 Please cite our paper (and the respective papers of the methods used) if you use this code in your own work:
