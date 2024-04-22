@@ -1,7 +1,7 @@
 import argparse
 
 
-supported_scenairo = ["fedgraph", "fedsubgraph"]
+supported_scenario = ["fedgraph", "fedsubgraph"]
 
 supported_fedgraph_datasets = [
 "AIDS", "BZR", "COLLAB", "COX2", "DD", "DHFR", "ENZYMES", "IMDB-BINARY", "IMDB-MULTI", "MUTAG", "NCI1", "PROTEINS", "PTC_MR",
@@ -39,7 +39,7 @@ parser.add_argument("--seed", type=int, default=2024)
 
 # global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
-parser.add_argument("--scenairo", type=str, default="fedsubgraph", choices=supported_scenairo)
+parser.add_argument("--scenario", type=str, default="fedsubgraph", choices=supported_scenario)
 parser.add_argument("--dataset", type=list, default=["Cora"])
 parser.add_argument("--processing", type=str, default="feature_mask", choices=supported_data_processing)
 
