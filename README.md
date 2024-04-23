@@ -52,12 +52,14 @@ Here we present a summary of papers in the FGL field.
 | Federated Node Classification over Graphs with Latent Link-type Heterogeneity| WWW|2023 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3543507.3583471) [[Code]](https://github.com/Oxfordblue7/FedLIT)|
 | FedHGN: a federated framework for heterogeneous graph neural networks| IJCAI| 2023 | [[Paper]](https://dl.acm.org/doi/abs/10.24963/ijcai.2023/412) [[Code]](https://github.com/cynricfu/FedHGN)|
 | Federated graph semantic and structural learning| IJCAI|2023 | [[Paper]](https://www.ijcai.org/proceedings/2023/0426.pdf) [[Code]](https://github.com/WenkeHuang/FGSSL)|
+| Globally Consistent Federated Graph Autoencoder for Non-IID Graphs| IJCAI |2023 | [[Paper]](https://www.ijcai.org/proceedings/2023/0419.pdf) [[Code]](https://github.com/gcfgae/GCFGAE/)| 
 |AdaFGL: A New Paradigm for Federated Node Classification with Topology Heterogeneity| ICDE| 2024 | [[Paper]](https://arxiv.org/abs/2401.11750) [[Code]](https://github.com/xkLi-Allen/AdaFGL) |
 |FedGTA: Topology-aware Averaging for Federated Graph Learning | VLDB | 2024| [[Paper]](https://dl.acm.org/doi/abs/10.14778/3617838.3617842) [[Code]](https://github.com/xkLi-Allen/FedGTA)|
 |Federated Graph Learning under Domain Shift with Generalizable Prototypes | AAAI | 2024 |[[Paper]](https://ojs.aaai.org/index.php/AAAI/article/view/29468) [[Code]](https://github.com/GuanchengWan/FGGP) | 
 | FedGT: Federated Node Classification with Scalable Graph Transformer| arXiv| 2024| [[Paper]](https://arxiv.org/abs/2401.15203)|  
 | FedGL: Federated graph learning framework with global self-supervision| IS | 2024| [[Paper]](https://www.sciencedirect.com/science/article/pii/S002002552301561X) |
 | Deep Efficient Private Neighbor Generation for Subgraph Federated Learning| SDM| 2024 | [[Paper]](https://epubs.siam.org/doi/abs/10.1137/1.9781611978032.92)|
+
 
     
     
