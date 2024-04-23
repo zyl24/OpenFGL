@@ -28,10 +28,6 @@ Here we present a summary of papers in the FGL field.
 
 
 
-| Name | Node Feature | Node Label | Edge Feature | Edge Label | Graph Label | # Graphs | Materials |
-| ---- | ------------ | ---------- | ------------ | ---------- | ---------- | -------- | --------- |
-|      |              |            |              |            |            |          |           |
-
 
 
 
@@ -52,17 +48,17 @@ Here we present a summary of papers in the FGL field.
 | Title | Venue | Year | Materials |
 | ----- | ----- | ---- | --------- |
 | Subgraph Federated Learning with Missing Neighbor Generation | NeurIPS  | 2021 | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/34adeb8e3242824038aa65460a47c29e-Abstract.html) [[Code]](https://github.com/zkhku/fedsage)    |
+|FedGSL: Federated Graph Structure Learning for Local Subgraph Augmentation | ICBD| 2022| [[Paper]](https://ieeexplore.ieee.org/document/10020771) |
+| Federated Node Classification over Graphs with Latent Link-type Heterogeneity| WWW|2023 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3543507.3583471) [[Code]](https://github.com/Oxfordblue7/FedLIT)|
+| FedHGN: a federated framework for heterogeneous graph neural networks| IJCAI| 2023 | [[Paper]](https://dl.acm.org/doi/abs/10.24963/ijcai.2023/412) [[Code]](https://github.com/cynricfu/FedHGN)|
+| Federated graph semantic and structural learning| IJCAI|2023 | [[Paper]](https://www.ijcai.org/proceedings/2023/0426.pdf) [[Code]](https://github.com/WenkeHuang/FGSSL)|
 |AdaFGL: A New Paradigm for Federated Node Classification with Topology Heterogeneity| ICDE| 2024 | [[Paper]](https://arxiv.org/abs/2401.11750) [[Code]](https://github.com/xkLi-Allen/AdaFGL) |
 |FedGTA: Topology-aware Averaging for Federated Graph Learning | VLDB | 2024| [[Paper]](https://dl.acm.org/doi/abs/10.14778/3617838.3617842) [[Code]](https://github.com/xkLi-Allen/FedGTA)|
 |Federated Graph Learning under Domain Shift with Generalizable Prototypes | AAAI | 2024 |[[Paper]](https://ojs.aaai.org/index.php/AAAI/article/view/29468) [[Code]](https://github.com/GuanchengWan/FGGP) | 
 | FedGT: Federated Node Classification with Scalable Graph Transformer| arXiv| 2024| [[Paper]](https://arxiv.org/abs/2401.15203)|  
-|FedGSL: Federated Graph Structure Learning for Local Subgraph Augmentation | ICBD| 2022| [[Paper]](https://ieeexplore.ieee.org/document/10020771) |
-| Federated graph semantic and structural learning| IJCAI|2023 | [[Paper]](https://www.ijcai.org/proceedings/2023/0426.pdf) [[Code]](https://github.com/WenkeHuang/FGSSL)|
 | FedGL: Federated graph learning framework with global self-supervision| IS | 2024| [[Paper]](https://www.sciencedirect.com/science/article/pii/S002002552301561X) |
 | Deep Efficient Private Neighbor Generation for Subgraph Federated Learning| SDM| 2024 | [[Paper]](https://epubs.siam.org/doi/abs/10.1137/1.9781611978032.92)|
-| Federated Node Classification over Graphs with Latent Link-type Heterogeneity| WWW|2023 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3543507.3583471) [[Code]](https://github.com/Oxfordblue7/FedLIT)|
-| FedHGN: a federated framework for heterogeneous graph neural networks| IJCAI| 2023 | [[Paper]](https://dl.acm.org/doi/abs/10.24963/ijcai.2023/412) [[Code]](https://github.com/cynricfu/FedHGN)|
-|Federated Graph Neural Networks: Overview, Techniques, and Challenges|TNNLS| 2024 |[[Paper]](https://ieeexplore.ieee.org/abstract/document/10428063)|
+
     
     
 </details>
@@ -74,13 +70,20 @@ Here we present a summary of papers in the FGL field.
 | Title | Venue | Year | Materials |
 | ----- | ----- | ---- | --------- |
 | Federated graph learning--a position paper| arXiv | 2021 | [[Paper]](https://arxiv.org/abs/2105.11099)| 
+|FedGraphNN: A Federated Learning System and Benchmark for Graph Neural Networks | arXiv|2021 | [[Paper]](https://arxiv.org/abs/2104.07145) [[Code]](https://github.com/FedML-AI/FedGraphNN)|
 | Federated graph machine learning: A survey of concepts, techniques, and applications| SIGKDD | 2022 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3575637.3575644) |
 | Federatedscope-gnn: Towards a unified, comprehensive and efficient package for federated graph learning| KDD| 2022 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3534678.3539112) [[Code]](https://github.com/alibaba/FederatedScope) |
+|Federated Graph Neural Networks: Overview, Techniques, and Challenges|TNNLS| 2024 |[[Paper]](https://ieeexplore.ieee.org/abstract/document/10428063)|
 
 </details>
 
 ## FGL Datasets 
 Here we categorize various commonly used graph datasets in recent FGL studies
+
+
+| Name | Node Feature | Node Label | Edge Feature | Edge Label | Graph Label | # Graphs | Materials |
+| ---- | ------------ | ---------- | ------------ | ---------- | ---------- | -------- | --------- |
+|      |              |            |              |            |            |          |           |
 
 
 
