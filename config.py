@@ -28,7 +28,7 @@ supported_models = ["gcn"]
 
 supported_evaluation_modes = ["personalized", "global"]
 
-supported_data_processing = ["feature_mask"]
+supported_data_processing = ["raw", "random_feature_mask", "link_random_response", "homo_random_injection", "hete_random_injection"]
 
 parser = argparse.ArgumentParser()
 
@@ -38,11 +38,18 @@ parser.add_argument("--gpuid", type=int, default=0)
 parser.add_argument("--seed", type=int, default=2024)
 
 # global dataset settings 
-parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
+parser.add_argument("--root", type=str, default="./datasets")
 parser.add_argument("--scenario", type=str, default="fedsubgraph", choices=supported_scenario)
 parser.add_argument("--dataset", type=list, default=["Cora"])
 parser.add_argument("--processing", type=str, default="feature_mask", choices=supported_data_processing)
-
+# post_process: 
+# random feature mask ratio
+parser.add_argument("--feature_mask_prob", type=float, default=0.1)
+# dp parameter: epsilon, support 1) random response for link
+parser.add_argument("--dp_epsilon", type=float, default=0.)
+# homo/hete random injection
+parser.add_argument("--homo_injection_ratio", type=float, default=0.)
+parser.add_argument("--hete_injection_ratio", type=float, default=0.)
 
 # fl settings
 parser.add_argument("--num_clients", type=int, default=10)
