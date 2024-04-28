@@ -5,7 +5,7 @@ from flcore.base import BaseServer
 
 class FedProxServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
-        super(FedProxServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None)
+        super(FedProxServer, self).__init__(args, global_data, data_dir, message_pool, device)
 
    
     def execute(self):

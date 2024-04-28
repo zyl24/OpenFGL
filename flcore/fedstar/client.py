@@ -6,7 +6,7 @@ from flcore.fedstar._utils import init_structure_encoding
 
 class FedStarClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(FedStarClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
+        super(FedStarClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
         if type(self.data) is list:
             init_structure_encoding(args,self.data,args.type_init)
         else:

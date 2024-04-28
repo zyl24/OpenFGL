@@ -5,7 +5,7 @@ from flcore.base import BaseServer
 
 class FedDCServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
-        super(FedDCServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None)
+        super(FedDCServer, self).__init__(args, global_data, data_dir, message_pool, device)
         self.avg_update = [torch.zeros_like(p) for p in self.task.model.parameters()]
    
     def execute(self):

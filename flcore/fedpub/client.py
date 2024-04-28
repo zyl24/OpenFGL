@@ -1,16 +1,20 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
-
+from fedpub.maskedgcn import MaskedGCN
 
 
 class FedPubClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device, l1=1e-3, loc_l2=1e-3):
-        super(FedPubClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
+        super(FedPubClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
         self.l1 = l1
         self.loc_l2 = loc_l2
-        
+        self.task.model = self.get_custom_model()
 
+    def get_custom_model(self):
+        return MaskedGCN(self.args, input_dim=self.task.num_feats, output_dim=self.task.num_classes, client_id=self.client_id)
+    
+    
     def get_custom_loss_fn(self):
         def custom_loss_fn(embedding, logits, mask):
             loss = torch.nn.functional.cross_entropy(logits[mask], self.task.data.y[mask])

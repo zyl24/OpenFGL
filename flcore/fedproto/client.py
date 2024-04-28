@@ -4,7 +4,7 @@ from flcore.base import BaseClient
 
 class FedProtoClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device, fedproto_lambda=1):
-        super(FedProtoClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
+        super(FedProtoClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
         self.fedproto_lambda = fedproto_lambda
         self.local_prototype = {}
     
@@ -36,7 +36,7 @@ class FedProtoClient(BaseClient):
         with torch.no_grad():
             embedding = self.task.evaluate(mute=True)["embedding"]
             for class_i in range(self.task.data.num_classes):
-                selected_idx = selected_idx = self.task.train_mask & (self.task.data.y == class_i)
+                selected_idx = self.task.train_mask & (self.task.data.y == class_i)
                 if selected_idx.sum() == 0:
                     self.local_prototype[class_i] = torch.zeros(self.args.hid_dim).to(self.device)
                 else:

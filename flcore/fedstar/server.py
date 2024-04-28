@@ -4,7 +4,7 @@ from flcore.fedstar._utils import init_structure_encoding
 
 class FedStarServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
-        super(FedStarServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None)
+        super(FedStarServer, self).__init__(args, global_data, data_dir, message_pool, device)
 
     def execute(self):
         with torch.no_grad():

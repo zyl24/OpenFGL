@@ -4,7 +4,7 @@ import copy
 
 class ScaffoldServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
-        super(ScaffoldServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None)
+        super(ScaffoldServer, self).__init__(args, global_data, data_dir, message_pool, device)
         self.global_control  =  [torch.zeros_like(p.data, requires_grad=False) for p in self.task.model.parameters()]
    
     def execute(self):

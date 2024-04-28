@@ -5,7 +5,7 @@ from flcore.base import BaseServer
 
 class MoonServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
-        super(MoonServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None)
+        super(MoonServer, self).__init__(args, global_data, data_dir, message_pool, device)
 
    
     def execute(self):

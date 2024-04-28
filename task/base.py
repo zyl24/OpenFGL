@@ -1,18 +1,13 @@
 from torch.optim import Adam
     
 class BaseTask:
-    def __init__(self, args, client_id, data, data_dir, device, custom_model=None):
+    def __init__(self, args, client_id, data, data_dir, device):
         self.client_id = client_id
         self.data = data.to(device)
         self.data_dir = data_dir
         self.args = args
         self.device = device
-        
-
-        if custom_model is None:
-            self.model = self.default_model
-        else:
-            self.model = custom_model
+        self.model = self.default_model
         
         if self.model is not None:
             self.model = self.model.to(device)

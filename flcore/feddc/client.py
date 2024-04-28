@@ -7,7 +7,7 @@ import copy
 
 class FedDCClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(FedDCClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
+        super(FedDCClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
         
         self.feddc_alpha = 1e-1
             

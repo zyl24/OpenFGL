@@ -3,6 +3,7 @@ from flcore.base import BaseServer
 from collections import defaultdict, OrderedDict
 import numpy as np
 from scipy.spatial.distance import cosine
+from maskedgcn import MaskedGCN
 
 def from_networkx(G, group_node_attrs=None, group_edge_attrs=None):
     import networkx as nx
@@ -93,15 +94,18 @@ def from_networkx(G, group_node_attrs=None, group_edge_attrs=None):
 
 class FedPubServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device, agg_norm='exp', norm_scale=10, n_proxy=5):
-        super(FedPubServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None)
+        super(FedPubServer, self).__init__(args, global_data, data_dir, message_pool, device)
         self.agg_norm = agg_norm
         self.norm_scale = norm_scale
         self.n_proxy = n_proxy
-        
-        
-        
+        self.task.model = self.get_custom_model()
         self.proxy = self.get_proxy_data(self.task.num_feats)
 
+
+
+    def get_custom_model(self):
+        return MaskedGCN(self.args, input_dim=self.task.num_feats, output_dim=self.task.num_classes, client_id=self.client_id)
+    
     def execute(self):
         local_embeddings = []
         local_weights = []

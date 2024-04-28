@@ -2,6 +2,9 @@ import torch
 import random
 import numpy as np
 
+def check_args(args):
+    pass
+
 
 def seed_everything(seed):
     random.seed(seed)
@@ -81,10 +84,13 @@ def load_optim(args):
         return Adam
     
     
-def load_task(args, client_id, data, data_dir, device, custom_model=None):
+def load_task(args, client_id, data, data_dir, device):
     if args.task == "node_cls":
-        from task.fedsubgraph.node_cls import NodeClsTask
-        return NodeClsTask(args, client_id, data, data_dir, device, custom_model)
+        from task.node_cls import NodeClsTask
+        return NodeClsTask(args, client_id, data, data_dir, device)
+    elif args.task == "graph_cls":
+        from task.graph_cls import GraphClsTask
+        return GraphClsTask(args, client_id, data, data_dir, device)
     
 
 

@@ -4,7 +4,7 @@ from flcore.base import BaseClient
 
 class FedAvgClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(FedAvgClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
+        super(FedAvgClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
             
         
     def execute(self):

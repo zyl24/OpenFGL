@@ -9,7 +9,7 @@ import copy
 
 class ScaffoldClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(ScaffoldClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
+        super(ScaffoldClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
             
         self.local_control  =  [torch.zeros_like(p.data, requires_grad=False) for p in self.task.model.parameters()]
         

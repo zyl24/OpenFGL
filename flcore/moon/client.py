@@ -7,7 +7,7 @@ from flcore.base import BaseClient
 
 class MoonClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(MoonClient, self).__init__(args, client_id, data, data_dir, message_pool, device, custom_model=None)
+        super(MoonClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
         
         self.moon_mu = 1
         self.temperature = 0.5

@@ -3,13 +3,13 @@ import os
 import random
 import torch
 import numpy as np
-from torch_geometric.utils import subgraph, to_scipy_sparse_matrix, to_networkx
+from torch_geometric.utils import to_scipy_sparse_matrix, to_networkx
 from torch_geometric.data import Data
 from sknetwork.clustering import Louvain
 from sklearn.cluster import KMeans
 import pymetis as metis
 from utils.basic_utils import extract_floats, idx_to_mask_tensor
-# from task.fedsubgraph.
+
 
 
 def get_subgraph_pyg_data(global_dataset, node_list):
@@ -36,27 +36,6 @@ def get_subgraph_pyg_data(global_dataset, node_list):
     local_subgraph.global_map = local_id_to_global_id
     local_subgraph.num_classes = global_dataset.num_classes
     return local_subgraph
-
-def local_graphs_train_val_test_split(local_graphs, split, num_classes=None):
-    num_local_graphs = len(local_graphs)
-    train_, val_, test_ = extract_floats(split)
-    
-    if num_classes is not None: # for classification problem
-        local_graphs.train_mask = idx_to_mask_tensor([], num_local_graphs)
-        local_graphs.val_mask = idx_to_mask_tensor([], num_local_graphs)
-        local_graphs.test_mask = idx_to_mask_tensor([], num_local_graphs)
-        for class_i in range(num_classes):
-            class_i_local_graphs_mask = local_graphs.y == class_i
-            num_class_i_local_graphs = class_i_local_graphs_mask.sum()
-            local_graphs.train_mask += idx_to_mask_tensor(class_i_local_graphs_mask.nonzero().squeeze().tolist()[:int(train_ * num_class_i_local_graphs)], num_local_graphs)
-            local_graphs.val_mask += idx_to_mask_tensor(class_i_local_graphs_mask.nonzero().squeeze().tolist()[int(train_ * num_class_i_local_graphs) : int((train_+val_) * num_class_i_local_graphs)], num_local_graphs)
-            local_graphs.test_mask += idx_to_mask_tensor(class_i_local_graphs_mask.nonzero().squeeze().tolist()[int((train_+val_) * num_class_i_local_graphs): ], num_local_graphs)
-    else: # for regression problem
-        local_graphs.train_mask = idx_to_mask_tensor(range(int(train_ * num_local_graphs)), num_local_graphs)
-        local_graphs.val_mask = idx_to_mask_tensor(range(int(train_ * num_local_graphs), int((train_+val_) * num_local_graphs)), num_local_graphs)
-        local_graphs.test_mask = idx_to_mask_tensor(range(int((train_+val_) * num_local_graphs), num_local_graphs), num_local_graphs)
-    
-    assert (local_graphs.train_mask + local_graphs.val_mask + local_graphs.test_mask).sum() == num_local_graphs
 
 
 

@@ -28,7 +28,7 @@ class Trainable_prototypes(nn.Module):
     
 class FedTGPServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device, fedtgp_lambda=1, num_glb_epochs=10, lr_glb=1e-2):
-        super(FedTGPServer, self).__init__(args, global_data, data_dir, message_pool, device, custom_model=None)
+        super(FedTGPServer, self).__init__(args, global_data, data_dir, message_pool, device)
         
         self.fedtgp_lambda = fedtgp_lambda
         self.num_glb_epochs = num_glb_epochs

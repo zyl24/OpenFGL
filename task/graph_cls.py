@@ -7,14 +7,14 @@ from utils.metrics import compute_supervised_metrics
 import os
 import torch
 from utils.task_utils import load_node_cls_default_model
-
+import pickle
 
 
     
 
-class NodeClsTask(BaseTask):
-    def __init__(self, args, client_id, data, data_dir, device, custom_model=None):
-        super(NodeClsTask, self).__init__(args, client_id, data, data_dir, device, custom_model)
+class GraphClsTask(BaseTask):
+    def __init__(self, args, client_id, data, data_dir, device):
+        super(GraphClsTask, self).__init__(args, client_id, data, data_dir, device)
         self.step_preprocess = None
         
     def train(self):
@@ -85,7 +85,7 @@ class NodeClsTask(BaseTask):
     
     @property
     def num_samples(self):
-        return self.data.x.shape[0]
+        return len(self.data)
     
     @property
     def num_feats(self):
@@ -114,16 +114,37 @@ class NodeClsTask(BaseTask):
         
     @property
     def train_val_test_path(self):
-        return osp.join(self.data_dir, "node_cls")
+        return osp.join(self.data_dir, "graph_cls")
     
 
     def load_train_val_test_split(self):
         if self.client_id is None: # server
-            train_list = []
-            val_list = []
-            test_list = []
+            glb_train = []
+            glb_val = []
+            glb_test = []
             
-        else:        
+            for client_id in range(self.args.num_clients):
+                glb_train_path = osp.join(self.train_val_test_path, f"glb_train_{client_id}.pkl")
+                glb_val_path = osp.join(self.train_val_test_path, f"glb_val_{client_id}.pkl")
+                glb_test_path = osp.join(self.train_val_test_path, f"glb_test_{client_id}.pkl")
+                
+                with open(glb_train_path, 'rb') as file:
+                    glb_train_data = pickle.load(file)
+                    glb_train.append(glb_train_data)
+                    
+                with open(glb_val_path, 'rb') as file:
+                    glb_val_data = pickle.load(file)
+                    glb_val.append(glb_val_data)
+                    
+                with open(glb_test_path, 'rb') as file:
+                    glb_test_data = pickle.load(file)
+                    glb_test.append(glb_test_data)
+                
+            train_mask = idx_to_mask_tensor(glb_train, self.data.x.shape[0]).bool()
+            val_mask = idx_to_mask_tensor(glb_val, self.data.x.shape[0]).bool()
+            test_mask = idx_to_mask_tensor(glb_test, self.data.x.shape[0]).bool()
+            
+        else: # client
             train_path = osp.join(self.train_val_test_path, f"train_{self.client_id}.pt")
             val_path = osp.join(self.train_val_test_path, f"val_{self.client_id}.pt")
             test_path = osp.join(self.train_val_test_path, f"test_{self.client_id}.pt")
@@ -141,10 +162,27 @@ class NodeClsTask(BaseTask):
                 torch.save(train_mask, train_path)
                 torch.save(val_mask, val_path)
                 torch.save(test_mask, test_path)
+                
+                # map to global
+                glb_train_id = []
+                glb_val_id = []
+                glb_test_id = []
+                for id_train in train_mask.nonzero():
+                    glb_train_id.append(self.data.global_map[id_train])
+                for id_val in val_mask.nonzero():
+                    glb_val_id.append(self.data.global_map[id_val])
+                for id_test in test_mask.nonzero():
+                    glb_test_id.append(self.data.global_map[id_test])
+                with open(osp.join(self.train_val_test_path, f"glb_train_{self.client_id}.pkl"), 'wb') as file:
+                    pickle.dump(glb_train_id, file)
+                with open(osp.join(self.train_val_test_path, f"glb_val_{self.client_id}.pkl"), 'wb') as file:
+                    pickle.dump(glb_train_id, file)
+                with open(osp.join(self.train_val_test_path, f"glb_test_{self.client_id}.pkl"), 'wb') as file:
+                    pickle.dump(glb_train_id, file)
             
-            self.train_mask = train_mask.to(self.device)
-            self.val_mask = val_mask.to(self.device)
-            self.test_mask = test_mask.to(self.device)
+        self.train_mask = train_mask.to(self.device)
+        self.val_mask = val_mask.to(self.device)
+        self.test_mask = test_mask.to(self.device)
             
             
             
