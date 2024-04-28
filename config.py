@@ -19,7 +19,7 @@ supported_fedgraph_task = ["graph_cls", "graph_reg"]
 supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
 
 
-supported_fl_algorithm = ["fedavg", "fedprox", "scaffold", "moon", "feddc", "fedproto", "fedtgp"]
+supported_fl_algorithm = ["fedavg", "fedprox", "scaffold", "moon", "feddc", "fedproto", "fedtgp", "fedpub", "fedstar"]
 
 
 supported_metrics = ["accuracy", "precision", "f1", "recall"]
@@ -28,7 +28,7 @@ supported_models = ["gcn"]
 
 supported_evaluation_modes = ["personalized", "global"]
 
-supported_data_processing = ["feature_mask"]
+supported_data_processing = ["raw", "random_feature_mask"]
 
 parser = argparse.ArgumentParser()
 
@@ -41,13 +41,13 @@ parser.add_argument("--seed", type=int, default=2024)
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
 parser.add_argument("--scenario", type=str, default="fedsubgraph", choices=supported_scenario)
 parser.add_argument("--dataset", type=list, default=["Cora"])
-parser.add_argument("--processing", type=str, default="feature_mask", choices=supported_data_processing)
-
+parser.add_argument("--processing", type=str, default="raw", choices=supported_data_processing)
+parser.add_argument("--feature_mask_prob", type=float, default=0.1)
 
 # fl settings
 parser.add_argument("--num_clients", type=int, default=10)
 parser.add_argument("--num_rounds", type=int, default=100)
-parser.add_argument("--fl_algorithm", type=str, default="fedavg", choices=supported_fl_algorithm)
+parser.add_argument("--fl_algorithm", type=str, default="fedpub", choices=supported_fl_algorithm)
 parser.add_argument("--client_frac", type=float, default=1.0)
 
 

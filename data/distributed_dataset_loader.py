@@ -107,14 +107,8 @@ class FGLDataset(Dataset):
         elif self.args.simulation_mode == "fedsubgraph_metis_clustering":
             from data.simulation import fedsubgraph_metis_clustering
             self.local_data = fedsubgraph_metis_clustering(self.args, global_dataset)
-
-
-        # data processing
-        
-
         
         for client_id in range(self.args.num_clients):
-            
             self.save_client_data(self.local_data[client_id], client_id)
         
 
@@ -131,6 +125,16 @@ class FGLDataset(Dataset):
         
         self.global_data = global_dataset.data
         self.global_data.num_classes = global_dataset.num_classes
+        
+        # data processing
+        if self.args.processing == "raw":
+            pass
+        elif self.args.processing == "random_feature_mask":
+            from processing import random_feature_mask
+            self.local_data = random_feature_mask(self.local_data, process_dir=self.processed_dir, mask_prob=self.args.feature_mask_prob)
+        else:
+            raise ValueError
+        
         
 # FGLDataset <- args
 # 1. 全局数据集下载

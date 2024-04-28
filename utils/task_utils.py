@@ -26,6 +26,9 @@ def load_node_cls_default_model(args, input_dim, output_dim, client_id=None):
     elif model_name == "gcn2":
         from model.gcn2 import GCN2
         return GCN2(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, dropout=args.dropout)
+    elif model_name == "maskedgcn":
+        from model.maskedgcn import MaskedGCN
+        return MaskedGCN(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim)
     else:
         raise ValueError
 
