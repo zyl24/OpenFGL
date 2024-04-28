@@ -190,12 +190,13 @@ def fedsubgraph_metis_clustering(args, global_dataset):
     graph_nx = to_networkx(global_dataset[0], to_undirected=True)
     communities = {com_id: {"nodes":[], "num_nodes":0, "label_distribution":[0] * global_dataset.num_classes} 
                             for com_id in range(args.metis_num_coms)}
-    n_cuts, membership = metis.part_graph(graph_nx, args.metis_num_coms)
+    # n_cuts, membership = metis.part_graph(graph_nx, args.metis_num_coms)
+    n_cuts, membership = metis.part_graph(args.metis_num_coms, graph_nx)
     for com_id in range(args.metis_num_coms):
         com_indices = np.where(np.array(membership) == com_id)[0]
         com_indices = list(com_indices)
         communities[com_id]["nodes"] = com_indices
-        communities["num_nodes"] = len(com_indices)
+        communities[com_id]["num_nodes"] = len(com_indices)
         for node in communities[com_id]["nodes"]:
             label = copy.deepcopy(global_dataset[0].y[node])
             communities[com_id]["label_distribution"][label] += 1

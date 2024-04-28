@@ -117,20 +117,39 @@ class FGLDataset(Dataset):
     def load_data(self):
         self.local_data = [self.get_client_data(client_id) for client_id in range(self.args.num_clients)]
         
-
         if len(self.args.dataset) == 1:
             global_dataset = load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=self.args.dataset[0])
         else:
             global_dataset = [load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=dataset_i) for dataset_i in self.args.dataset]
         
-        self.global_data = global_dataset.data
+        self.global_data = global_dataset._data
         self.global_data.num_classes = global_dataset.num_classes
+
+        # data processing
+        print("processing the dataset")
+        if self.args.processing == "raw":
+            pass
+        elif self.args.processing == "random_feature_mask":
+            from .processing import random_feature_mask
+            self.local_data = random_feature_mask(self.local_data, process_dir=self.processed_dir, mask_prob=self.args.feature_mask_prob)
+        elif self.args.processing == "link_random_response":
+            from .processing import link_random_response
+            self.local_data = link_random_response(self.local_data, process_dir=self.processed_dir, epsilon=self.args.dp_epsilon)
+        elif self.args.processing == "homo_random_injection":
+            from .processing import homo_random_injection
+            self.local_data = homo_random_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.homo_injection_ratio)
+        elif self.args.processing == "hete_random_injection":
+            from .processing import hete_random_injection
+            self.local_data = hete_random_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.hete_injection_ratio)
+        else:
+            raise ValueError
+        
         
         # data processing
         if self.args.processing == "raw":
             pass
         elif self.args.processing == "random_feature_mask":
-            from processing import random_feature_mask
+            from data.processing import random_feature_mask
             self.local_data = random_feature_mask(self.local_data, process_dir=self.processed_dir, mask_prob=self.args.feature_mask_prob)
         else:
             raise ValueError
