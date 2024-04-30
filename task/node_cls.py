@@ -22,7 +22,7 @@ class NodeClsTask(BaseTask):
         for _ in range(self.args.num_epochs):
             self.optim.zero_grad()
             embedding, logits = self.model.forward(self.data)
-            loss_train = self.loss_fn(embedding, logits, self.train_mask)
+            loss_train = self.loss_fn(embedding, logits, self.data.y, self.train_mask)
             loss_train.backward()
             
             if self.step_preprocess is not None:
@@ -37,9 +37,9 @@ class NodeClsTask(BaseTask):
         self.model.eval()
         with torch.no_grad():
             embedding, logits = self.model.forward(self.data)
-            loss_train = self.loss_fn(embedding, logits, self.train_mask)
-            loss_val = self.loss_fn(embedding, logits, self.val_mask)
-            loss_test = self.loss_fn(embedding, logits, self.test_mask)
+            loss_train = self.loss_fn(embedding, logits, self.data.y, self.train_mask)
+            loss_val = self.loss_fn(embedding, logits, self.data.y, self.val_mask)
+            loss_test = self.loss_fn(embedding, logits, self.data.y, self.test_mask)
 
         
         eval_output["embedding"] = embedding
@@ -67,8 +67,8 @@ class NodeClsTask(BaseTask):
         print(prefix+info)
         return eval_output
     
-    def loss_fn(self, embedding, logits, mask):
-        return self.default_loss_fn(logits[mask], self.data.y[mask])
+    def loss_fn(self, embedding, logits, label, mask):
+        return self.default_loss_fn(logits[mask], label[mask])
         
     @property
     def default_model(self):            

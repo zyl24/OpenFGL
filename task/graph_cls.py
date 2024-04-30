@@ -20,10 +20,10 @@ class GraphClsTask(BaseTask):
     def train(self):
         self.model.train()
         for _ in range(self.args.num_epochs):
-            for data in self.train_dataloader:
+            for batch in self.train_dataloader:
                 self.optim.zero_grad()
-                embedding, logits = self.model.forward(data)
-                loss_train = self.loss_fn(embedding, logits, torch.ones_like(data.y).bool())
+                embedding, logits = self.model.forward(batch)
+                loss_train = self.loss_fn(embedding, logits, batch.y, torch.ones_like(batch.y).bool())
                 loss_train.backward()
                 if self.step_preprocess is not None:
                     self.step_preprocess()
@@ -35,30 +35,50 @@ class GraphClsTask(BaseTask):
         eval_output = {}
         self.model.eval()
         
-        loss_train = 0
-        loss_val = 0
-        loss_test = 0
-        with torch.no_grad():
-            for data in self.train_dataloader:
-                embedding, logits = self.model.forward(data)
-                loss_train += self.loss_fn(embedding, logits, torch.ones_like(data.y).bool())
-            for data in self.val_dataloader:
-                embedding, logits = self.model.forward(data)
-                loss_val = self.loss_fn(embedding, logits, torch.ones_like(data.y).bool())
-            for data in self.test_dataloader:
-                embedding, logits = self.model.forward(data)
-                loss_test = self.loss_fn(embedding, logits, torch.ones_like(data.y).bool())
         
-        eval_output["embedding"] = embedding
-        eval_output["logits"] = logits
-        eval_output["loss_train"] = loss_train / len(self.train_dataloader)
+        embedding_all = torch.zeros((self.num_samples, self.args.hid_dim)).to(self.device)
+        logits_all = torch.zeros((self.num_samples, self.num_classes)).to(self.device)
+        
+        train_idx = self.train_mask.nonzero().squeeze()
+        val_idx = self.val_mask.nonzero().squeeze()
+        test_idx = self.test_mask.nonzero().squeeze()
+        
+        
+        train_cnt = 0
+        val_cnt = 0
+        test_cnt = 0
+        
+        with torch.no_grad():
+            for batch in self.train_dataloader:
+                embedding, logits = self.model.forward(batch)
+                embedding_all[train_idx[train_cnt:train_cnt+batch.num_graphs]] = embedding
+                logits_all[train_idx[train_cnt:train_cnt+batch.num_graphs]] = logits
+                train_cnt += batch.num_graphs
+            for batch in self.val_dataloader:
+                embedding, logits = self.model.forward(batch)
+                embedding_all[val_idx[val_cnt:val_cnt+batch.num_graphs]] = embedding
+                logits_all[val_idx[val_cnt:val_cnt+batch.num_graphs]] = logits
+                val_cnt += batch.num_graphs
+            for batch in self.test_dataloader:
+                embedding, logits = self.model.forward(batch)
+                embedding_all[test_idx[test_cnt:test_cnt+batch.num_graphs]] = embedding
+                logits_all[test_idx[test_cnt:test_cnt+batch.num_graphs]] = logits
+                test_cnt += batch.num_graphs
+
+            loss_train = self.loss_fn(embedding_all, logits_all, self.data.y, self.train_mask)
+            loss_val = self.loss_fn(embedding_all, logits_all, self.data.y, self.val_mask)
+            loss_test = self.loss_fn(embedding_all, logits_all, self.data.y, self.test_mask)
+
+        eval_output["embedding"] = embedding_all
+        eval_output["logits"] = logits_all
+        eval_output["loss_train"] = loss_train 
         eval_output["loss_val"]   = loss_val
         eval_output["loss_test"]  = loss_test
         
         
-        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.train_mask], labels=self.data.y[self.train_mask], suffix="train")
-        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.val_mask], labels=self.data.y[self.val_mask], suffix="val")
-        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.test_mask], labels=self.data.y[self.test_mask], suffix="test")
+        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[self.train_mask], labels=self.data.y[self.train_mask], suffix="train")
+        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[self.val_mask], labels=self.data.y[self.val_mask], suffix="val")
+        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[self.test_mask], labels=self.data.y[self.test_mask], suffix="test")
         eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
         
         info = ""
@@ -74,8 +94,8 @@ class GraphClsTask(BaseTask):
         print(prefix+info)
         return eval_output
     
-    def loss_fn(self, embedding, logits, mask):
-        return self.default_loss_fn(logits[mask], self.data.y[mask])
+    def loss_fn(self, embedding, logits, label, mask):
+        return self.default_loss_fn(logits[mask], label[mask])
         
     @property
     def default_model(self):            
@@ -189,7 +209,7 @@ class GraphClsTask(BaseTask):
         self.train_mask = train_mask.to(self.device)
         self.val_mask = val_mask.to(self.device)
         self.test_mask = test_mask.to(self.device)
-        self.train_dataloader = DataLoader(self.data[self.train_mask], batch_size=self.args.batch_size, shuffle=True)
+        self.train_dataloader = DataLoader(self.data[self.train_mask], batch_size=self.args.batch_size, shuffle=False)
         self.val_dataloader = DataLoader(self.data[self.val_mask], batch_size=self.args.batch_size, shuffle=False)
         self.test_dataloader = DataLoader(self.data[self.test_mask], batch_size=self.args.batch_size, shuffle=False)
             
