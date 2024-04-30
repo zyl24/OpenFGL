@@ -50,8 +50,3 @@ class FedProtoClient(BaseClient):
                 "local_prototype": self.local_prototype
             }
         
-    def personalized_evaluate(self):
-        return self.task.evaluate()
-        
-            
-        

@@ -43,8 +43,6 @@ class ScaffoldClient(BaseClient):
                 "local_control": self.local_control
             }
         
-    def personalized_evaluate(self):
-        return self.task.evaluate()
-        
+
             
         

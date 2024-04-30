@@ -49,9 +49,3 @@ class FedTGPClient(BaseClient):
                 "num_samples": self.task.num_samples,
                 "local_prototype": self.local_prototype
             }
-        
-    def personalized_evaluate(self):
-        return self.task.evaluate()
-        
-            
-        

@@ -27,7 +27,3 @@ class FedStarClient(BaseClient):
             "weight": self.task.model.state_dict()
         }
 
-    def personalized_evaluate(self):
-        return self.task.evaluate()
-
-

@@ -51,8 +51,3 @@ class MoonClient(BaseClient):
                 "weight": list(self.task.model.parameters())
             }
         
-    def personalized_evaluate(self):
-        return self.task.evaluate()
-        
-            
-        

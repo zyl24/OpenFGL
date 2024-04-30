@@ -56,8 +56,6 @@ class FedDCClient(BaseClient):
                 "local_drift": self.local_drift
             }
         
-    def personalized_evaluate(self):
-        return self.task.evaluate()
-        
+
             
         
