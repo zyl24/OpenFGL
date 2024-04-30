@@ -37,11 +37,17 @@ class GraphClsTask(BaseTask):
         
         
         embedding_all = torch.zeros((self.num_samples, self.args.hid_dim)).to(self.device)
-        logits_all = torch.zeros((self.num_samples, self.num_classes)).to(self.device)
+        logits_all = torch.zeros((self.num_samples, self.num_global_classes)).to(self.device)
         
-        train_idx = self.train_mask.nonzero().squeeze()
-        val_idx = self.val_mask.nonzero().squeeze()
-        test_idx = self.test_mask.nonzero().squeeze()
+        train_idx = self.train_mask.nonzero().squeeze().tolist()
+        if isinstance(train_idx, int):
+            train_idx = [train_idx]
+        val_idx = self.val_mask.nonzero().squeeze().tolist()
+        if isinstance(val_idx, int):
+            val_idx = [val_idx]
+        test_idx = self.test_mask.nonzero().squeeze().tolist()
+        if isinstance(test_idx, int):
+            test_idx = [test_idx]
         
         
         train_cnt = 0
@@ -99,7 +105,7 @@ class GraphClsTask(BaseTask):
         
     @property
     def default_model(self):            
-        return load_graph_cls_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_classes, client_id=self.client_id)
+        return load_graph_cls_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_global_classes, client_id=self.client_id)
     
     @property
     def default_optim(self):
@@ -116,8 +122,8 @@ class GraphClsTask(BaseTask):
         return self.data.x.shape[1]
     
     @property
-    def num_classes(self):
-        return self.data.num_classes        
+    def num_global_classes(self):
+        return self.data.num_global_classes
         
     @property
     def default_loss_fn(self):
@@ -225,7 +231,7 @@ class GraphClsTask(BaseTask):
         train_mask = idx_to_mask_tensor([], num_graphs)
         val_mask = idx_to_mask_tensor([], num_graphs)
         test_mask = idx_to_mask_tensor([], num_graphs)
-        for class_i in range(local_graphs.num_classes):
+        for class_i in range(local_graphs.num_global_classes):
             class_i_graph_mask = local_graphs.y == class_i
             num_class_i_graphs = class_i_graph_mask.sum()
             train_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_graph_mask) [:int(train_ * num_class_i_graphs)], num_graphs)

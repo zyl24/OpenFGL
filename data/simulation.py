@@ -33,7 +33,7 @@ def get_subgraph_pyg_data(args, global_dataset, node_list):
     
     local_subgraph = Data(x=global_dataset[0].x[node_list], edge_index=local_edge_index, y=global_dataset[0].y[node_list])
     local_subgraph.global_map = local_id_to_global_id
-    local_subgraph.num_classes = global_dataset.num_classes
+    local_subgraph.num_global_classes = global_dataset.num_classes
     return local_subgraph
 
 
@@ -95,6 +95,7 @@ def fedgraph_label_dirichlet(args, global_dataset, shuffle=True):
             local_id_to_global_id[local_id] = global_id
         
         local_graphs = global_dataset.copy(client_indices[client_id]) # InMemoryDataset -> deep-copy subset
+        local_graphs.num_global_classes = global_dataset.num_classes
         local_graphs.global_map = local_id_to_global_id
         local_data.append(local_graphs)
     

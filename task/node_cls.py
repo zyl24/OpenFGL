@@ -72,7 +72,7 @@ class NodeClsTask(BaseTask):
         
     @property
     def default_model(self):            
-        return load_node_cls_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_classes, client_id=self.client_id)
+        return load_node_cls_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_global_classes, client_id=self.client_id)
     
     @property
     def default_optim(self):
@@ -89,8 +89,8 @@ class NodeClsTask(BaseTask):
         return self.data.x.shape[1]
     
     @property
-    def num_classes(self):
-        return self.data.num_classes        
+    def num_global_classes(self):
+        return self.data.num_global_classes        
         
     @property
     def default_loss_fn(self):
@@ -202,7 +202,7 @@ class NodeClsTask(BaseTask):
         train_mask = idx_to_mask_tensor([], num_nodes)
         val_mask = idx_to_mask_tensor([], num_nodes)
         test_mask = idx_to_mask_tensor([], num_nodes)
-        for class_i in range(local_subgraph.num_classes):
+        for class_i in range(local_subgraph.num_global_classes):
             class_i_node_mask = local_subgraph.y == class_i
             num_class_i_nodes = class_i_node_mask.sum()
             train_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask) [:int(train_ * num_class_i_nodes)], num_nodes)

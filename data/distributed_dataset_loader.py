@@ -139,7 +139,7 @@ class FGLDataset(Dataset):
                 self.global_data = global_dataset
             else:
                 self.global_data = global_dataset._data
-                self.global_data.num_classes = global_dataset.num_classes
+            self.global_data.num_global_classes = global_dataset.num_classes
             
             
         # else:

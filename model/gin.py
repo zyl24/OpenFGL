@@ -33,7 +33,12 @@ class GIN(nn.Module):
             x = F.relu(batch_norm(conv(x, edge_index)))
             x = F.dropout(x, p=self.dropout, training=self.training)
         embedding = global_add_pool(x, batch)
-        x = F.relu(self.batch_norm1(self.lin1(embedding)))
+        
+        if data.y.shape[0] != 1:
+            x = self.batch_norm1(self.lin1(embedding))
+        else:
+            x = embedding
+        x = F.relu(x)
         x = F.dropout(x, p=self.dropout, training=self.training)
         logits = self.lin2(x)
         return embedding, logits
