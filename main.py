@@ -3,13 +3,23 @@ from flcore.trainer import FGLTrainer
 from utils.basic_utils import seed_everything
 print(args)
 
-args.scenario = "fedgraph"
-args.simulation_mode = "fedgraph_label_dirichlet"
-args.task = "graph_cls"
-args.model = ["gin"]
-args.dataset = ["COX2"]
-args.fl_algorithm = "fedavg"
+# args.scenario = "fedgraph"
+# args.simulation_mode = "fedgraph_label_dirichlet"
+# args.task = "graph_cls"
+# args.model = ["gin"]
+# args.dataset = ["COX2"]
+# args.fl_algorithm = "fedavg"
+# args.evaluation_mode = "personalized" 
+
+args.scenario = "fedsubgraph"
+args.simulation_mode = "fedsubgraph_louvain_clustering"
+args.task = "node_cls"
+args.model = ["gcn"]
+args.dataset = ["Cora"]
+args.fl_algorithm = "fedgta"
 args.evaluation_mode = "personalized" 
+
+
 
 seed_everything(args.seed)
 trainer = FGLTrainer(args)

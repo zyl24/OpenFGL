@@ -47,6 +47,11 @@ def load_client(args, client_id, data, data_dir, message_pool, device):
     elif args.fl_algorithm == "fedstar":
         from flcore.fedstar.client import FedStarClient
         return FedStarClient(args, client_id, data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "fedgta":
+        from flcore.fedgta.client import FedGTAClient
+        return FedGTAClient(args, client_id, data, data_dir, message_pool, device)
+    
+    
     
 def load_server(args, global_data, data_dir, message_pool, device):
     if args.fl_algorithm == "fedavg":
@@ -76,7 +81,9 @@ def load_server(args, global_data, data_dir, message_pool, device):
     elif args.fl_algorithm == "fedstar":
         from flcore.fedstar.server import FedStarServer
         return FedStarServer(args, global_data, data_dir, message_pool, device)
-    
+    elif args.fl_algorithm == "fedgta":
+        from flcore.fedgta.server import FedGTAServer
+        return FedGTAServer(args, global_data, data_dir, message_pool, device)
     
 def load_optim(args):
     if args.optim == "adam":
