@@ -40,7 +40,7 @@ class MoonClient(BaseClient):
         self.global_embedding = self.task.evaluate(mute=True)["embedding"].detach()
         
         
-        self.task.custom_loss_fn = self.get_custom_loss_fn()
+        self.task.loss_fn = self.get_custom_loss_fn()
         self.task.train()
         
         self.prev_local_embedding = self.task.evaluate(mute=True)["embedding"].detach()

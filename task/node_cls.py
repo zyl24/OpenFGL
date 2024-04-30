@@ -68,10 +68,7 @@ class NodeClsTask(BaseTask):
         return eval_output
     
     def loss_fn(self, embedding, logits, mask):
-        if self.custom_loss_fn is None:
-            return self.default_loss_fn(logits[mask], self.data.y[mask])
-        else:
-            return self.custom_loss_fn(embedding, logits, mask)
+        return self.default_loss_fn(logits[mask], self.data.y[mask])
         
     @property
     def default_model(self):            
@@ -184,9 +181,9 @@ class NodeClsTask(BaseTask):
                 with open(osp.join(self.train_val_test_path, f"glb_train_{self.client_id}.pkl"), 'wb') as file:
                     pickle.dump(glb_train_id, file)
                 with open(osp.join(self.train_val_test_path, f"glb_val_{self.client_id}.pkl"), 'wb') as file:
-                    pickle.dump(glb_train_id, file)
+                    pickle.dump(glb_val_id, file)
                 with open(osp.join(self.train_val_test_path, f"glb_test_{self.client_id}.pkl"), 'wb') as file:
-                    pickle.dump(glb_train_id, file)
+                    pickle.dump(glb_test_id, file)
             
         self.train_mask = train_mask.to(self.device)
         self.val_mask = val_mask.to(self.device)

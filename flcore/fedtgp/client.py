@@ -10,7 +10,7 @@ class FedTGPClient(BaseClient):
     
     
     def execute(self):
-        self.task.custom_loss_fn = self.get_custom_loss_fn()
+        self.task.loss_fn = self.get_custom_loss_fn()
         self.task.train()
         self.update_local_prototype()
 

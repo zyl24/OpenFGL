@@ -75,10 +75,7 @@ class GraphClsTask(BaseTask):
         return eval_output
     
     def loss_fn(self, embedding, logits, mask):
-        if self.custom_loss_fn is None:
-            return self.default_loss_fn(logits[mask], self.data.y[mask])
-        else:
-            return self.custom_loss_fn(embedding, logits, mask)
+        return self.default_loss_fn(logits[mask], self.data.y[mask])
         
     @property
     def default_model(self):            
@@ -132,23 +129,23 @@ class GraphClsTask(BaseTask):
                 
                 with open(glb_train_path, 'rb') as file:
                     glb_train_data = pickle.load(file)
-                    glb_train.append(glb_train_data)
+                    glb_train += glb_train_data
                     
                 with open(glb_val_path, 'rb') as file:
                     glb_val_data = pickle.load(file)
-                    glb_val.append(glb_val_data)
+                    glb_val += glb_val_data
                     
                 with open(glb_test_path, 'rb') as file:
                     glb_test_data = pickle.load(file)
-                    glb_test.append(glb_test_data)
+                    glb_test += glb_test_data
                 
-            self.train_mask = idx_to_mask_tensor(glb_train, self.num_samples).bool()
-            self.val_mask = idx_to_mask_tensor(glb_val, self.num_samples).bool()
-            self.test_mask = idx_to_mask_tensor(glb_test, self.num_samples).bool()
+            train_mask = idx_to_mask_tensor(glb_train, self.num_samples).bool()
+            val_mask = idx_to_mask_tensor(glb_val, self.num_samples).bool()
+            test_mask = idx_to_mask_tensor(glb_test, self.num_samples).bool()
             
-            self.train_dataloader = DataLoader(self.data[self.train_mask], batch_size=self.args.batch_size, shuffle=True)
-            self.val_dataloader = DataLoader(self.data[self.val_mask], batch_size=self.args.batch_size, shuffle=False)
-            self.test_dataloader = DataLoader(self.data[self.test_mask], batch_size=self.args.batch_size, shuffle=False)
+            self.train_dataloader = DataLoader(self.data[train_mask], batch_size=self.args.batch_size, shuffle=True)
+            self.val_dataloader = DataLoader(self.data[val_mask], batch_size=self.args.batch_size, shuffle=False)
+            self.test_dataloader = DataLoader(self.data[test_mask], batch_size=self.args.batch_size, shuffle=False)
             
 
             
@@ -163,7 +160,7 @@ class GraphClsTask(BaseTask):
                 val_mask = torch.load(val_path)
                 test_mask = torch.load(test_path)
             else:
-                train_mask, val_mask, test_mask = self.local_subgraph_train_val_test_split(self.data, self.args.train_val_test)
+                train_mask, val_mask, test_mask = self.local_graph_train_val_test_split(self.data, self.args.train_val_test)
                 
                 if not osp.exists(self.train_val_test_path):
                     os.makedirs(self.train_val_test_path)
@@ -185,9 +182,9 @@ class GraphClsTask(BaseTask):
                 with open(osp.join(self.train_val_test_path, f"glb_train_{self.client_id}.pkl"), 'wb') as file:
                     pickle.dump(glb_train_id, file)
                 with open(osp.join(self.train_val_test_path, f"glb_val_{self.client_id}.pkl"), 'wb') as file:
-                    pickle.dump(glb_train_id, file)
+                    pickle.dump(glb_val_id, file)
                 with open(osp.join(self.train_val_test_path, f"glb_test_{self.client_id}.pkl"), 'wb') as file:
-                    pickle.dump(glb_train_id, file)
+                    pickle.dump(glb_test_id, file)
             
         self.train_mask = train_mask.to(self.device)
         self.val_mask = val_mask.to(self.device)

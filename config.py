@@ -24,15 +24,13 @@ supported_fl_algorithm = ["fedavg", "fedprox", "scaffold", "moon", "feddc", "fed
 
 supported_metrics = ["accuracy", "precision", "f1", "recall"]
 
-supported_models = ["gcn"]
 
 supported_evaluation_modes = ["personalized", "global"]
 
 supported_data_processing = ["raw", "random_feature_mask", "link_random_response", "homo_random_injection", "hete_random_injection"]
 
-
-from torch_geometric.nn.pool import classes
-supported_pool = classes
+supported_fedgraph_model = ["gin"]
+supported_fedsubgraph_model = ["gcn", "gat", "graphsage", "sgc", "gcn2"]
 
 
 
@@ -83,14 +81,17 @@ parser.add_argument("--lr", type=float, default=1e-2)
 parser.add_argument("--optim", type=str, default="adam")
 parser.add_argument("--weight_decay", type=float, default=5e-4)
 parser.add_argument("--batch_size", type=int, default=128)
-parser.add_argument("--pool", type=str, default="global_mean_pool", type=supported_pool)
+
 
 # model settings
-parser.add_argument("--model", type=list, default=["gcn"], choices=supported_models)
+parser.add_argument("--model", type=list, default=["gin"], choices=supported_fedgraph_model + supported_fedsubgraph_model)
 parser.add_argument("--num_layers", type=int, default=2)
 parser.add_argument("--hid_dim", type=int, default=64)
 
 # evaluation settings
 parser.add_argument("--metrics", type=list, default=["accuracy"])
-parser.add_argument("--evaluation_mode", type=str, default="personalized", choices=supported_evaluation_modes)
+parser.add_argument("--evaluation_mode", type=str, default="global", choices=supported_evaluation_modes)
+
+
+
 args = parser.parse_args()

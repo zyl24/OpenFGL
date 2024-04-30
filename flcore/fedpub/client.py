@@ -45,7 +45,7 @@ class FedPubClient(BaseClient):
                 continue
 
         self.task.model.load_state_dict(weight)
-        self.task.custom_loss_fn = self.get_custom_loss_fn()
+        self.task.loss_fn = self.get_custom_loss_fn()
         self.task.train()
 
     @torch.no_grad()

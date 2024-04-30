@@ -135,11 +135,19 @@ class FGLDataset(Dataset):
         
         if len(self.args.dataset) == 1:
             global_dataset = load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=self.args.dataset[0])
-        else:
-            global_dataset = [load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=dataset_i) for dataset_i in self.args.dataset]
+            if self.args.scenario == "fedgraph":
+                self.global_data = global_dataset
+            else:
+                self.global_data = global_dataset._data
+                self.global_data.num_classes = global_dataset.num_classes
+            
+            
+        # else:
+            # global_dataset = [load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=dataset_i) for dataset_i in self.args.dataset]
         
-        self.global_data = global_dataset._data
-        self.global_data.num_classes = global_dataset.num_classes
+        
+        
+        
 
         # data processing
         print("processing the dataset")
@@ -159,17 +167,7 @@ class FGLDataset(Dataset):
             self.local_data = hete_random_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.hete_injection_ratio)
         else:
             raise ValueError
-        
-        
-        # data processing
-        if self.args.processing == "raw":
-            pass
-        elif self.args.processing == "random_feature_mask":
-            from data.processing import random_feature_mask
-            self.local_data = random_feature_mask(self.local_data, process_dir=self.processed_dir, mask_prob=self.args.feature_mask_prob)
-        else:
-            raise ValueError
-        
+
         
 # FGLDataset <- args
 # 1. 全局数据集下载
