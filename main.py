@@ -9,16 +9,7 @@ args.task = "graph_cls"
 args.model = ["gin"]
 args.dataset = ["COX2"]
 args.fl_algorithm = "fedavg"
-args.evaluation_mode = "personalized"
-
-
-# args.scenario = "fedsubgraph"
-# args.simulation_mode = "fedsubgraph_label_dirichlet"
-# args.task = "node_cls"
-# args.model = ["gcn"]
-# args.dataset = ["Cora"]
-# args.fl_algorithm = "fedavg"
-
+args.evaluation_mode = "personalized" 
 
 seed_everything(args.seed)
 trainer = FGLTrainer(args)
