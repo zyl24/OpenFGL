@@ -3,9 +3,9 @@ from torch_geometric.nn import GCNConv, GINConv, global_add_pool
 import torch.nn.functional as F
 
 
-class GIN_dc(torch.nn.Module):
+class DecoupledGIN(torch.nn.Module):
     def __init__(self, input_dim, hid_dim, output_dim, n_se, num_layers=2, dropout=0.5):
-        super(GIN_dc, self).__init__()
+        super(DecoupledGIN, self).__init__()
         self.n_se = n_se
         self.num_layers = num_layers
         self.dropout = dropout
@@ -40,12 +40,11 @@ class GIN_dc(torch.nn.Module):
             x = F.dropout(x, self.dropout, training=self.training)
             s = self.graph_convs_s_gcn[i](s, edge_index)
             s = torch.tanh(s)
-
         x = self.Whp(torch.cat((x, s), -1))
-        x = global_add_pool(x, batch)   #用于图分类任务
+        x = global_add_pool(x, batch)
         x = self.post(x)
         y = F.dropout(x, self.dropout, training=self.training)
         y = self.readout(y)
-        x = F.log_softmax(x, dim=1)  #和nll_loss适配
+        x = F.log_softmax(x, dim=1)
         return x,y
 

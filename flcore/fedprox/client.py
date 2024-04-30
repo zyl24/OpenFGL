@@ -26,7 +26,7 @@ class FedProxClient(BaseClient):
                 local_param.data.copy_(global_param)
 
 
-        self.task.custom_loss_fn = self.get_custom_loss_fn()
+        self.task.loss_fn = self.get_custom_loss_fn()
         self.task.train()
 
     def send_message(self):

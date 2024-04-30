@@ -29,3 +29,4 @@ class SGC(nn.Module):
         
         return x, logits
 
+

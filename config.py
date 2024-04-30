@@ -30,6 +30,12 @@ supported_evaluation_modes = ["personalized", "global"]
 
 supported_data_processing = ["raw", "random_feature_mask", "link_random_response", "homo_random_injection", "hete_random_injection"]
 
+
+from torch_geometric.nn.pool import classes
+supported_pool = classes
+
+
+
 parser = argparse.ArgumentParser()
 
 # environment settings
@@ -77,6 +83,7 @@ parser.add_argument("--lr", type=float, default=1e-2)
 parser.add_argument("--optim", type=str, default="adam")
 parser.add_argument("--weight_decay", type=float, default=5e-4)
 parser.add_argument("--batch_size", type=int, default=128)
+parser.add_argument("--pool", type=str, default="global_mean_pool", type=supported_pool)
 
 # model settings
 parser.add_argument("--model", type=list, default=["gcn"], choices=supported_models)

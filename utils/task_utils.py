@@ -1,3 +1,5 @@
+from torch_geometric.nn.pool import *
+
 def load_graph_cls_default_model(args, input_dim, output_dim, client_id=None):
     if client_id is None: # server
         if len(args.model) > 1:
@@ -10,12 +12,13 @@ def load_graph_cls_default_model(args, input_dim, output_dim, client_id=None):
             model_name = args.model[model_id]
         else:
             model_name = args.model[0]
-    
-    if model_name == "gin":
-        # from model.gin import 
-        pass
-    else:
-        raise ValueError
+        
+            
+        if model_name == "gin":
+            from model.gin import GIN
+            return GIN(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, num_layers=args.num_layers, dropout=args.dropout)
+        else:
+            raise ValueError
 
 
 

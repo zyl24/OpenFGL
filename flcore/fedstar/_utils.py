@@ -1,8 +1,8 @@
 import torch
-from torch_geometric.utils import  degree, to_scipy_sparse_matrix
+from torch_geometric.utils import degree, to_scipy_sparse_matrix
 from scipy import sparse as sp
 
-def init_structure_encoding(args, gs, type_init):
+def init_structure_encoding(n_rw, n_dg, gs, type_init):
 
     if type_init == 'rw':
         for gg in gs:
@@ -17,7 +17,7 @@ def init_structure_encoding(args, gs, type_init):
 
             SE_rw=[torch.from_numpy(M.diagonal()).float()]
             M_power=M
-            for _ in range(args.n_rw-1):
+            for _ in range(n_rw-1):
                 M_power=M_power*M
                 SE_rw.append(torch.from_numpy(M_power.diagonal()).float())
             SE_rw=torch.stack(SE_rw,dim=-1)
@@ -28,8 +28,8 @@ def init_structure_encoding(args, gs, type_init):
         for gg in gs:
             # PE_degree
             g = gg.clone().detach().cpu()
-            g_dg = (degree(g.edge_index[0], num_nodes=g.num_nodes)).numpy().clip(1, args.n_dg)
-            SE_dg = torch.zeros([g.num_nodes, args.n_dg])
+            g_dg = (degree(g.edge_index[0], num_nodes=g.num_nodes)).numpy().clip(1, n_dg)
+            SE_dg = torch.zeros([g.num_nodes, n_dg])
             for i in range(len(g_dg)):
                 SE_dg[i,int(g_dg[i]-1)] = 1
 
@@ -48,14 +48,14 @@ def init_structure_encoding(args, gs, type_init):
 
             SE=[torch.from_numpy(M.diagonal()).float()]
             M_power=M
-            for _ in range(args.n_rw-1):
+            for _ in range(n_rw-1):
                 M_power=M_power*M
                 SE.append(torch.from_numpy(M_power.diagonal()).float())
             SE_rw=torch.stack(SE,dim=-1)
 
             # PE_degree
-            g_dg = (degree(g.edge_index[0], num_nodes=g.num_nodes)).numpy().clip(1, args.n_dg)
-            SE_dg = torch.zeros([g.num_nodes, args.n_dg])
+            g_dg = (degree(g.edge_index[0], num_nodes=g.num_nodes)).numpy().clip(1, n_dg)
+            SE_dg = torch.zeros([g.num_nodes, n_dg])
             for i in range(len(g_dg)):
                 SE_dg[i,int(g_dg[i]-1)] = 1
 

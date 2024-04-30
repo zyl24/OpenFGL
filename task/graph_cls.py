@@ -20,31 +20,38 @@ class GraphClsTask(BaseTask):
     def train(self):
         self.model.train()
         for _ in range(self.args.num_epochs):
-            self.optim.zero_grad()
-            embedding, logits = self.model.forward(self.data)
-            loss_train = self.loss_fn(embedding, logits, self.train_mask)
-            loss_train.backward()
-            
-            if self.step_preprocess is not None:
-                self.step_preprocess()
-            
-            self.optim.step()
+            for data in self.train_dataloader:
+                self.optim.zero_grad()
+                embedding, logits = self.model.forward(data)
+                loss_train = self.loss_fn(embedding, logits, torch.ones_like(data.y).bool())
+                loss_train.backward()
+                if self.step_preprocess is not None:
+                    self.step_preprocess()
+                self.optim.step()
             
 
         
     def evaluate(self, mute=False):
         eval_output = {}
         self.model.eval()
+        
+        loss_train = 0
+        loss_val = 0
+        loss_test = 0
         with torch.no_grad():
-            embedding, logits = self.model.forward(self.data)
-            loss_train = self.loss_fn(embedding, logits, self.train_mask)
-            loss_val = self.loss_fn(embedding, logits, self.val_mask)
-            loss_test = self.loss_fn(embedding, logits, self.test_mask)
-
+            for data in self.train_dataloader:
+                embedding, logits = self.model.forward(data)
+                loss_train += self.loss_fn(embedding, logits, torch.ones_like(data.y).bool())
+            for data in self.val_dataloader:
+                embedding, logits = self.model.forward(data)
+                loss_val = self.loss_fn(embedding, logits, torch.ones_like(data.y).bool())
+            for data in self.test_dataloader:
+                embedding, logits = self.model.forward(data)
+                loss_test = self.loss_fn(embedding, logits, torch.ones_like(data.y).bool())
         
         eval_output["embedding"] = embedding
         eval_output["logits"] = logits
-        eval_output["loss_train"] = loss_train
+        eval_output["loss_train"] = loss_train / len(self.train_dataloader)
         eval_output["loss_val"]   = loss_val
         eval_output["loss_test"]  = loss_test
         
