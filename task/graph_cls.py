@@ -6,9 +6,9 @@ from os import path as osp
 from utils.metrics import compute_supervised_metrics
 import os
 import torch
-from utils.task_utils import load_node_cls_default_model
+from utils.task_utils import load_graph_cls_default_model
 import pickle
-
+from torch_geometric.loader import DataLoader
 
     
 
@@ -75,7 +75,7 @@ class GraphClsTask(BaseTask):
         
     @property
     def default_model(self):            
-        return load_node_cls_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_classes, client_id=self.client_id)
+        return load_graph_cls_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_classes, client_id=self.client_id)
     
     @property
     def default_optim(self):
@@ -101,14 +101,9 @@ class GraphClsTask(BaseTask):
     
     @property
     def default_train_val_test_split(self):
-        if self.args.dataset[0] == "Cora":
-            return 0.2, 0.4, 0.4
-        elif self.args.dataset[0] == "CiteSeer":
-            return 0.2, 0.4, 0.4
-        elif self.args.dataset[0] == "PubMed":
-            return 0.2, 0.4, 0.4
-        elif self.args.dataset[0] == "Computers":
-            return 0.2, 0.4, 0.4
+        return 0.1, 0.1, 0.8
+        
+    
         
         
         
@@ -140,9 +135,16 @@ class GraphClsTask(BaseTask):
                     glb_test_data = pickle.load(file)
                     glb_test.append(glb_test_data)
                 
-            train_mask = idx_to_mask_tensor(glb_train, self.data.x.shape[0]).bool()
-            val_mask = idx_to_mask_tensor(glb_val, self.data.x.shape[0]).bool()
-            test_mask = idx_to_mask_tensor(glb_test, self.data.x.shape[0]).bool()
+            self.train_mask = idx_to_mask_tensor(glb_train, self.num_samples).bool()
+            self.val_mask = idx_to_mask_tensor(glb_val, self.num_samples).bool()
+            self.test_mask = idx_to_mask_tensor(glb_test, self.num_samples).bool()
+            
+            self.train_dataloader = DataLoader(self.data[self.train_mask], batch_size=self.args.batch_size, shuffle=True)
+            self.val_dataloader = DataLoader(self.data[self.val_mask], batch_size=self.args.batch_size, shuffle=False)
+            self.test_dataloader = DataLoader(self.data[self.test_mask], batch_size=self.args.batch_size, shuffle=False)
+            
+
+            
             
         else: # client
             train_path = osp.join(self.train_val_test_path, f"train_{self.client_id}.pt")
@@ -168,11 +170,11 @@ class GraphClsTask(BaseTask):
                 glb_val_id = []
                 glb_test_id = []
                 for id_train in train_mask.nonzero():
-                    glb_train_id.append(self.data.global_map[id_train])
+                    glb_train_id.append(self.data.global_map[id_train.item()])
                 for id_val in val_mask.nonzero():
-                    glb_val_id.append(self.data.global_map[id_val])
+                    glb_val_id.append(self.data.global_map[id_val.item()])
                 for id_test in test_mask.nonzero():
-                    glb_test_id.append(self.data.global_map[id_test])
+                    glb_test_id.append(self.data.global_map[id_test.item()])
                 with open(osp.join(self.train_val_test_path, f"glb_train_{self.client_id}.pkl"), 'wb') as file:
                     pickle.dump(glb_train_id, file)
                 with open(osp.join(self.train_val_test_path, f"glb_val_{self.client_id}.pkl"), 'wb') as file:
@@ -183,26 +185,28 @@ class GraphClsTask(BaseTask):
         self.train_mask = train_mask.to(self.device)
         self.val_mask = val_mask.to(self.device)
         self.test_mask = test_mask.to(self.device)
+        self.train_dataloader = DataLoader(self.data[self.train_mask], batch_size=self.args.batch_size, shuffle=True)
+        self.val_dataloader = DataLoader(self.data[self.val_mask], batch_size=self.args.batch_size, shuffle=False)
+        self.test_dataloader = DataLoader(self.data[self.test_mask], batch_size=self.args.batch_size, shuffle=False)
             
-            
-            
-    def local_subgraph_train_val_test_split(self, local_subgraph, split):
-        num_nodes = local_subgraph.x.shape[0]
+
+    def local_graph_train_val_test_split(self, local_graphs, split):
+        num_graphs = self.num_samples
         
         if split == "default_split":
             train_, val_, test_ = self.default_train_val_test_split
         else:
             train_, val_, test_ = extract_floats(split)
         
-        train_mask = idx_to_mask_tensor([], num_nodes)
-        val_mask = idx_to_mask_tensor([], num_nodes)
-        test_mask = idx_to_mask_tensor([], num_nodes)
-        for class_i in range(local_subgraph.num_classes):
-            class_i_node_mask = local_subgraph.y == class_i
-            num_class_i_nodes = class_i_node_mask.sum()
-            train_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask) [:int(train_ * num_class_i_nodes)], num_nodes)
-            val_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask)[int(train_ * num_class_i_nodes) : int((train_+val_) * num_class_i_nodes)], num_nodes)
-            test_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask)[int((train_+val_) * num_class_i_nodes): ], num_nodes)
+        train_mask = idx_to_mask_tensor([], num_graphs)
+        val_mask = idx_to_mask_tensor([], num_graphs)
+        test_mask = idx_to_mask_tensor([], num_graphs)
+        for class_i in range(local_graphs.num_classes):
+            class_i_graph_mask = local_graphs.y == class_i
+            num_class_i_graphs = class_i_graph_mask.sum()
+            train_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_graph_mask) [:int(train_ * num_class_i_graphs)], num_graphs)
+            val_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_graph_mask)[int(train_ * num_class_i_graphs) : int((train_+val_) * num_class_i_graphs)], num_graphs)
+            test_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_graph_mask)[int((train_+val_) * num_class_i_graphs): ], num_graphs)
         
         
         train_mask = train_mask.bool()

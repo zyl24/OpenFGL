@@ -4,14 +4,15 @@ import torch.nn.functional as F
 
 
 class GIN_dc(torch.nn.Module):
-    def __init__(self, input_dim, hid_dim, output_dim, dropout, args):
+    def __init__(self, input_dim, hid_dim, output_dim, n_se, num_layers=2, dropout=0.5):
         super(GIN_dc, self).__init__()
-        self.num_layers = args.nlayer
+        self.n_se = n_se
+        self.num_layers = num_layers
         self.dropout = dropout
 
         self.pre = torch.nn.Sequential(torch.nn.Linear(input_dim, hid_dim))
 
-        self.embedding_s = torch.nn.Linear(args.n_se, hid_dim)
+        self.embedding_s = torch.nn.Linear(n_se, hid_dim)
 
         self.graph_convs = torch.nn.ModuleList()
         self.nn1 = torch.nn.Sequential(torch.nn.Linear(hid_dim + hid_dim, hid_dim), torch.nn.ReLU(), torch.nn.Linear(hid_dim, hid_dim))
@@ -19,7 +20,7 @@ class GIN_dc(torch.nn.Module):
         self.graph_convs_s_gcn = torch.nn.ModuleList()
         self.graph_convs_s_gcn.append(GCNConv(hid_dim, hid_dim))
 
-        for l in range(args.nlayer - 1):
+        for l in range(num_layers - 1):
             self.nnk = torch.nn.Sequential(torch.nn.Linear(hid_dim + hid_dim, hid_dim), torch.nn.ReLU(), torch.nn.Linear(hid_dim, hid_dim))
             self.graph_convs.append(GINConv(self.nnk))
             self.graph_convs_s_gcn.append(GCNConv(hid_dim, hid_dim))

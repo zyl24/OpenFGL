@@ -15,8 +15,6 @@ class BaseTask:
             
         self.custom_loss_fn = None
 
-        
-        
         self.load_train_val_test_split()
     
     

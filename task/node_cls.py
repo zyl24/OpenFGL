@@ -101,20 +101,28 @@ class NodeClsTask(BaseTask):
     
     @property
     def default_train_val_test_split(self):
-        if self.args.dataset[0] == "Cora":
+        if self.client_id is None:
+            return None
+        
+        if len(self.args.dataset) > 1:
+            name = self.args.dataset[self.client_id]
+        else:
+            name = self.args.dataset[0]
+            
+        if name == "Cora":
             return 0.2, 0.4, 0.4
-        elif self.args.dataset[0] == "CiteSeer":
+        elif name == "CiteSeer":
             return 0.2, 0.4, 0.4
-        elif self.args.dataset[0] == "PubMed":
+        elif name == "PubMed":
             return 0.2, 0.4, 0.4
-        elif self.args.dataset[0] == "Computers":
+        elif name == "Computers":
             return 0.2, 0.4, 0.4
         
         
         
     @property
     def train_val_test_path(self):
-        return osp.join(self.data_dir, "node_cls")
+        return osp.join(self.data_dir, f"node_cls")
     
 
     def load_train_val_test_split(self):
@@ -140,9 +148,9 @@ class NodeClsTask(BaseTask):
                     glb_test_data = pickle.load(file)
                     glb_test += glb_test_data
                 
-            train_mask = idx_to_mask_tensor(glb_train, self.data.x.shape[0]).bool()
-            val_mask = idx_to_mask_tensor(glb_val, self.data.x.shape[0]).bool()
-            test_mask = idx_to_mask_tensor(glb_test, self.data.x.shape[0]).bool()
+            train_mask = idx_to_mask_tensor(glb_train, self.num_samples).bool()
+            val_mask = idx_to_mask_tensor(glb_val, self.num_samples).bool()
+            test_mask = idx_to_mask_tensor(glb_test, self.num_samples).bool()
             
         else: # client
             train_path = osp.join(self.train_val_test_path, f"train_{self.client_id}.pt")

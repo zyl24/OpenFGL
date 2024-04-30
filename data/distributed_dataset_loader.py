@@ -4,6 +4,7 @@ from data.global_dataset_loader import load_global_dataset
 from torch_geometric.data import Dataset
 import copy
 import torch
+import json
 
 class FGLDataset(Dataset):
     def __init__(self, args, transform=None, pre_transform=None, pre_filter=None):
@@ -57,13 +58,21 @@ class FGLDataset(Dataset):
     
     @property
     def processed_dir(self) -> str:
-        
+        if self.args.simulation_mode in ["fedsubgraph_label_dirichlet", "fedgraph_label_dirichlet"]:
+            simulation_name = f"{self.args.simulation_mode}_{self.args.dirichlet_alpha:.2f}"
+        elif self.args.simulation_mode in ["fedsubgraph_louvain_clustering"]:
+            simulation_name = f"{self.args.simulation_mode}_{self.args.louvain_resolution}"
+        elif self.args.simulation_mode in ["fedsubgraph_metis_clustering"]:
+            simulation_name = f"{self.args.simulation_mode}_{self.args.metis_num_coms}"
+        else:
+            simulation_name = self.args.simulation_mode
+            
         fmt_dataset_list = copy.deepcopy(self.args.dataset)
         fmt_dataset_list = sorted(fmt_dataset_list)
+           
         
-        # self.root/distrib/fedsubgraph_louvain_clustering_Cora_client_5
         return osp.join(self.distrib_root,
-                        "_".join([self.args.simulation_mode, "_".join(fmt_dataset_list), f"client_{self.args.num_clients}"]))
+                        "_".join([simulation_name, "_".join(fmt_dataset_list), f"client_{self.args.num_clients}"]))
         
                             
     @property
@@ -110,8 +119,15 @@ class FGLDataset(Dataset):
         
         for client_id in range(self.args.num_clients):
             self.save_client_data(self.local_data[client_id], client_id)
+            
+        self.save_dataset_description()
         
-
+    def save_dataset_description(self):
+        file_path = os.path.join(self.processed_dir, "description.txt")
+        args_str = json.dumps(vars(self.args), indent=4)
+        with open(file_path, 'w') as file:
+            file.write(args_str)
+            print(f"Saved dataset arguments to {file_path}.")
 
 
     def load_data(self):
