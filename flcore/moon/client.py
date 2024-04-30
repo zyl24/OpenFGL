@@ -16,8 +16,8 @@ class MoonClient(BaseClient):
         
         
     def get_custom_loss_fn(self):
-        def custom_loss_fn(embedding, logits, mask):
-            task_loss = self.task.default_loss_fn(logits[mask], self.task.data.y[mask])
+        def custom_loss_fn(embedding, logits, label, mask):
+            task_loss = self.task.default_loss_fn(logits[mask], label[mask])
             if self.message_pool["round"] != 0:
                 sim_global = torch.cosine_similarity(embedding, self.global_embedding, dim=-1).view(-1, 1)
                 sim_prev = torch.cosine_similarity(embedding, self.prev_local_embedding, dim=-1).view(-1, 1)

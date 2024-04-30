@@ -3,7 +3,7 @@ from flcore.base import BaseServer
 from collections import defaultdict, OrderedDict
 import numpy as np
 from scipy.spatial.distance import cosine
-from maskedgcn import MaskedGCN
+from flcore.fedpub.maskedgcn import MaskedGCN
 
 def from_networkx(G, group_node_attrs=None, group_edge_attrs=None):
     import networkx as nx
@@ -104,7 +104,7 @@ class FedPubServer(BaseServer):
 
 
     def get_custom_model(self):
-        return MaskedGCN(self.args, input_dim=self.task.num_feats, output_dim=self.task.num_classes, client_id=self.client_id)
+        return MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes).to(self.device)
     
     def execute(self):
         local_embeddings = []

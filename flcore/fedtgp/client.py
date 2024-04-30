@@ -16,19 +16,19 @@ class FedTGPClient(BaseClient):
 
 
     def get_custom_loss_fn(self):
-        def custom_loss_fn(embedding, logits, mask):
+        def custom_loss_fn(embedding, logits, label, mask):
             if self.message_pool["round"] == 0:
-                return self.task.default_loss_fn(logits[mask], self.task.data.y[mask]) 
+                return self.task.default_loss_fn(logits[mask], label[mask]) 
             else:
                 loss_fedtgp = 0
                 for class_i in range(self.task.data.num_classes):
-                    selected_idx = self.task.train_mask & (self.task.data.y == class_i)
+                    selected_idx = self.task.train_mask & (label == class_i)
                     if selected_idx.sum() == 0:
                         continue
                     input = embedding[selected_idx]
                     target = self.message_pool["server"]["global_prototype"][class_i].expand_as(input)
                     loss_fedtgp += nn.MSELoss()(input, target)
-                return self.task.default_loss_fn(logits[mask], self.task.data.y[mask]) + self.fedtgp_lambda * loss_fedtgp
+                return self.task.default_loss_fn(logits[mask], label[mask]) + self.fedtgp_lambda * loss_fedtgp
         return custom_loss_fn    
     
     
