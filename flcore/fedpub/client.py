@@ -65,8 +65,7 @@ class FedPubClient(BaseClient):
             "functional_embedding" : self.get_functional_embedding()
         }
 
-    def personalized_evaluate(self):
-        return self.task.evaluate()
+
 
 
 
