@@ -1,15 +1,12 @@
 import torch
-import torch.nn as nn
 from flcore.base import BaseClient
-import copy
+from flcore.feddc.feddc_config import config
 
 
 
 class FedDCClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedDCClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
-        
-        self.feddc_alpha = 1e-1
             
         self.local_drift = [torch.zeros_like(p, requires_grad=False) for p in self.task.model.parameters()]
         self.last_update = [torch.zeros_like(p, requires_grad=False) for p in self.task.model.parameters()]
@@ -27,7 +24,7 @@ class FedDCClient(BaseClient):
                     loss_drift += torch.sum(torch.pow(drift_param + local_state - global_state, 2))
                     loss_grad += torch.sum(local_state * update_param - avg_param)
             
-                return task_loss + (self.feddc_alpha / 2) * loss_drift + (1/(self.args.lr * self.args.num_epochs)) * loss_grad  
+                return task_loss + (config["feddc_alpha"] / 2) * loss_drift + (1/(self.args.lr * self.args.num_epochs)) * loss_grad  
             else:
                 return task_loss
         
