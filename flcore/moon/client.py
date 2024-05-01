@@ -1,16 +1,13 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
-
+from flcore.moon.moon_config import config
 
 
 
 class MoonClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(MoonClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
-        
-        self.moon_mu = 1
-        self.temperature = 0.5
         self.prev_local_embedding = None
         self.global_embedding = None
         
@@ -21,10 +18,10 @@ class MoonClient(BaseClient):
             if self.message_pool["round"] != 0:
                 sim_global = torch.cosine_similarity(embedding, self.global_embedding, dim=-1).view(-1, 1)
                 sim_prev = torch.cosine_similarity(embedding, self.prev_local_embedding, dim=-1).view(-1, 1)
-                logits = torch.cat((sim_global, sim_prev), dim=1) / self.temperature
+                logits = torch.cat((sim_global, sim_prev), dim=1) / config["temperature"]
                 lbls = torch.zeros(embedding.size(0)).to(self.device).long()
                 contrastive_loss = nn.CrossEntropyLoss()(logits ,lbls)
-                moon_loss = self.moon_mu * contrastive_loss
+                moon_loss = config["moon_mu"] * contrastive_loss
                 return task_loss + moon_loss
             else:
                 return task_loss
