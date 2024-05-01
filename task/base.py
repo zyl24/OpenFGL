@@ -8,10 +8,8 @@ class BaseTask:
         self.args = args
         self.device = device
         self.model = self.default_model
-        
-        if self.model is not None:
-            self.model = self.model.to(device)
-            self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
+        self.model = self.model.to(device)
+        self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
 
         self.load_train_val_test_split()
     
@@ -49,5 +47,10 @@ class BaseTask:
 
     def load_train_val_test_split(self):
         raise NotImplementedError
+    
+    def load_custom_model(self, custom_model):
+        self.model = custom_model.to(self.device)
+        self.optim = self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
+
             
             

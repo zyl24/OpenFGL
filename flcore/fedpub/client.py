@@ -8,7 +8,7 @@ from flcore.fedpub.maskedgcn import MaskedGCN
 class FedPubClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedPubClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
-        self.task.model = MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, l1=config["l1"], laye_mask_one=config["laye_mask_one"], clsf_mask_one=config["clsf_mask_one"]).to(self.device)
+        self.task.load_custom_model(MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, l1=config["l1"], laye_mask_one=config["laye_mask_one"], clsf_mask_one=config["clsf_mask_one"]))
         
         
         

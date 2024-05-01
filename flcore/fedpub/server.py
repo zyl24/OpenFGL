@@ -95,7 +95,7 @@ class FedPubServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
         super(FedPubServer, self).__init__(args, global_data, data_dir, message_pool, device)
         self.proxy = self.get_proxy_data(self.task.num_feats)
-        self.task.model = MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, l1=config["l1"], laye_mask_one=config["laye_mask_one"], clsf_mask_one=config["clsf_mask_one"]).to(self.device)
+        self.task.load_custom_model(MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, l1=config["l1"], laye_mask_one=config["laye_mask_one"], clsf_mask_one=config["clsf_mask_one"]))
         
         
         
