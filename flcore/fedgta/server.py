@@ -1,13 +1,12 @@
 import copy
 import torch
 from flcore.base import BaseServer
-from collections import OrderedDict
+from flcore.fedgta.fedgta_config import config
 
 
 class FedGTAServer(BaseServer):
-    def __init__(self, args, global_data, data_dir, message_pool, device, accept_alpha=0.5):
+    def __init__(self, args, global_data, data_dir, message_pool, device):
         super(FedGTAServer, self).__init__(args, global_data, data_dir, message_pool, device)
-        self.accept_alpha = accept_alpha
         self.aggregated_models = [copy.deepcopy(self.task.model) for _ in range(self.args.num_clients)]
         
         
@@ -18,7 +17,7 @@ class FedGTAServer(BaseServer):
             sim = torch.tensor([torch.cosine_similarity(self.message_pool[f"client_{client_id}"]["lp_moment_v"], 
                                                         self.message_pool[f"client_{target_id}"]["lp_moment_v"], dim=0) 
                                 for target_id in self.message_pool["sampled_clients"]]).to(self.device)
-            accept_idx = torch.where(sim > self.accept_alpha)
+            accept_idx = torch.where(sim > config["accept_alpha"])
             agg_client_list[client_id] = accept_idx[0].tolist()
         
         

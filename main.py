@@ -16,7 +16,7 @@ args.simulation_mode = "fedsubgraph_label_dirichlet"
 args.task = "node_cls"
 args.model = ["gcn"]
 args.dataset = ["Cora"]
-args.fl_algorithm = "fedavg"
+args.fl_algorithm = "fedgta"
 args.evaluation_mode = "personalized" 
 
 
