@@ -3,7 +3,10 @@ from flcore.base import BaseServer
 from collections import defaultdict, OrderedDict
 import numpy as np
 from scipy.spatial.distance import cosine
+from flcore.fedpub.fedpub_config import config
 from flcore.fedpub.maskedgcn import MaskedGCN
+
+
 
 def from_networkx(G, group_node_attrs=None, group_edge_attrs=None):
     import networkx as nx
@@ -88,24 +91,14 @@ def from_networkx(G, group_node_attrs=None, group_edge_attrs=None):
 
     return data
 
-
-
-
-
 class FedPubServer(BaseServer):
-    def __init__(self, args, global_data, data_dir, message_pool, device, agg_norm='exp', norm_scale=10, n_proxy=5):
+    def __init__(self, args, global_data, data_dir, message_pool, device):
         super(FedPubServer, self).__init__(args, global_data, data_dir, message_pool, device)
-        self.agg_norm = agg_norm
-        self.norm_scale = norm_scale
-        self.n_proxy = n_proxy
-        self.task.model = self.get_custom_model()
         self.proxy = self.get_proxy_data(self.task.num_feats)
-
-
-
-    def get_custom_model(self):
-        return MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes).to(self.device)
-    
+        self.task.model = MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, l1=config["l1"], laye_mask_one=config["laye_mask_one"], clsf_mask_one=config["clsf_mask_one"]).to(self.device)
+        
+        
+        
     def execute(self):
         local_embeddings = []
         local_weights = []
@@ -122,8 +115,8 @@ class FedPubServer(BaseServer):
             for j in range(n_connected):
                 sim_matrix[i, j] = 1 - cosine(local_embeddings[i], local_embeddings[j])
 
-        if self.agg_norm == 'exp':
-            sim_matrix = np.exp(self.norm_scale * sim_matrix)
+        if config["agg_norm"] == 'exp':
+            sim_matrix = np.exp(config["norm_scale"] * sim_matrix)
 
         row_sums = sim_matrix.sum(axis=1)
         sim_matrix = sim_matrix / row_sums[:, np.newaxis]
@@ -174,7 +167,7 @@ class FedPubServer(BaseServer):
     def get_proxy_data(self, n_feat):
         import networkx as nx
 
-        num_graphs, num_nodes = self.n_proxy, 100
+        num_graphs, num_nodes = config["n_proxy"], 100
         data = from_networkx(nx.random_partition_graph([num_nodes] * num_graphs, p_in=0.1, p_out=0, seed=self.args.seed))
         data.x = torch.normal(mean=0, std=1, size=(num_nodes * num_graphs, n_feat))
         return data

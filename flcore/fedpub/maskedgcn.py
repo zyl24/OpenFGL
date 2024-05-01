@@ -130,7 +130,7 @@ class MaskedGCNConv(MessagePassing):
     def __init__(self, in_channels: int, out_channels: int,
                  improved: bool = False, cached: bool = False,
                  add_self_loops: bool = True, normalize: bool = True,
-                 bias: bool = True, l1=1e-3, laye_mask_one = 1, **kwargs):
+                 bias: bool = True, l1=1e-3, laye_mask_one=True, **kwargs):
 
         kwargs.setdefault('aggr', 'add')
         super().__init__(**kwargs)
@@ -398,7 +398,7 @@ class MaksedGCNLinear(torch.nn.Module):
 
 
 class MaskedLinear(torch.nn.Module):
-    def __init__(self, d_i, d_o, l1=1e-3, clsf_mask_one=1):
+    def __init__(self, d_i, d_o, l1=1e-3, clsf_mask_one=True):
         super(MaskedLinear, self).__init__()
         self.d_i = d_i
         self.d_o = d_o
@@ -431,7 +431,7 @@ class MaskedLinear(torch.nn.Module):
         return F.linear(input, weight, self.bias)
 
 class MaskedGCN(torch.nn.Module):
-    def __init__(self, input_dim=10, hid_dim=128, output_dim=10, l1=1e-3, laye_mask_one=1, clsf_mask_one=1):
+    def __init__(self, input_dim=10, hid_dim=128, output_dim=10, l1=1e-3, laye_mask_one=True, clsf_mask_one=True):
         super().__init__()
         self.n_feat = input_dim
         self.n_dims = hid_dim

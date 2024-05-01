@@ -1,29 +1,27 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
+from flcore.fedpub.fedpub_config import config
 from flcore.fedpub.maskedgcn import MaskedGCN
 
 
 class FedPubClient(BaseClient):
-    def __init__(self, args, client_id, data, data_dir, message_pool, device, l1=1e-3, loc_l2=1e-3):
+    def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedPubClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
-        self.l1 = l1
-        self.loc_l2 = loc_l2
-        self.task.model = self.get_custom_model()
-
-    def get_custom_model(self):
-        return MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes).to(self.device)
-    
-    
+        self.task.model = MaskedGCN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, l1=config["l1"], laye_mask_one=config["laye_mask_one"], clsf_mask_one=config["clsf_mask_one"]).to(self.device)
+        
+        
+        
+        
     def get_custom_loss_fn(self):
         def custom_loss_fn(embedding, logits, label, mask):
             loss = torch.nn.functional.cross_entropy(logits[mask], label[mask])
             for name, param in self.task.model.state_dict().items():
                 if 'mask' in name:
-                    loss += torch.norm(param.float(), 1) * self.l1
+                    loss += torch.norm(param.float(), 1) * config["l1"]
                 elif 'conv' in name or 'clsif' in name:
                     if self.message_pool['round'] == 0: continue
-                    loss += torch.norm(param.float() - self.prev_w[name], 2) * self.loc_l2
+                    loss += torch.norm(param.float() - self.prev_w[name], 2) * config["loc_l2"]
             return loss
         return custom_loss_fn
 
@@ -66,6 +64,9 @@ class FedPubClient(BaseClient):
             "weight": self.task.model.state_dict(),
             "functional_embedding" : self.get_functional_embedding()
         }
+
+    def personalized_evaluate(self):
+        return self.task.evaluate()
 
 
 
