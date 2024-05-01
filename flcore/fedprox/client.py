@@ -1,21 +1,19 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
-
+from flcore.fedprox.fedprox_config import config
 
 
 
 class FedProxClient(BaseClient):
-    def __init__(self, args, client_id, data, data_dir, message_pool, device, fedprox_mu=1e-3):
+    def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedProxClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
-        self.fedprox_mu = fedprox_mu
-        
         
     def get_custom_loss_fn(self):
         def custom_loss_fn(embedding, logits, label, mask):
             loss_fedprox = 0
             for local_param, global_param in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
-                loss_fedprox += self.fedprox_mu / 2 * (local_param - global_param).norm(2)**2
+                loss_fedprox += config["fedprox_mu"] / 2 * (local_param - global_param).norm(2)**2
             return self.task.default_loss_fn(logits[mask], label[mask]) + loss_fedprox
         
         return custom_loss_fn    
