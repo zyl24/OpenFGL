@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
+from flcore.fedproto.fedproto_config import config
 
 class FedProtoClient(BaseClient):
-    def __init__(self, args, client_id, data, data_dir, message_pool, device, fedproto_lambda=1):
+    def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedProtoClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
-        self.fedproto_lambda = fedproto_lambda
         self.local_prototype = {}
     
     
@@ -28,7 +28,7 @@ class FedProtoClient(BaseClient):
                     input = embedding[selected_idx]
                     target = self.message_pool["server"]["global_prototype"][class_i].expand_as(input)
                     loss_fedproto += nn.MSELoss()(input, target)
-                return self.task.default_loss_fn(logits[mask], label[mask]) + self.fedproto_lambda * loss_fedproto 
+                return self.task.default_loss_fn(logits[mask], label[mask]) + config["fedproto_lambda"] * loss_fedproto 
         return custom_loss_fn    
     
     
