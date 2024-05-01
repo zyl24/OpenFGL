@@ -67,7 +67,7 @@ parser.add_argument("--simulation_mode", type=str, default="fedgraph_label_diric
 parser.add_argument("--dirichlet_alpha", type=float, default=10)
 parser.add_argument("--dirichlet_try_cnt", type=int, default=100)
 parser.add_argument("--least_samples", type=int, default=5)
-parser.add_argument("--louvain_resolution", type=float, default=10)
+parser.add_argument("--louvain_resolution", type=float, default=1)
 parser.add_argument("--metis_num_coms", type=float, default=100)
 
 # task settings

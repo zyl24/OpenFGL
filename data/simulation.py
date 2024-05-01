@@ -233,3 +233,29 @@ def fedsubgraph_metis_clustering(args, global_dataset):
     
     
 
+
+
+def fedsubgraph_metis(args, global_dataset):
+    print("Conducting fedsubgraph metis simulation...")
+    assert args.metis_num_coms == args.num_clients, f"args.metis_num_coms should be equal to args.num_clients."
+    
+    graph_nx = to_networkx(global_dataset[0], to_undirected=True)
+    communities = {com_id: {"nodes":[], "num_nodes":0, "label_distribution":[0] * global_dataset.num_classes} 
+                            for com_id in range(args.metis_num_coms)}
+    
+    n_cuts, membership = metis.part_graph(args.metis_num_coms, graph_nx)
+    
+    for com_id in range(args.metis_num_coms):
+        com_indices = np.where(np.array(membership) == com_id)[0]
+        com_indices = list(com_indices)
+        
+    local_data = []
+    
+    for client_id in range(args.num_clients):
+        local_subgraph = get_subgraph_pyg_data(args, global_dataset, com_indices[client_id])
+        local_data.append(local_subgraph)
+    
+    return local_data
+    
+    
+

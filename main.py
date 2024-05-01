@@ -12,11 +12,11 @@ print(args)
 # args.evaluation_mode = "personalized" 
 
 args.scenario = "fedsubgraph"
-args.simulation_mode = "fedsubgraph_label_dirichlet"
+args.simulation_mode = "fedsubgraph_louvain_clustering"
 args.task = "node_cls"
 args.model = ["gcn"]
 args.dataset = ["Cora"]
-args.fl_algorithm = "fedgta"
+args.fl_algorithm = "fedpub"
 args.evaluation_mode = "personalized" 
 
 
