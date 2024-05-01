@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
+from flcore.fedtgp.fedtgp_config import config
 
 class FedTGPClient(BaseClient):
-    def __init__(self, args, client_id, data, data_dir, message_pool, device, fedtgp_lambda=1):
+    def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedTGPClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
-        self.fedtgp_lambda = fedtgp_lambda
         self.local_prototype = {}
     
     
@@ -28,7 +28,7 @@ class FedTGPClient(BaseClient):
                     input = embedding[selected_idx]
                     target = self.message_pool["server"]["global_prototype"][class_i].expand_as(input)
                     loss_fedtgp += nn.MSELoss()(input, target)
-                return self.task.default_loss_fn(logits[mask], label[mask]) + self.fedtgp_lambda * loss_fedtgp
+                return self.task.default_loss_fn(logits[mask], label[mask]) + config["fedtgp_lambda"] * loss_fedtgp
         return custom_loss_fn    
     
     
