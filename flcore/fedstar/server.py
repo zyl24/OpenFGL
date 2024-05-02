@@ -1,10 +1,15 @@
 import torch
 from flcore.base import BaseServer
 from flcore.fedstar._utils import init_structure_encoding
+from flcore.fedstar.gin_dc import DecoupledGIN
+from flcore.fedstar.fedstar_config import config
+
 
 class FedStarServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
         super(FedStarServer, self).__init__(args, global_data, data_dir, message_pool, device)
+        self.task.load_custom_model(DecoupledGIN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, n_se=config["n_rw"] + config["n_dg"], num_layers=self.args.num_layers, dropout=self.args.dropout).to(self.device))
+
 
     def execute(self):
         with torch.no_grad():

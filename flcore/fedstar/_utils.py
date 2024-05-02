@@ -3,7 +3,7 @@ from torch_geometric.utils import degree, to_scipy_sparse_matrix
 from scipy import sparse as sp
 
 def init_structure_encoding(n_rw, n_dg, gs, type_init):
-
+    tmp = []
     if type_init == 'rw':
         for gg in gs:
             # Geometric diffusion features with Random Walk
@@ -23,6 +23,7 @@ def init_structure_encoding(n_rw, n_dg, gs, type_init):
             SE_rw=torch.stack(SE_rw,dim=-1)
 
             gg['stc_enc'] = SE_rw.to(gg.x.device)
+            tmp.append(gg)
 
     elif type_init == 'dg':
         for gg in gs:
@@ -60,6 +61,8 @@ def init_structure_encoding(n_rw, n_dg, gs, type_init):
                 SE_dg[i,int(g_dg[i]-1)] = 1
 
             gg['stc_enc'] = torch.cat([SE_rw, SE_dg], dim=1).to(gg.x.device)
+            tmp.append(gg)
 
 
-    return gs
+
+    return tmp
