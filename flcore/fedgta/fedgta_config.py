@@ -10,4 +10,4 @@ config = {
     "accept_alpha": 0.5
 }
 
-assert config["moment_type"] in supported_moment_type
+assert config["moment_type"] in supported_moment_type, "Invalid value of argument 'moment_type' for FedGTA algorithm."
