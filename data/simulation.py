@@ -43,6 +43,7 @@ def fedgraph_cross_domain(args, global_dataset):
     local_data = []
     for client_id in range(args.num_clients):
         local_graphs = global_dataset[client_id] # list(InMemoryDataset) -> InMemoryDataset
+        local_graphs.num_global_classes = global_dataset[client_id].num_classes
         local_data.append(local_graphs)
     return local_data
 

@@ -142,8 +142,8 @@ class FGLDataset(Dataset):
             self.global_data.num_global_classes = global_dataset.num_classes
             
             
-        # else:
-            # global_dataset = [load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=dataset_i) for dataset_i in self.args.dataset]
+        else:
+            self.global_data = None
         
         
         
