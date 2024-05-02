@@ -39,6 +39,8 @@ Here we present a summary of papers in the FGL field.
 | Federated Graph Classification over Non-IID Graphs | NeurIPS  | 2021 | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) [[Code]](https://github.com/Oxfordblue7/GCFL)  |
 |Federated Learning on Non-IID Graphs via Structural Knowledge Sharing| AAAI| 2023| [[Paper]](https://ojs.aaai.org/index.php/AAAI/article/view/26187) [[Code]](https://github.com/yuetan031/fedstar) |
 
+    
+    
 </details>
 
 
@@ -83,9 +85,59 @@ Here we present a summary of papers in the FGL field.
 Here we categorize various commonly used graph datasets in recent FGL studies
 
 
-| Name | Node Feature | Node Label | Edge Feature | Edge Label | Graph Label | # Graphs | Materials |
-| ---- | ------------ | ---------- | ------------ | ---------- | ---------- | -------- | --------- |
-|      |              |            |              |            |            |          |           |
+| Name | Node Feature | Node Label | Edge Feature | Edge Label | Graph Label | Nodes | Edges    | Graphs | Materials|
+| ----------- | ------------ | ---------- | ------------ | ---------- | ----------- | ------ | --- | ------ | -------------------- |
+| Cora | 1433 | 7          | -            | -       | -           | 2708   | 5429    | 1      | [[Paper]](https://arxiv.org/abs/1603.08861)                                                              |
+| Citeseer    | 3703         | 6          | -            | -  | -           | 3327   | 4732   | 1      | [[Paper]](https://arxiv.org/abs/1603.08861)                                                              |
+| Pubmed      | 500          | 3          | -            |   -    | -           | 19717  |44338   | 1      | [[Paper]](https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/2157)                        |
+| NELL        | 5414         | 210        | -            |  -   | -           | 65755  | 66144   | 1      | [[Paper]](https://ojs.aaai.org/index.php/AAAI/article/view/7519)                                         |
+| MUTAG       |             | -          | -            | -      | 2           | 17.93  | 19.79 | 188    | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| BZR         |             | -          | -            | -      | 2           | 35.75  | 38.36  | 405    | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| COX2        |             | -          | -            | -      | 2           | 41.22  | 43.45 | 467    | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| DHFR        |             | -          | -            | -      | 2           | 42.43  | 44.54 | 467    | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| PTC_MR      |             | -          | -            | -     | 2           | 14.29  |14.69  | 344    | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| AIDS        |             | -          | -            | -  | 2           | 15.69  |16.20    | 2000   | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| NCI1        |             | -          | -            | -  | 2           | 29.87  |32.30     | 4110   | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| ENZYMES     |             | -          | -            |- | 6           | 32.63  | 62.14    | 600    | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| DD          |             | -          | -            | - | 2           | 284.32 |715.66   | 1178   | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| PROTEINS    |             | -          | -            | -  | 2           | 39.06  |72.82    | 1113   | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| COLLAB      |             | -          | -            | - | 3           | 74.49  | 2457.78    | 5000   | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| IMDB-BINARY |             | -          | -            | - | 2           | 19.77  | 96.53      | 1000   | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html) |
+| IMDB-MULTI  |             | -          | -            | - | 3           | 13.00  |65.94      | 1500   | [[Paper]](https://proceedings.neurips.cc/paper/2021/hash/9c6947bd95ae487c81d4e19d3ed8cd6f-Abstract.html)|
+| Amazon Photo | 745 | 8 | - | - | - | 7487 | 119043 | 1 | [[Paper]](https://arxiv.org/abs/1811.05868)|
+| Amazon Computer | 767 | 10 | - | - | - | 13381 | 245778 | 1 | [[Paper]](https://arxiv.org/abs/1811.05868)|
+| Coauthor CS | 6805 | 15 | - | - | - | 18333 | 81894 | 1 | [[Paper]](https://arxiv.org/abs/1811.05868)|
+| Coauthor Physics | 8415 | 5 | - | - | - | 34493 | 247962 | 1 | [[Paper]](https://arxiv.org/abs/1811.05868)|
+| Chameleon | 2325 | 5 | - | - | - | 2277 | 36101 | 1 | [[Paper]](https://arxiv.org/abs/2002.05287)|
+| Squirrel | 2089 | 5 | - | - | - | 5201 | 216933 | 1 | [[Paper]](https://arxiv.org/abs/2002.05287)|
+| Tolokers | 10 | 2 | - | - | - | 11758 | 519000 | 1 | [[Paper]](https://arxiv.org/abs/2302.11640)|
+| Actor | 931 | 5 | - | - | - | 7600 | 29926 | 1 | [[Paper]](https://arxiv.org/abs/2002.05287)|
+| Roman-empire | 300 | 18 | - | - | - | 22662 | 32927 | 1 | [[Paper]](https://arxiv.org/abs/2302.11640)|
+| Amazon-rating | 300 | 5 | - | - | - | 24492 | 93050 | 1 | [[Paper]](https://arxiv.org/abs/2302.11640)|
+| Ogbn-arxiv | 128 | 40 | - | - | - | 169343 | 2315598 | 1 | [[Paper]](https://proceedings.neurips.cc/paper/2020/hash/fb60d411a5c5b72b2e7d3527cfc84fd0-Abstract.html)|
+| Ogbn-products | 100 | 47 | - | - | - | 2449029 | 61859140 | 1 | [[Paper]](https://proceedings.neurips.cc/paper/2020/hash/fb60d411a5c5b72b2e7d3527cfc84fd0-Abstract.html)|
+| Genius |  | 2 | - | - | - | 421961 | 922868 | 1 | [[Paper]](https://ojs.aaai.org/index.php/ICWSM/article/view/18068)|
+| DBLP | - | 4 | - | - | - | 26128 | 239566 | 1 | [[Paper]](https://openreview.net/forum?id=Qs81lLhOor)|
+| ACM | - | 3 | - | - | - | 10942 | 547872 | 1 | [[Paper]](https://openreview.net/forum?id=Qs81lLhOor)|
+| IMDB | - | 5 | - | - | - | 21420 | 86642 | 1 | [[Paper]](https://openreview.net/forum?id=Qs81lLhOor)|
+| Freebase | - | 7 | - | - | - | 180098 | 1057688 | 1 | [[Paper]](https://openreview.net/forum?id=Qs81lLhOor)|
+| Ogbn-mag | - | 349 | - | - | - | 1939743 | 21111007 | 1 | [[Paper]](https://arxiv.org/abs/2103.09430)|
+| DBLP-dm | 200 | 12 | - | - | - | 46582 | 7097924 | 1 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3543507.3583471)|
+| PubMed-diabetes | 200 | 3 | - | - | - | 13778 | 588529 | 1 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3543507.3583471)|
+| NELL | 2792 | 5 | - | - | - | 41671 | 39250315 | 1 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3543507.3583471)|
+| MIMIC3  | 6671 | 6 | - | - | - | 58495 | 30603469 | 1 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3543507.3583471)|
+| ACMv9  | 7537 | 6 | - | - | - | 7410 | 11135 | 1 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3366423.3380219)|
+| DBLPv8  | 7537 | 6 | - | - | - | 5578 | 7341 | 1 | [[Paper]](https://dl.acm.org/doi/abs/10.1145/3366423.3380219)|
+| Twitch  |  |  | - | - | - | 168114 | 6797557 | 1 | [[Paper]](https://arxiv.org/abs/2101.03091)|
+| FB15K-237  | - | - | - | 237 | - | 14541 | 310116 | 1 | [[Paper]](https://aclanthology.org/D15-1174/)|
+| WN18RR  | - | - | - | 11 | - | 40943 | 93003 | 1 | [[Paper]](https://proceedings.neurips.cc/paper/2013/hash/1cecc7a77928ca8133fa24680a88d2f9-Abstract.html)|
+| NELL-995  | - | - | - | 200 | - | 75492 | 154213 | 1 | [[Paper]](https://arxiv.org/abs/1707.06690)|
+| Name | Node Feature | Node Label | Edge Feature | Edge Label | Graph Label | Nodes | Edges    | Graphs | Materials|
+| FedDBLP  |  | 4 | - | 200 | - | 52202 | 271054 | 1 | [[Paper]](https://arxiv.org/abs/2204.05562)|
+| CSR  |  |  | - |  | - |  |  | 1 | [[Paper]](https://arxiv.org/abs/2204.05562)|
+| Wiki-CS  | 300 |  10 | - |  | - | 11701 | 216123 | 1 | [[Paper]](https://arxiv.org/abs/2007.02901)|
+| CoraFull  | 8710 | 70 | - |  | - | 19793 | 65311 | 1 | [[Paper]](https://arxiv.org/abs/1707.03815)|
+
 
 
 
