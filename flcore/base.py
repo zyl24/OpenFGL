@@ -19,10 +19,7 @@ class BaseClient:
     def send_message(self):
         raise NotImplementedError
 
-    def personalized_evaluate(self):
-        return self.task.evaluate()
-        
-    
+
 
 class BaseServer:
     def __init__(self, args, global_data, data_dir, message_pool, device):
@@ -40,5 +37,3 @@ class BaseServer:
     def send_message(self):
         raise NotImplementedError
     
-    def global_evaluate(self):
-        return self.task.evaluate()

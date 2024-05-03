@@ -17,6 +17,13 @@ class NodeClsTask(BaseTask):
         super(NodeClsTask, self).__init__(args, client_id, data, data_dir, device)
         self.step_preprocess = None
         
+        self.splitted_data = {
+            "data": self.data,
+            "train_mask": self.train_mask,
+            "val_mask": self.val_mask,
+            "test_mask": self.test_mask
+        }
+        
     def train(self):
         self.model.train()
         for _ in range(self.args.num_epochs):
@@ -29,17 +36,25 @@ class NodeClsTask(BaseTask):
                 self.step_preprocess()
             
             self.optim.step()
-            
+    
 
+    
+    def evaluate(self, splitted_data=None, mute=False):
+        if splitted_data is None:
+            splitted_data = self.splitted_data
+        else:
+            names = ["data", "train_mask", "val_mask", "test_mask"]
+            for name in names:
+                assert name in splitted_data
         
-    def evaluate(self, mute=False):
+        
         eval_output = {}
         self.model.eval()
         with torch.no_grad():
-            embedding, logits = self.model.forward(self.data)
-            loss_train = self.loss_fn(embedding, logits, self.data.y, self.train_mask)
-            loss_val = self.loss_fn(embedding, logits, self.data.y, self.val_mask)
-            loss_test = self.loss_fn(embedding, logits, self.data.y, self.test_mask)
+            embedding, logits = self.model.forward(splitted_data["data"])
+            loss_train = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["train_mask"])
+            loss_val = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["val_mask"])
+            loss_test = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["test_mask"])
 
         
         eval_output["embedding"] = embedding
@@ -49,9 +64,9 @@ class NodeClsTask(BaseTask):
         eval_output["loss_test"]  = loss_test
         
         
-        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.train_mask], labels=self.data.y[self.train_mask], suffix="train")
-        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.val_mask], labels=self.data.y[self.val_mask], suffix="val")
-        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[self.test_mask], labels=self.data.y[self.test_mask], suffix="test")
+        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["train_mask"]], labels=splitted_data["data"].y[splitted_data["train_mask"]], suffix="train")
+        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["val_mask"]], labels=splitted_data["data"].y[splitted_data["val_mask"]], suffix="val")
+        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["test_mask"]], labels=splitted_data["data"].y[splitted_data["test_mask"]], suffix="test")
         eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
         
         info = ""
@@ -60,12 +75,12 @@ class NodeClsTask(BaseTask):
                 info += f"\t{key}: {val:.4f}"
             except:
                 continue
-            
-                   
-            
+
         prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
-        print(prefix+info)
+        if not mute:
+            print(prefix+info)
         return eval_output
+    
     
     def loss_fn(self, embedding, logits, label, mask):
         return self.default_loss_fn(logits[mask], label[mask])

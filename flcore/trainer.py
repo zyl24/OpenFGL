@@ -32,24 +32,28 @@ class FGLTrainer:
             
         
             
-            if self.args.evaluation_mode == "personalized":
-                self.personalized_evaluation(round_id)
-            elif self.args.evaluation_mode == "global":
-                self.global_evaluation(round_id)
+            if self.args.evaluation_mode == "local_model_on_local_data":
+                self.eval_local_model_on_local_data()
+            elif self.args.evaluation_mode == "local_model_on_global_data":
+                self.eval_local_model_on_global_data()
+            elif self.args.evaluation_mode == "global_model_on_global_data":
+                self.eval_global_model_on_global_data()
+            elif self.args.evaluation_mode == "global_model_on_local_data":
+                self.eval_global_model_on_local_data()
             else:
                 raise ValueError
             
             
-    def global_evaluation(self, round_id):
-        result = self.server.global_evaluate()
+    def eval_global_model_on_global_data(self):
+        result = self.server.task.evaluate()
         global_val_acc, global_test_acc = result["accuracy_val"], result["accuracy_test"]
         
         if global_val_acc > self.best_val_acc:
             self.best_val_acc = global_val_acc
             self.best_test_acc = global_test_acc
-            self.best_round = round_id
+            self.best_round = self.message_pool["round"]
         
-        print(f"curr_round: {round_id}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
+        print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
         print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
         print("-"*50)
             
@@ -57,13 +61,13 @@ class FGLTrainer:
         
         
         
-    def personalized_evaluation(self, round_id):
+    def eval_local_model_on_local_data(self):
         global_val_acc = 0
         global_test_acc = 0
         tot_nodes = 0
         
         for client_id in range(self.args.num_clients):
-            result = self.clients[client_id].personalized_evaluate()
+            result = self.clients[client_id].task.evaluate()
             val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
             num_nodes = self.clients[client_id].task.num_samples
             global_val_acc += val_acc * num_nodes
@@ -75,9 +79,61 @@ class FGLTrainer:
         if global_val_acc > self.best_val_acc:
             self.best_val_acc = global_val_acc
             self.best_test_acc = global_test_acc
-            self.best_round = round_id
+            self.best_round = self.message_pool["round"]
         
-        print(f"curr_round: {round_id}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
+        print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
+        print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
+        print("-"*50)
+        
+        
+        
+    def eval_local_model_on_global_data(self):
+        global_val_acc = 0
+        global_test_acc = 0
+        tot_nodes = 0
+        
+        for client_id in range(self.args.num_clients):
+            result = self.clients[client_id].task.evaluate(self.server.task.splitted_data)
+            val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
+            num_nodes = self.clients[client_id].task.num_samples
+            global_val_acc += val_acc * num_nodes
+            global_test_acc += test_acc * num_nodes
+            tot_nodes += num_nodes
+        global_val_acc /= tot_nodes
+        global_test_acc /= tot_nodes
+        
+        if global_val_acc > self.best_val_acc:
+            self.best_val_acc = global_val_acc
+            self.best_test_acc = global_test_acc
+            self.best_round = self.message_pool["round"]
+        
+        print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
+        print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
+        print("-"*50)
+            
+    
+    
+    def eval_global_model_on_local_data(self):
+        global_val_acc = 0
+        global_test_acc = 0
+        tot_nodes = 0
+        
+        for client_id in range(self.args.num_clients):
+            result = self.server.task.evaluate(self.clients[client_id].task.splitted_data)
+            val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
+            num_nodes = self.clients[client_id].task.num_samples
+            global_val_acc += val_acc * num_nodes
+            global_test_acc += test_acc * num_nodes
+            tot_nodes += num_nodes
+        global_val_acc /= tot_nodes
+        global_test_acc /= tot_nodes
+        
+        if global_val_acc > self.best_val_acc:
+            self.best_val_acc = global_val_acc
+            self.best_test_acc = global_test_acc
+            self.best_round = self.message_pool["round"]
+        
+        print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
         print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
         print("-"*50)
             
@@ -85,6 +141,10 @@ class FGLTrainer:
     
     
     
+    
+        
+        
+        
     
         
         

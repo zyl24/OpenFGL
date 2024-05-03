@@ -17,6 +17,17 @@ class GraphClsTask(BaseTask):
         super(GraphClsTask, self).__init__(args, client_id, data, data_dir, device)
         self.step_preprocess = None
         
+        self.splitted_data = {
+            "data": self.data,
+            "train_dataloader": self.train_dataloader,
+            "val_dataloader": self.val_dataloader,
+            "test_dataloader": self.test_dataloader,
+            "train_mask": self.train_mask,
+            "val_mask": self.val_mask,
+            "test_mask": self.test_mask
+        }
+        
+        
     def train(self):
         self.model.train()
         for _ in range(self.args.num_epochs):
@@ -29,23 +40,30 @@ class GraphClsTask(BaseTask):
                     self.step_preprocess()
                 self.optim.step()
             
-
-        
-    def evaluate(self, mute=False):
+    def evaluate(self, splitted_data=None, mute=False):
+        if splitted_data is None:
+            splitted_data = self.splitted_data
+        else:
+            names = ["data", "train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
+            for name in names:
+                assert name in splitted_data
+                
         eval_output = {}
         self.model.eval()
         
+        num_samples = len(splitted_data["data"])
+        num_global_classes = splitted_data["data"].num_global_classes
         
-        embedding_all = torch.zeros((self.num_samples, self.args.hid_dim)).to(self.device)
-        logits_all = torch.zeros((self.num_samples, self.num_global_classes)).to(self.device)
+        embedding_all = torch.zeros((num_samples, self.args.hid_dim)).to(self.device)
+        logits_all = torch.zeros((num_samples, num_global_classes)).to(self.device)
         
-        train_idx = self.train_mask.nonzero().squeeze().tolist()
+        train_idx = splitted_data["train_mask"].nonzero().squeeze().tolist()
         if isinstance(train_idx, int):
             train_idx = [train_idx]
-        val_idx = self.val_mask.nonzero().squeeze().tolist()
+        val_idx = splitted_data["val_mask"].nonzero().squeeze().tolist()
         if isinstance(val_idx, int):
             val_idx = [val_idx]
-        test_idx = self.test_mask.nonzero().squeeze().tolist()
+        test_idx = splitted_data["test_mask"].nonzero().squeeze().tolist()
         if isinstance(test_idx, int):
             test_idx = [test_idx]
         
@@ -55,25 +73,25 @@ class GraphClsTask(BaseTask):
         test_cnt = 0
         
         with torch.no_grad():
-            for batch in self.train_dataloader:
+            for batch in splitted_data["train_dataloader"]:
                 embedding, logits = self.model.forward(batch)
                 embedding_all[train_idx[train_cnt:train_cnt+batch.num_graphs]] = embedding
                 logits_all[train_idx[train_cnt:train_cnt+batch.num_graphs]] = logits
                 train_cnt += batch.num_graphs
-            for batch in self.val_dataloader:
+            for batch in splitted_data["val_dataloader"]:
                 embedding, logits = self.model.forward(batch)
                 embedding_all[val_idx[val_cnt:val_cnt+batch.num_graphs]] = embedding
                 logits_all[val_idx[val_cnt:val_cnt+batch.num_graphs]] = logits
                 val_cnt += batch.num_graphs
-            for batch in self.test_dataloader:
+            for batch in splitted_data["test_dataloader"]:
                 embedding, logits = self.model.forward(batch)
                 embedding_all[test_idx[test_cnt:test_cnt+batch.num_graphs]] = embedding
                 logits_all[test_idx[test_cnt:test_cnt+batch.num_graphs]] = logits
                 test_cnt += batch.num_graphs
 
-            loss_train = self.loss_fn(embedding_all, logits_all, self.data.y, self.train_mask)
-            loss_val = self.loss_fn(embedding_all, logits_all, self.data.y, self.val_mask)
-            loss_test = self.loss_fn(embedding_all, logits_all, self.data.y, self.test_mask)
+            loss_train = self.loss_fn(embedding_all, logits_all, splitted_data["data"].y, splitted_data["train_mask"])
+            loss_val = self.loss_fn(embedding_all, logits_all, splitted_data["data"].y, splitted_data["val_mask"])
+            loss_test = self.loss_fn(embedding_all, logits_all, splitted_data["data"].y, splitted_data["test_mask"])
 
         eval_output["embedding"] = embedding_all
         eval_output["logits"] = logits_all
@@ -82,9 +100,9 @@ class GraphClsTask(BaseTask):
         eval_output["loss_test"]  = loss_test
         
         
-        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[self.train_mask], labels=self.data.y[self.train_mask], suffix="train")
-        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[self.val_mask], labels=self.data.y[self.val_mask], suffix="val")
-        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[self.test_mask], labels=self.data.y[self.test_mask], suffix="test")
+        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["train_mask"]], labels=splitted_data["data"].y[splitted_data["train_mask"]], suffix="train")
+        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["val_mask"]], labels=splitted_data["data"].y[splitted_data["val_mask"]], suffix="val")
+        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["test_mask"]], labels=splitted_data["data"].y[splitted_data["test_mask"]], suffix="test")
         eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
         
         info = ""
@@ -94,12 +112,12 @@ class GraphClsTask(BaseTask):
             except:
                 continue
             
-                   
-            
         prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
-        print(prefix+info)
+        if not mute:
+            print(prefix+info)
         return eval_output
     
+
     def loss_fn(self, embedding, logits, label, mask):
         return self.default_loss_fn(logits[mask], label[mask])
         

@@ -19,13 +19,13 @@ supported_fedgraph_task = ["graph_cls", "graph_reg"]
 supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
 
 
-supported_fl_algorithm = ["fedavg", "fedprox", "scaffold", "moon", "feddc", "fedproto", "fedtgp", "fedpub", "fedstar"]
+supported_fl_algorithm = ["fedavg", "fedprox", "scaffold", "moon", "feddc", "fedproto", "fedtgp", "fedpub", "fedstar", "fedgta", "fedtad"]
 
 
 supported_metrics = ["accuracy", "precision", "f1", "recall"]
 
 
-supported_evaluation_modes = ["personalized", "global"]
+supported_evaluation_modes = ["global_model_on_local_data", "global_model_on_global_data", "local_model_on_local_data", "local_model_on_global_data"]
 
 supported_data_processing = ["raw", "random_feature_mask", "link_random_response", "homo_random_injection", "hete_random_injection"]
 

@@ -12,13 +12,13 @@ print(args)
 # args.num_clients = 3
 # args.evaluation_mode = "personalized" 
 
-# args.scenario = "fedsubgraph"
-# args.simulation_mode = "fedsubgraph_louvain_clustering"
-# args.task = "node_cls"
-# args.model = ["gcn"]
-# args.dataset = ["Cora"]
-# args.fl_algorithm = "fedpub"
-# args.evaluation_mode = "personalized" 
+args.scenario = "fedsubgraph"
+args.simulation_mode = "fedsubgraph_louvain_clustering"
+args.task = "node_cls"
+args.model = ["gcn"]
+args.dataset = ["Cora"]
+args.fl_algorithm = "fedtad"
+args.evaluation_mode = "local_model_on_local_data" 
 
 
 
