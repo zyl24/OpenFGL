@@ -45,8 +45,21 @@ class FGLTrainer:
             
             
     def eval_global_model_on_global_data(self):
-        result = self.server.task.evaluate()
-        global_val_acc, global_test_acc = result["accuracy_val"], result["accuracy_test"]
+        if self.server.personalized:
+            global_val_acc = 0
+            global_test_acc = 0
+            
+            for client_id in range(self.args.num_clients):
+                self.server.switch_personzlied_global_model(client_id)
+                result = self.server.task.evaluate()
+                global_val_acc += result["accuracy_val"]
+                global_test_acc += result["accuracy_test"]
+                
+            global_val_acc /= self.args.num_clients
+            global_test_acc /= self.args.num_clients
+        else:
+            result = self.server.task.evaluate()
+            global_val_acc, global_test_acc = result["accuracy_val"], result["accuracy_test"]
         
         if global_val_acc > self.best_val_acc:
             self.best_val_acc = global_val_acc
@@ -62,6 +75,7 @@ class FGLTrainer:
         
         
     def eval_local_model_on_local_data(self):
+        # download -> local-train -> evaluate on local data
         global_val_acc = 0
         global_test_acc = 0
         tot_nodes = 0
@@ -88,6 +102,7 @@ class FGLTrainer:
         
         
     def eval_local_model_on_global_data(self):
+        # download -> local-train -> evaluate on global data
         global_val_acc = 0
         global_test_acc = 0
         tot_nodes = 0
@@ -114,11 +129,21 @@ class FGLTrainer:
     
     
     def eval_global_model_on_local_data(self):
+        # for non-personalized fl-algorithm:
+        # server: global model -> evaluate on local data
+        # client: download -> local-train -> evaluate on local data
+    
+        # for personalized fl-algorithm:
+        # server: personalized global model -> evaluate on local data
+        # client: download -> evaluate on local data
         global_val_acc = 0
         global_test_acc = 0
         tot_nodes = 0
         
         for client_id in range(self.args.num_clients):
+            if self.server.personalized:
+                self.server.switch_personalized_global_model(client_id)
+                
             result = self.server.task.evaluate(self.clients[client_id].task.splitted_data)
             val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
             num_nodes = self.clients[client_id].task.num_samples

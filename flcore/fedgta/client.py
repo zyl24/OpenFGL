@@ -12,7 +12,7 @@ from flcore.fedgta.fedgta_config import config
 
 class FedGTAClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(FedGTAClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
+        super(FedGTAClient, self).__init__(args, client_id, data, data_dir, message_pool, device, personalized=True)
         self.LP = LabelPropagation(num_layers=config["prop_steps"], alpha=config["lp_alpha"])
         self.num_neig = degree(data.edge_index[0], num_nodes=data.num_nodes, dtype=torch.long) + degree(data.edge_index[1], num_nodes=data.num_nodes, dtype=torch.long)
         self.train_label_onehot = F.one_hot(self.task.data.y[self.task.train_mask].view(-1), self.task.num_global_classes).to(torch.float).to(self.device)  

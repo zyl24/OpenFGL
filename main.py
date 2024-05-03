@@ -17,8 +17,8 @@ args.simulation_mode = "fedsubgraph_louvain_clustering"
 args.task = "node_cls"
 args.model = ["gcn"]
 args.dataset = ["Cora"]
-args.fl_algorithm = "fedtad"
-args.evaluation_mode = "local_model_on_local_data" 
+args.fl_algorithm = "fedgta"
+args.evaluation_mode = "global_model_on_local_data" 
 
 
 

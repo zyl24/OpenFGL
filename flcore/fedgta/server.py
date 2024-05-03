@@ -6,9 +6,18 @@ from flcore.fedgta.fedgta_config import config
 
 class FedGTAServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
-        super(FedGTAServer, self).__init__(args, global_data, data_dir, message_pool, device)
+        super(FedGTAServer, self).__init__(args, global_data, data_dir, message_pool, device, personalized=True)
         self.aggregated_models = [copy.deepcopy(self.task.model) for _ in range(self.args.num_clients)]
-        
+    
+    def switch_personalized_global_model(self, client_id):
+        if f"personalized_{client_id}" in self.message_pool["server"]:
+            with torch.no_grad():
+                for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"][f"personalized_{client_id}"] ):
+                    local_param.data.copy_(global_param)
+        else:            
+            with torch.no_grad():
+                for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"] ):
+                    local_param.data.copy_(global_param)
         
     def execute(self):
         agg_client_list = {}
