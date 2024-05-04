@@ -152,7 +152,7 @@ class FedTADServer(BaseServer):
                     ############  divergence loss  ############   
                     for class_i in range(self.task.num_global_classes):
                         loss_D += self.message_pool[f"client_{client_id}"]["ckr"][class_i] * torch.mean(torch.mean(
-                            torch.abs(global_pred[each_class_mask[class_i]] - local_pred[each_class_mask[class_i]].detach()), dim=1))
+                            torch.abs(global_pred[each_class_mask[class_i]] - local_pred[each_class_mask[class_i]]), dim=1))
 
                 loss_D.backward()
                 self.task.optim.step()

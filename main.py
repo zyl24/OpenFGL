@@ -13,11 +13,11 @@ print(args)
 # args.evaluation_mode = "personalized" 
 
 args.scenario = "fedsubgraph"
-args.simulation_mode = "fedsubgraph_louvain_clustering"
+args.simulation_mode = "fedsubgraph_louvain"
 args.task = "node_cls"
 args.model = ["gcn"]
 args.dataset = ["Cora"]
-args.fl_algorithm = "fedgta"
+args.fl_algorithm = "fedtad"
 args.evaluation_mode = "global_model_on_local_data" 
 
 
@@ -26,3 +26,19 @@ seed_everything(args.seed)
 trainer = FGLTrainer(args)
 trainer.train()
 
+
+"""
+Coar - Louvain - GCN - 10 Clients
+
+> fedavg    -   69.27
+> fedprox   -   71.26
+> scaffold  -   80.65
+> moon      -   70.71
+> feddc     -
+> fedsage   -
+> fedpub    -   73.79
+> fedgta    -   72.16
+> fedtad    -   72.08
+    
+    
+"""

@@ -60,7 +60,7 @@ class FGLDataset(Dataset):
     def processed_dir(self) -> str:
         if self.args.simulation_mode in ["fedsubgraph_label_dirichlet", "fedgraph_label_dirichlet"]:
             simulation_name = f"{self.args.simulation_mode}_{self.args.dirichlet_alpha:.2f}"
-        elif self.args.simulation_mode in ["fedsubgraph_louvain_clustering"]:
+        elif self.args.simulation_mode in ["fedsubgraph_louvain_clustering", "fedsubgraph_louvain"]:
             simulation_name = f"{self.args.simulation_mode}_{self.args.louvain_resolution}"
         elif self.args.simulation_mode in ["fedsubgraph_metis_clustering"]:
             simulation_name = f"{self.args.simulation_mode}_{self.args.metis_num_coms}"
@@ -116,6 +116,14 @@ class FGLDataset(Dataset):
         elif self.args.simulation_mode == "fedsubgraph_metis_clustering":
             from data.simulation import fedsubgraph_metis_clustering
             self.local_data = fedsubgraph_metis_clustering(self.args, global_dataset)
+        elif self.args.simulation_mode == "fedsubgraph_louvain":
+            from data.simulation import fedsubgraph_louvain
+            self.local_data = fedsubgraph_louvain(self.args, global_dataset)
+        elif self.args.simulation_mode == "fedsubgraph_metis":
+            from data.simulation import fedsubgraph_metis
+            self.local_data = fedsubgraph_metis(self.args, global_dataset)
+        
+        
         
         for client_id in range(self.args.num_clients):
             self.save_client_data(self.local_data[client_id], client_id)

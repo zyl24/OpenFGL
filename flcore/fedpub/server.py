@@ -131,7 +131,7 @@ class FedPubServer(BaseServer):
             tmp = self.aggregate(local_weights,ratio)
             self.update_weights.append(tmp)
 
-    def switch_personzlied_global_model(self, client_id):
+    def switch_personalized_global_model(self, client_id):
         if f'personalized_{client_id}' in self.message_pool["server"]:
             weight = self.message_pool["server"][f'personalized_{client_id}']
         else:

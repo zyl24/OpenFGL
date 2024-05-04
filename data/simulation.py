@@ -236,27 +236,111 @@ def fedsubgraph_metis_clustering(args, global_dataset):
 
 
 
+    
+    
+    
+
 def fedsubgraph_metis(args, global_dataset):
     print("Conducting fedsubgraph metis simulation...")
     assert args.metis_num_coms == args.num_clients, f"args.metis_num_coms should be equal to args.num_clients."
     
     graph_nx = to_networkx(global_dataset[0], to_undirected=True)
-    communities = {com_id: {"nodes":[], "num_nodes":0, "label_distribution":[0] * global_dataset.num_classes} 
-                            for com_id in range(args.metis_num_coms)}
-    
     n_cuts, membership = metis.part_graph(args.metis_num_coms, graph_nx)
     
-    for com_id in range(args.metis_num_coms):
-        com_indices = np.where(np.array(membership) == com_id)[0]
-        com_indices = list(com_indices)
+    for client_id in range(args.num_clients):
+        client_indices = np.where(np.array(membership) == client_id)[0].tolist()
         
     local_data = []
     
     for client_id in range(args.num_clients):
-        local_subgraph = get_subgraph_pyg_data(args, global_dataset, com_indices[client_id])
+        local_subgraph = get_subgraph_pyg_data(args, global_dataset, client_indices[client_id])
         local_data.append(local_subgraph)
     
     return local_data
     
     
 
+def fedsubgraph_louvain(args, global_dataset):
+    print("Conducting fedsubgraph louvain clustering simulation...")
+    louvain = Louvain(modularity='newman', resolution=args.louvain_resolution, return_aggregate=True)
+    num_nodes = global_dataset[0].x.shape[0]
+    adj_csr = to_scipy_sparse_matrix(global_dataset[0].edge_index)
+    fit_result = louvain.fit_predict(adj_csr)
+    partition = {}
+    for node_id, com_id in enumerate(fit_result):
+        partition[node_id] = int(com_id)
+
+    groups = []
+
+    for key in partition.keys():
+        if partition[key] not in groups:
+            groups.append(partition[key])
+    print(groups)
+    partition_groups = {group_i: [] for group_i in groups}
+
+    for key in partition.keys():
+        partition_groups[partition[key]].append(key)
+
+    group_len_max = num_nodes // args.num_clients - args.louvain_delta
+    for group_i in groups:
+        while len(partition_groups[group_i]) > group_len_max:
+            long_group = list.copy(partition_groups[group_i])
+            partition_groups[group_i] = list.copy(long_group[:group_len_max])
+            new_grp_i = max(groups) + 1
+            groups.append(new_grp_i)
+            partition_groups[new_grp_i] = long_group[group_len_max:]
+    print(groups)
+
+    len_list = []
+    for group_i in groups:
+        len_list.append(len(partition_groups[group_i]))
+
+    len_dict = {}
+
+    for i in range(len(groups)):
+        len_dict[groups[i]] = len_list[i]
+    sort_len_dict = {
+        k: v
+        for k, v in sorted(len_dict.items(), key=lambda item: item[1], reverse=True)
+    }
+
+    owner_node_ids = {owner_id: [] for owner_id in range(args.num_clients)}
+
+    owner_nodes_len = num_nodes // args.num_clients
+    owner_list = [i for i in range(args.num_clients)]
+    owner_ind = 0
+
+    give_up = 1000
+
+    for group_i in sort_len_dict.keys():
+        while (
+            len(owner_list) >= 2
+            and len(owner_node_ids[owner_list[owner_ind]]) >= owner_nodes_len
+        ):
+            owner_list.remove(owner_list[owner_ind])
+            owner_ind = owner_ind % len(owner_list)
+        cnt = 0
+        while (
+            len(owner_node_ids[owner_list[owner_ind]]) +
+                len(partition_groups[group_i])
+            >= owner_nodes_len + args.louvain_delta
+        ):
+            owner_ind = (owner_ind + 1) % len(owner_list)
+            cnt += 1
+            if cnt > give_up:
+                cnt = 0
+                min_v = 1e15
+                for i in range(len(owner_list)):
+                    if len(owner_node_ids[owner_list[owner_ind]]) < min_v:
+                        min_v = len(owner_node_ids[owner_list[owner_ind]])
+                        owner_ind = i
+                break
+
+        owner_node_ids[owner_list[owner_ind]] += partition_groups[group_i]
+
+    local_data = []
+    for client_id in range(args.num_clients):
+        local_subgraph = get_subgraph_pyg_data(args, global_dataset, owner_node_ids[client_id])
+        local_data.append(local_subgraph)
+
+    return local_data

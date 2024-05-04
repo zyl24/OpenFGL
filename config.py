@@ -13,7 +13,7 @@ supported_fedsubgraph_datasets = [
 
 
 supported_fedgraph_simulations = ["fedgraph_cross_domain", "fedgraph_label_dirichlet"]
-supported_fedsubgraph_simulations = ["fedsubgraph_label_dirichlet", "fedsubgraph_louvain_clustering", "fedsubgraph_metis_clustering"]
+supported_fedsubgraph_simulations = ["fedsubgraph_label_dirichlet", "fedsubgraph_louvain_clustering", "fedsubgraph_metis_clustering", "fedsubgraph_louvain", "fedsubgraph_metis"]
 
 supported_fedgraph_task = ["graph_cls", "graph_reg"]
 supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
@@ -68,6 +68,7 @@ parser.add_argument("--dirichlet_alpha", type=float, default=10)
 parser.add_argument("--dirichlet_try_cnt", type=int, default=100)
 parser.add_argument("--least_samples", type=int, default=5)
 parser.add_argument("--louvain_resolution", type=float, default=1)
+parser.add_argument("--louvain_delta", type=float, default=20, help="Maximum allowable difference in node counts between any two clients in the fedgraph_louvain simulation.")
 parser.add_argument("--metis_num_coms", type=float, default=100)
 
 # task settings
