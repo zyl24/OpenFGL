@@ -4,13 +4,13 @@ from utils.basic_utils import seed_everything
 print(args)
 
 # args.scenario = "fedgraph"
-# args.simulation_mode = "fedgraph_cross_domain"
+# args.simulation_mode = "fedgraph_label_dirichlet"
 # args.task = "graph_cls"
 # args.model = ["gin"]
-# args.dataset = ["COX2", "MUTAG", "PROTEINS"]
-# args.fl_algorithm = "fedstar"
+# args.dataset = ["COX"]
+# args.fl_algorithm = "fedavg"
 # args.num_clients = 3
-# args.evaluation_mode = "personalized" 
+# args.evaluation_mode = "global_model_on_local_data" 
 
 args.scenario = "fedsubgraph"
 args.simulation_mode = "fedsubgraph_louvain"
@@ -25,7 +25,6 @@ args.evaluation_mode = "global_model_on_local_data"
 seed_everything(args.seed)
 trainer = FGLTrainer(args)
 trainer.train()
-
 
 """
 Coar - Louvain - GCN - 10 Clients
