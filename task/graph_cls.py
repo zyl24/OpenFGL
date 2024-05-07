@@ -28,10 +28,17 @@ class GraphClsTask(BaseTask):
         }
         
         
-    def train(self):
+    def train(self, splitted_data=None):
+        if splitted_data is None:
+            splitted_data = self.splitted_data
+        else:
+            names = ["data", "train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
+            for name in names:
+                assert name in splitted_data
+                
         self.model.train()
         for _ in range(self.args.num_epochs):
-            for batch in self.train_dataloader:
+            for batch in splitted_data["train_dataloader"]:
                 self.optim.zero_grad()
                 embedding, logits = self.model.forward(batch)
                 loss_train = self.loss_fn(embedding, logits, batch.y, torch.ones_like(batch.y).bool())

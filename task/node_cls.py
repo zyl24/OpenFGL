@@ -24,12 +24,19 @@ class NodeClsTask(BaseTask):
             "test_mask": self.test_mask
         }
         
-    def train(self):
+    def train(self, splitted_data=None):
+        if splitted_data is None:
+            splitted_data = self.splitted_data
+        else:
+            names = ["data", "train_mask", "val_mask", "test_mask"]
+            for name in names:
+                assert name in splitted_data
+        
         self.model.train()
         for _ in range(self.args.num_epochs):
             self.optim.zero_grad()
-            embedding, logits = self.model.forward(self.data)
-            loss_train = self.loss_fn(embedding, logits, self.data.y, self.train_mask)
+            embedding, logits = self.model.forward(splitted_data["data"])
+            loss_train = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["train_mask"])
             loss_train.backward()
             
             if self.step_preprocess is not None:

@@ -10,7 +10,7 @@ import pymetis as metis
 
 
 
-def get_subgraph_pyg_data(args, global_dataset, node_list):
+def get_subgraph_pyg_data(global_dataset, node_list):
     global_edge_index = global_dataset.edge_index
     node_id_set = set(node_list)
     global_id_to_local_id = {}
@@ -31,9 +31,13 @@ def get_subgraph_pyg_data(args, global_dataset, node_list):
     local_edge_index = torch.tensor(local_edge_list).T
     
     
-    local_subgraph = Data(x=global_dataset[0].x[node_list], edge_index=local_edge_index, y=global_dataset[0].y[node_list])
+    local_subgraph = Data(x=global_dataset.x[node_list], edge_index=local_edge_index, y=global_dataset.y[node_list])
     local_subgraph.global_map = local_id_to_global_id
-    local_subgraph.num_global_classes = global_dataset.num_classes
+    
+    if hasattr(global_dataset, "num_classes"):
+        local_subgraph.num_global_classes = global_dataset.num_classes
+    else:
+        local_subgraph.num_global_classes = global_dataset.num_global_classes
     return local_subgraph
 
 
@@ -145,7 +149,7 @@ def fedsubgraph_label_dirichlet(args, global_dataset, shuffle=True):
     for client_id in range(args.num_clients):
         for class_i in range(K):
             client_label_counts[client_id][class_i] = (node_labels[client_indices[client_id]] == class_i).sum()
-        local_subgraph = get_subgraph_pyg_data(args, global_dataset, client_indices[client_id])
+        local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
         local_data.append(local_subgraph)
     print(f"label_counts:\n{np.array(client_label_counts)}")
     return local_data
@@ -187,7 +191,7 @@ def fedsubgraph_louvain_clustering(args, global_dataset):
         
     local_data = []
     for client_id in range(args.num_clients):
-        local_subgraph = get_subgraph_pyg_data(args, global_dataset, client_indices[client_id])
+        local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
         local_data.append(local_subgraph)
 
     return local_data
@@ -227,7 +231,7 @@ def fedsubgraph_metis_clustering(args, global_dataset):
     
     local_data = []
     for client_id in range(args.num_clients):
-        local_subgraph = get_subgraph_pyg_data(args, global_dataset, client_indices[client_id])
+        local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
         local_data.append(local_subgraph)
     
     return local_data
@@ -253,7 +257,7 @@ def fedsubgraph_metis(args, global_dataset):
     local_data = []
     
     for client_id in range(args.num_clients):
-        local_subgraph = get_subgraph_pyg_data(args, global_dataset, client_indices[client_id])
+        local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
         local_data.append(local_subgraph)
     
     return local_data
@@ -340,7 +344,7 @@ def fedsubgraph_louvain(args, global_dataset):
 
     local_data = []
     for client_id in range(args.num_clients):
-        local_subgraph = get_subgraph_pyg_data(args, global_dataset, owner_node_ids[client_id])
+        local_subgraph = get_subgraph_pyg_data(global_dataset, owner_node_ids[client_id])
         local_data.append(local_subgraph)
 
     return local_data
