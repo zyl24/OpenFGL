@@ -60,29 +60,32 @@ class NeighGen(nn.Module):
         
         
 
-    def mend(self, data, pred_degree, pred_neig_feat):
-        num_ori_nodes = data.x.shape[0]
+    def mend(self, impaired_data, pred_degree_float, pred_neig_feat):
+        num_impaired_nodes = impaired_data.x.shape[0]
         mend_x = None
-        mend_edge_index = None
-        
-        ptr = num_ori_nodes
-        
+        mend_edge_index = None        
+        ptr = num_impaired_nodes
         remain_feat = []
         remain_edges = []
+
+        pred_degree = torch._cast_Int(pred_degree_float).detach()
         
-        pred_degree = torch._cast_Int(pred_degree)
-        
-        for ori_node_i in range(num_ori_nodes):
-            for gen_neighbor_j in range(min(self.max_pred, pred_degree[ori_node_i])):
-                remain_feat.append(pred_neig_feat[ori_node_i, gen_neighbor_j])
-                remain_edges.append(torch.tensor([ori_node_i, ptr]).view(2, 1).to(pred_degree.device))
+        for impaired_node_i in range(num_impaired_nodes):
+            for gen_neighbor_j in range(min(self.max_pred, pred_degree[impaired_node_i])):
+                remain_feat.append(pred_neig_feat[impaired_node_i, gen_neighbor_j])
+                remain_edges.append(torch.tensor([impaired_node_i, ptr]).view(2, 1).to(pred_degree.device))
                 ptr += 1
                 
-                
-
-        mend_x = torch.vstack((data.x, torch.vstack(remain_feat)))
-        mend_edge_index = torch.hstack((data.edge_index, torch.hstack(remain_edges)))
-        mend_y = torch.hstack((data.y, torch.zeros(ptr-num_ori_nodes).long().to(pred_degree.device)))
+        
+        
+        if pred_degree.sum() > 0:
+            mend_x = torch.vstack((impaired_data.x, torch.vstack(remain_feat)))
+            mend_edge_index = torch.hstack((impaired_data.edge_index, torch.hstack(remain_edges)))
+            mend_y = torch.hstack((impaired_data.y, torch.zeros(ptr-num_impaired_nodes).long().to(pred_degree.device)))
+        else:
+            mend_x = torch.clone(impaired_data.x)
+            mend_edge_index = torch.clone(impaired_data.edge_index)
+            mend_y = torch.clone(impaired_data.y)
         
         mend_data = Data(x=mend_x, edge_index=mend_edge_index, y=mend_y)
         return mend_data
@@ -90,8 +93,8 @@ class NeighGen(nn.Module):
         
         
     def forward(self, data):
-        node_encoding = self.encoder(data)
-        pred_degree = self.dGen(node_encoding) # [N, 1]
+        _, node_encoding = self.encoder(data)
+        pred_degree = self.dGen(node_encoding).squeeze() # [N]
         pred_neig_feat = self.fGen(node_encoding) # [N, max_pred, feat_dim]
 
         mend_graph = self.mend(data, pred_degree, pred_neig_feat) # 根据 degree 裁剪 feat, data 的修补图

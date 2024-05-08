@@ -7,10 +7,27 @@ from flcore.fedsage_plus.locsage_plus import LocSAGEPlus
 from flcore.fedsage_plus._utils import greedy_loss
 from data.simulation import get_subgraph_pyg_data
 import torch.nn.functional as F
-import copy
+from torchviz import make_dot
+
+def accuracy_missing(output, labels):
+    preds = torch._cast_Int(output)
+    correct=0.0
+    for pred,label in zip(preds,labels):
+        if int(pred)==int(label):
+            correct+=1.0
+    return correct / len(labels)
 
 
-
+def accuracy(pred,true):
+    acc=0.0
+    for predi,truei in zip(pred,true):
+        if torch.argmax(predi) == torch.argmax(truei):
+            acc+=1.0
+    acc/=len(pred)
+    return acc * 100
+    
+    
+    
 class FedSagePlusClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedSagePlusClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
@@ -21,11 +38,14 @@ class FedSagePlusClient(BaseClient):
                                                 max_pred=config["max_pred"], 
                                                 dropout=self.args.dropout))
         
+        self.phase = 1
+        
         self.splitted_impaired_data, self.num_missing, self.missing_feat, \
         self.original_neighbors, self.impaired_neighbors = self.get_impaired_subgraph()
-                
         
-        self.phase = ""
+        self.send_message()        
+        
+        
         
         # fill_nodes, fill_G = mending_graph.fill_graph(local_owner.hasG_hide,
         #                                               local_owner.subG,
@@ -33,63 +53,115 @@ class FedSagePlusClient(BaseClient):
 
         
     def switch_phase(self, phase):
-        assert phase in ["train_fedGen", "train_fedSagePC"]
- 
+        assert phase in [1, 2]
+        if phase == self.phase:
+            pass
+        elif phase == 2:
+            pass
 
-            
             
             
             
     def get_custom_loss_fn(self):
-        assert self.phase in ["train_fedGen", "train_fedSagePC"]
-        if self.phase == "train_neigh_gen":
+        if self.phase == 1:
             def custom_loss_fn(embedding, logits, label, mask):    
-                pred_degree = self.task.model.output_pred_degree.squeeze()
-                pred_neig_feat = self.task.model.output_pred_neig_feat
+                pred_degree = self.task.model.output_pred_degree # 每一个节点的缺失邻居个数
+                pred_degree_int_view = torch._cast_Int(pred_degree)
+                print(pred_degree_int_view.sum())
+                pred_neig_feat = self.task.model.output_pred_neig_feat # 每一个节点的缺失邻居特征 [N, 5, 1433]
+                
+                
                 num_impaired_nodes = self.splitted_impaired_data["data"].x.shape[0]
                 impaired_logits = logits[: num_impaired_nodes]
                 
                 
-                loss_train_missing = F.smooth_l1_loss(pred_degree[mask].float(), self.num_missing[mask])
-
-                loss_train_feat = greedy_loss(pred_neig_feat[mask], self.missing_feat[mask], pred_degree[mask], self.num_missing[mask])
-
-                true_nc_label= self.impaired_subgraph.y[mask]
-                loss_train_label= F.cross_entropy(impaired_logits[mask], true_nc_label)
+                loss_train_missing = F.smooth_l1_loss(pred_degree[mask], self.num_missing[mask])
+                loss_train_feat = greedy_loss(pred_neig_feat[mask], 
+                                              self.missing_feat[mask], 
+                                              pred_degree[mask], 
+                                              self.num_missing[mask], 
+                                              max_pred=config["max_pred"])
+                loss_train_label= F.cross_entropy(impaired_logits[mask], label[mask])
                 
-                loss = (config["num_missing_trade_off"] * loss_train_missing + config["missing_feat_trade_off"] * loss_train_feat + config["cls_trade_off"] * loss_train_label).float()
-                
+                loss_other = 0
                 
                 for client_id in self.message_pool["sampled_clients"]:
                     if client_id != self.client_id:
-                        others_ids = np.random.choice(self.message_pool[f"client_{client_id}"]["num_samples"], self.task.train_mask.sum())
+                        others_central_ids = np.random.choice(self.message_pool[f"client_{client_id}"]["num_samples"], int(self.task.train_mask.sum()))
                         global_target_feat = []
-                        for other_central_id in others_ids:
-                            other_neighbors = self.message_pool[f"client_{client_id}"]["original_neighbors"][other_central_id]
+                        for node_id in others_central_ids:
+                            other_neighbors = self.message_pool[f"client_{client_id}"]["original_neighbors"][node_id]
                             while len(other_neighbors) == 0:
-                                other_central_id = np.random.choice(self.message_pool[f"client_{client_id}"]["num_samples"],1)
-                                other_neighbors = self.message_pool[f"client_{client_id}"]["original_neighbors"][other_central_id]
-                            choice_i = np.random.choice(other_neighbors, config["max_pred"])
-                            for ch_i in choice_i:
-                                global_target_feat.append(self.message_pool[f"client_{client_id}"]["feat"]([ch_i])[0])
-                        global_target_feat = np.asarray(global_target_feat).reshape((self.task.train_mask.sum(), config["max_pred"], self.task.num_feats))
+                                node_id = np.random.choice(self.message_pool[f"client_{client_id}"]["num_samples"], 1)
+                                other_neighbors = self.message_pool[f"client_{client_id}"]["original_neighbors"][node_id]
+                            others_neig_ids = np.random.choice(list(other_neighbors), config["max_pred"])
+                            for neig_id in others_neig_ids:
+                                global_target_feat.append(self.message_pool[f"client_{client_id}"]["feat"][neig_id])
+                        global_target_feat = torch.stack(global_target_feat, 0).view(-1, config["max_pred"], self.task.num_feats)
                         loss_train_feat_other = greedy_loss(pred_neig_feat[mask],
-                                                                global_target_feat,
-                                                                pred_degree[mask],
-                                                                self.num_missing[mask]).unsqueeze(0).mean().float()
-                        loss += config["missing_feat_trade_off"]  * loss_train_feat_other    
+                                                            global_target_feat,
+                                                            pred_degree[mask],
+                                                            self.num_missing[mask],
+                                                            max_pred=config["max_pred"])
+                        
+                        loss_other += loss_train_feat_other    
+                
+                loss = (config["num_missing_trade_off"] * loss_train_missing + \
+                       config["missing_feat_trade_off"] * loss_train_feat + \
+                       config["cls_trade_off"] * loss_train_label + \
+                       config["missing_feat_trade_off"] * loss_other) / len(self.message_pool["sampled_clients"])
+                
+                
+                if self.client_id == -1:
+                    dot = make_dot(pred_degree, params=dict(self.task.model.named_parameters()))
+                    dot.render('./pred_degree', format='png')
+                
+                    dot = make_dot(pred_neig_feat, params=dict(self.task.model.named_parameters()))
+                    dot.render('./pred_neig_feat', format='png')
+                    
+                    dot = make_dot(loss_train_missing, params=dict(self.task.model.named_parameters()))
+                    dot.render('./loss_degree', format='png')
+                    
+                    dot = make_dot(loss_train_feat, params=dict(self.task.model.named_parameters()))
+                    dot.render('./loss_feat', format='png')
+                    
+                    dot = make_dot(loss_train_label, params=dict(self.task.model.named_parameters()))
+                    dot.render('./loss_cls', format='png')
+                    
+                    dot = make_dot(loss_other, params=dict(self.task.model.named_parameters()))
+                    dot.render('./loss_other', format='png')
+                    
+                    
+                acc_degree = accuracy_missing(pred_degree[mask], self.num_missing[mask])
+                acc_cls = accuracy(impaired_logits[mask], label[mask])
+                    
+                print(f"[client {self.client_id}]\tloss_train: {loss:.4f}\tacc_degree: {acc_degree:.4f}\tacc_cls: {acc_cls:.4f}\tloss_degree: {loss_train_missing:.4f}\tloss_feat: {loss_train_feat:.4f}\tloss_cls: {loss_train_label:.4f}\tloss_other: {loss_other:.4f}")
+                
                 return loss
+        else: # phase=2
+            pass   
             
-            
-            
-        elif self.phase == "train_fedpc":
-            pass
-        else:
-            raise ValueError
+        
         return custom_loss_fn
     
     
-    
+        
+    def execute(self):
+        self.task.loss_fn = self.get_custom_loss_fn()
+        self.task.train(self.splitted_impaired_data)
+        
+        # with torch.no_grad():
+        #     for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
+        #         local_param.data.copy_(global_param)
+        
+
+    def send_message(self):
+        self.message_pool[f"client_{self.client_id}"] = {
+                "num_samples": self.task.num_samples,
+                "weight": list(self.task.model.parameters()),
+                "feat": self.task.data.x,
+                "original_neighbors": self.original_neighbors
+            }
         
     def get_impaired_subgraph(self):
         hide_len = int(config["hidden_portion"] * (self.task.val_mask).sum())
@@ -100,6 +172,7 @@ class FedSagePlusClient(BaseClient):
         
         impaired_subgraph = get_subgraph_pyg_data(global_dataset=self.task.data, node_list=remained_ids)
         
+        impaired_subgraph = impaired_subgraph.to(self.device)
         num_missing_list = []
         missing_feat_list = []
         
@@ -117,8 +190,8 @@ class FedSagePlusClient(BaseClient):
             source = impaired_subgraph.edge_index[0, edge_id].item()
             target = impaired_subgraph.edge_index[1, edge_id].item()
             if source != target:
-                original_neighbors[source].add(target)
-                original_neighbors[target].add(source)
+                impaired_neighbors[source].add(target)
+                impaired_neighbors[target].add(source)
                 
                 
         for impaired_id in range(impaired_subgraph.x.shape[0]):
@@ -136,7 +209,7 @@ class FedSagePlusClient(BaseClient):
             
             
             if num_missing_neighbors == 0:
-                current_missing_feat = torch.zeros((1, config["max_pred"], self.task.num_feats)).to(self.device)
+                current_missing_feat = torch.zeros((config["max_pred"], self.task.num_feats)).to(self.device)
             else:
                 if num_missing_neighbors <= config["max_pred"]:
                     zeros = torch.zeros((max(0, config["max_pred"] - num_missing_neighbors), self.task.num_feats)).to(self.device)
@@ -145,9 +218,6 @@ class FedSagePlusClient(BaseClient):
                     current_missing_feat = self.task.data.x[list(missing_neighbors)[:config["max_pred"]]].view(config["max_pred"], self.task.num_feats)
             
             missing_feat_list.append(current_missing_feat)
-        
-        # num_missing  = np.asarray(num_missing_list).view(-1,1)
-        # missing_feat = np.asarray(missing_feat_list).view(-1, config["max_pred"], self.task.num_feats)
         
         num_missing = torch.tensor(num_missing_list).squeeze().float().to(self.device)
         missing_feat = torch.stack(missing_feat_list, 0)
@@ -177,25 +247,3 @@ class FedSagePlusClient(BaseClient):
         
         return splitted_impaired_data, num_missing, missing_feat, original_neighbors, impaired_neighbors
     
-    
-    
-    def local_pretrain(self):
-        
-        pass
-        
-    def execute(self):
-        with torch.no_grad():
-            for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
-                local_param.data.copy_(global_param)
-
-        self.task.loss_fn = self.get_custom_loss_fn()
-        self.task.train()
-
-    def send_message(self):
-        self.message_pool[f"client_{self.client_id}"] = {
-                "num_samples": self.task.num_samples,
-                "weight": list(self.task.model.parameters()),
-                "feat": self.impaired_subgraph.x if self.phase == "train_fedGen" else self.task.data.x,
-                "original_neighbors": self.original_neighbors
-            }
-        

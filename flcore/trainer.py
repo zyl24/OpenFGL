@@ -32,16 +32,16 @@ class FGLTrainer:
             
         
             
-            if self.args.evaluation_mode == "local_model_on_local_data":
-                self.eval_local_model_on_local_data()
-            elif self.args.evaluation_mode == "local_model_on_global_data":
-                self.eval_local_model_on_global_data()
-            elif self.args.evaluation_mode == "global_model_on_global_data":
-                self.eval_global_model_on_global_data()
-            elif self.args.evaluation_mode == "global_model_on_local_data":
-                self.eval_global_model_on_local_data()
-            else:
-                raise ValueError
+            # if self.args.evaluation_mode == "local_model_on_local_data":
+            #     self.eval_local_model_on_local_data()
+            # elif self.args.evaluation_mode == "local_model_on_global_data":
+            #     self.eval_local_model_on_global_data()
+            # elif self.args.evaluation_mode == "global_model_on_global_data":
+            #     self.eval_global_model_on_global_data()
+            # elif self.args.evaluation_mode == "global_model_on_local_data":
+            #     self.eval_global_model_on_local_data()
+            # else:
+            #     raise ValueError
             
             
     def eval_global_model_on_global_data(self):
