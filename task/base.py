@@ -13,7 +13,7 @@ class BaseTask:
 
         self.load_train_val_test_split()
 
-        self.rewrite_evaluate = None
+        self.override_evaluate = None
     
     def train(self):
         raise NotImplementedError

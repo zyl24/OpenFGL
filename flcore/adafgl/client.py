@@ -1,22 +1,57 @@
 import torch
 import torch.nn as nn
 from flcore.base import BaseClient
-import time
+from flcore.adafgl.adafgl_models import AdaFGLModel
+from flcore.adafgl.adafgl_config import config
+from flcore.adafgl._utils import adj_initialize
+from torch.optim import Adam
+import torch.nn.functional as F
+
+def accuracy(pred, label):
+    correct = (pred.max(1)[1] == label).sum()
+    tot = label.shape[0]
+    return correct / tot * 100
+    
 
 class AdaFGLClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(AdaFGLClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
-            
+        
+        self.phase = 0
+
+        
         
     def execute(self):
-        with torch.no_grad():
-            for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
-                local_param.data.copy_(global_param)
-
-        self.task.train()
+        # switch phase
+        if self.message_pool["round"] == config["num_rounds_vanilla"]:
+            self.phase = 1
+            self.adafgl_model = AdaFGLModel(prop_steps=config["prop_steps"], feat_dim=self.task.num_feats, hidden_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, train_mask=self.task.train_mask, val_mask=self.task.val_mask, test_mask=self.task.test_mask, r=config["r"])
+            self.task.data = adj_initialize(self.task.data)
+            
+            # initialize adafgl model
+            eval_output = self.task.evaluate()
+            nodes_embedding = eval_output["embedding"]
+            nodes_embedding = nn.Softmax(dim=1)(nodes_embedding)
+            self.adafgl_model.non_para_lp(subgraph=self.task.data, nodes_embedding=nodes_embedding, x=self.task.data.x, device=self.device)
+            self.adafgl_model.preprocess(adj=self.task.data.adj)
+            self.adafgl_model = self.adafgl_model.to(self.device)
+            
+            # create optimizer
+            self.adafgl_optimizer = Adam(self.adafgl_model.parameters(), lr=config["adafgl_lr"], weight_decay=config["adafgl_weight_decay"])
         
-        if self.message_pool["round"] == self.args.num_rounds - 1:
+            # override evaluation
+            self.task.override_evaluate = self.get_adafgl_override_evaluate()
+            
+            
+        # execute
+        if self.phase == 0:
+            with torch.no_grad():
+                for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
+                    local_param.data.copy_(global_param)
+            self.task.train()
+        else:
             self.adafgl_postprocess()
+
         
 
     def send_message(self):
@@ -26,137 +61,86 @@ class AdaFGLClient(BaseClient):
             }
         
         
-    def adafgl_postprocess(self):
-        main_normalize_train = 1
+    def adafgl_postprocess(self, loss_ce_fn=nn.CrossEntropyLoss()):
+        self.adafgl_model.train()
+        self.adafgl_optimizer.zero_grad()
 
-        print("Start AdaFGL personalized local training...")
-        global_normalize_record = {"acc_val_mean": 0, "acc_val_std": 0, "acc_test_mean": 0, "acc_test_std": 0}
+        # homo forward
+        local_smooth_emb, local_smooth_logits, global_emb, global_logits = self.adafgl_model.homo_forward(self.device)
+        loss_train1 = loss_ce_fn(local_smooth_logits[self.task.train_mask], self.task.data.y[self.task.train_mask])
+        loss_train2 = nn.MSELoss()(local_smooth_emb, global_emb)
+        loss_train3 = loss_ce_fn(global_logits[self.task.train_mask], self.task.data.y[self.task.train_mask])
+        loss_train_homo = loss_train1 + loss_train2 + loss_train3
+            
+        # hete forward
+        local_ori_emb, local_smooth_emb, local_message_propagation = self.adafgl_model.hete_forward(self.device)
+        loss_train1 = loss_ce_fn(local_ori_emb[self.task.train_mask], self.task.data.y[self.task.train_mask])
+        loss_train2 = loss_ce_fn(local_smooth_emb[self.task.train_mask], self.task.data.y[self.task.train_mask])
+        loss_train3 = loss_ce_fn(local_message_propagation[self.task.train_mask], self.task.data.y[self.task.train_mask])
+        loss_train_hete = loss_train1 + loss_train2 + loss_train3
+        
+        # final loss
+        loss_final = loss_train_homo + loss_train_hete
 
-        t_total = time.time()
-    # for i in range(len(datasets.subgraphs)):
-    #     subgraph = datasets.subgraphs[i]
-    #     subgraph.y = subgraph.y.to(device)
-    #     local_normalize_record = {"acc_val": [], "acc_test": []}
-    #     for _ in range(main_normalize_train):
-    #         gmodel = torch.load(osp.join("./model_weights",
-    #                                      "{}_Client{}_{}_{}.pt".format(datasets.name, datasets.num_clients,
-    #                                                                    datasets.sampling, gmodel_name)))
-    #         gmodel.preprocess(subgraph.adj, subgraph.x)
-    #         gmodel = gmodel.to(device)
-    #         nodes_embedding = gmodel.model_forward(range(subgraph.num_nodes), device).detach().cpu()
-    #         nodes_embedding = nn.Softmax(dim=1)(nodes_embedding)
-    #         acc_val = accuracy(nodes_embedding[subgraph.val_idx], subgraph.y[subgraph.val_idx])
-    #         acc_test = accuracy(nodes_embedding[subgraph.test_idx], subgraph.y[subgraph.test_idx])
-    #         model = MyModel(prop_steps=3,
-    #                         feat_dim=datasets.input_dim,
-    #                         hidden_dim=args.hidden_dim,
-    #                         output_dim=datasets.output_dim,
-    #                         threshold=args.threshold)
+        loss_final.backward()
+        self.adafgl_optimizer.step()
 
-    #         model.non_para_lp(subgraph=subgraph, nodes_embedding=nodes_embedding, x=subgraph.x, device=device)
-    #         model.preprocess(adj=subgraph.adj)
-    #         model = model.to(device)
-    #         loss_ce_fn = nn.CrossEntropyLoss()
-    #         loss_mse_fn = nn.MSELoss()
-    #         optimizer = Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    #         epochs = args.epochs
-    #         best_val = 0.
-    #         best_test = 0.
-    #         homo_best_val_global = 0.
-    #         homo_best_test_global = 0.
-    #         homo_best_val_local = 0.
-    #         homo_best_test_local = 0.
-    #         hete_best_val_smooth = 0.
-    #         hete_best_test_smooth = 0.
-    #         hete_best_val_local = 0.
-    #         hete_best_test_local = 0.
-    #         hete_best_val_prop = 0.
-    #         hete_best_test_prop = 0.
-    #         best_epoch = 0
-    #         for epoch in range(epochs):
-    #             t = time.time()
-    #             model.train()
-    #             optimizer.zero_grad()
-    #             if model.homo:
-    #                 local_smooth_emb, global_emb = model.homo_forward(device)
-    #                 loss_train1 = loss_ce_fn(local_smooth_emb[subgraph.train_idx], subgraph.y[subgraph.train_idx])
-    #                 loss_train2 = nn.MSELoss()(local_smooth_emb, global_emb)
-    #                 loss_train = loss_train1 + loss_train2
-    #                 loss_train.backward()
-    #                 optimizer.step()
-    #                 model.eval()
-    #                 local_smooth_emb, global_emb = model.homo_forward(device)
-    #                 output = (F.softmax(local_smooth_emb.data, 1) + F.softmax(global_emb.data, 1)) / 2
-    #                 acc_val = accuracy(output[subgraph.val_idx], subgraph.y[subgraph.val_idx])
-    #                 acc_test = accuracy(output[subgraph.test_idx], subgraph.y[subgraph.test_idx])
-    #                 homo_acc_val_local = accuracy(local_smooth_emb[subgraph.val_idx], subgraph.y[subgraph.val_idx])
-    #                 homo_acc_test_local = accuracy(local_smooth_emb[subgraph.test_idx], subgraph.y[subgraph.test_idx])
-    #                 homo_acc_val_global = accuracy(global_emb[subgraph.val_idx], subgraph.y[subgraph.val_idx])
-    #                 homo_acc_test_global = accuracy(global_emb[subgraph.test_idx], subgraph.y[subgraph.test_idx])
 
-    #             else:
-    #                 local_ori_emb, local_smooth_emb, local_message_propagation = model.hete_forward(device)
-    #                 loss_train1 = loss_ce_fn(local_ori_emb[subgraph.train_idx], subgraph.y[subgraph.train_idx])
-    #                 loss_train2 = loss_ce_fn(local_smooth_emb[subgraph.train_idx], subgraph.y[subgraph.train_idx])
-    #                 loss_train3 = loss_ce_fn(local_message_propagation[subgraph.train_idx],
-    #                                          subgraph.y[subgraph.train_idx])
-    #                 loss_train = loss_train1 + loss_train2 + loss_train3
-    #                 loss_train.backward()
-    #                 optimizer.step()
-    #                 model.eval()
-    #                 local_ori_emb, local_smooth_emb, local_message_propagation = model.hete_forward(device)
-    #                 output = (F.softmax(local_ori_emb.data, 1) + F.softmax(local_smooth_emb.data, 1) + F.softmax(
-    #                     local_message_propagation.data, 1)) / 3
-    #                 acc_val = accuracy(output[subgraph.val_idx], subgraph.y[subgraph.val_idx])
-    #                 acc_test = accuracy(output[subgraph.test_idx], subgraph.y[subgraph.test_idx])
-    #                 hete_acc_val_local = accuracy(F.softmax(local_ori_emb[subgraph.val_idx], 1),
-    #                                               subgraph.y[subgraph.val_idx])
-    #                 hete_acc_test_local = accuracy(F.softmax(local_ori_emb[subgraph.test_idx], 1),
-    #                                                subgraph.y[subgraph.test_idx])
-    #                 hete_acc_val_smooth = accuracy(F.softmax(local_smooth_emb[subgraph.val_idx], 1),
-    #                                                subgraph.y[subgraph.val_idx])
-    #                 hete_acc_test_smooth = accuracy(F.softmax(local_smooth_emb[subgraph.test_idx], 1),
-    #                                                 subgraph.y[subgraph.test_idx])
-    #                 hete_acc_val_prop = accuracy(F.softmax(local_message_propagation[subgraph.val_idx], 1),
-    #                                              subgraph.y[subgraph.val_idx])
-    #                 hete_acc_test_prop = accuracy(F.softmax(local_message_propagation[subgraph.test_idx], 1),
-    #                                               subgraph.y[subgraph.test_idx])
-    #             if acc_val > best_val:
-    #                 best_epoch = epoch + 1
-    #                 best_val = acc_val
-    #                 best_test = acc_test
-    #             if model.homo:
-    #                 if homo_acc_val_global > homo_best_val_global:
-    #                     homo_best_val_global = homo_acc_val_global
-    #                     homo_best_test_global = homo_acc_test_global
-    #                 if homo_acc_val_local > homo_best_val_local:
-    #                     homo_best_val_local = homo_acc_val_local
-    #                     homo_best_test_local = homo_acc_test_local
-    #             else:
-    #                 if hete_acc_val_local > hete_best_val_local:
-    #                     hete_best_val_local = hete_acc_val_local
-    #                     hete_best_test_local = hete_acc_test_local
-    #                 if hete_acc_val_smooth > hete_best_val_smooth:
-    #                     hete_best_val_smooth = hete_acc_val_smooth
-    #                     hete_best_test_smooth = hete_acc_test_smooth
-    #                 if hete_acc_val_prop > hete_best_val_prop:
-    #                     hete_best_val_prop = hete_acc_val_prop
-    #                     hete_best_test_prop = hete_acc_test_prop
-    #         local_normalize_record["acc_val"].append(best_val)
-    #         local_normalize_record["acc_test"].append(best_test)
+    def get_adafgl_override_evaluate(self):
+        from utils.metrics import compute_supervised_metrics
+        def override_evaluate(splitted_data=None, mute=False):
+            assert splitted_data is None, "AdaFGL is a personalized FGL method, which doesn't support global evaluation."
+            splitted_data = self.task.splitted_data
+            
+            eval_output = {}    
+            self.adafgl_model.eval()    
+            
+            
+            # homo eval
+            with torch.no_grad():
+                _, local_smooth_logits, global_emb, global_logits = self.adafgl_model.homo_forward(self.device)
+                output_homo = (F.softmax(local_smooth_logits.data, 1) + F.softmax(global_logits.data, 1)) / 2
 
-    #     global_normalize_record["acc_val_mean"] += np.mean(
-    #         local_normalize_record["acc_val"]) * subgraph.num_nodes / datasets.global_data.num_nodes
-    #     global_normalize_record["acc_val_std"] += np.std(local_normalize_record["acc_val"],
-    #                                                      ddof=1) * subgraph.num_nodes / datasets.global_data.num_nodes
-    #     global_normalize_record["acc_test_mean"] += np.mean(
-    #         local_normalize_record["acc_test"]) * subgraph.num_nodes / datasets.global_data.num_nodes
-    #     global_normalize_record["acc_test_std"] += np.std(local_normalize_record["acc_test"],
-    #                                                       ddof=1) * subgraph.num_nodes / datasets.global_data.num_nodes
 
-    # print("| ★  Normalize Train Completed")
-    # print("| Normalize Train: {}, Total Time Elapsed: {:.4f}s".format(args.normalize_train, time.time() - t_total))
-    # print("| Mean Val ± Std Val: {}±{}, Mean Test ± Std Test: {}±{}".format(
-    #     round(global_normalize_record["acc_val_mean"], 4), round(global_normalize_record["acc_val_std"], 4),
-    #     round(global_normalize_record["acc_test_mean"], 4), round(global_normalize_record["acc_test_std"], 4)))
-    # return round(global_normalize_record["acc_test_mean"], 4)
+                # hete eval
+                local_ori_emb, local_smooth_emb, local_message_propagation = self.adafgl_model.hete_forward(self.device)
+                output_hete = (F.softmax(local_ori_emb.data, 1) + F.softmax(local_smooth_emb.data, 1) + F.softmax(
+                    local_message_propagation.data, 1)) / 3
+                
+                # merge
+                homo_weight = self.adafgl_model.reliability_acc 
+                embedding = None
+                logits = homo_weight * output_homo + (1- homo_weight) * output_hete
+                
+                
+                loss_train = self.task.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["train_mask"])
+                loss_val = self.task.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["val_mask"])
+                loss_test = self.task.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["test_mask"])
+
+            
+            eval_output["embedding"] = embedding
+            eval_output["logits"] = logits
+            eval_output["loss_train"] = loss_train
+            eval_output["loss_val"]   = loss_val
+            eval_output["loss_test"]  = loss_test
+            
+            
+            metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["train_mask"]], labels=splitted_data["data"].y[splitted_data["train_mask"]], suffix="train")
+            metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["val_mask"]], labels=splitted_data["data"].y[splitted_data["val_mask"]], suffix="val")
+            metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["test_mask"]], labels=splitted_data["data"].y[splitted_data["test_mask"]], suffix="test")
+            eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
+            
+            info = ""
+            for key, val in eval_output.items():
+                try:
+                    info += f"\t{key}: {val:.4f}"
+                except:
+                    continue
+
+            prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
+            if not mute:
+                print(prefix+info)
+            return eval_output
+        
+        return override_evaluate
+

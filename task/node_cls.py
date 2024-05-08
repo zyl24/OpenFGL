@@ -47,7 +47,7 @@ class NodeClsTask(BaseTask):
 
     
     def evaluate(self, splitted_data=None, mute=False):
-        if self.rewrite_evaluate is None:
+        if self.override_evaluate is None:
             if splitted_data is None:
                 splitted_data = self.splitted_data
             else:
@@ -90,7 +90,7 @@ class NodeClsTask(BaseTask):
             return eval_output
 
         else:
-            return self.rewrite_evaluate(splitted_data, mute)
+            return self.override_evaluate(splitted_data, mute)
     
     def loss_fn(self, embedding, logits, label, mask):
         return self.default_loss_fn(logits[mask], label[mask])

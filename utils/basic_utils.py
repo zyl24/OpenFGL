@@ -56,6 +56,9 @@ def load_client(args, client_id, data, data_dir, message_pool, device):
     elif args.fl_algorithm == "fedsage_plus":
         from flcore.fedsage_plus.client import FedSagePlusClient
         return FedSagePlusClient(args, client_id, data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "adafgl":
+        from flcore.adafgl.client import AdaFGLClient
+        return AdaFGLClient(args, client_id, data, data_dir, message_pool, device)
     
 def load_server(args, global_data, data_dir, message_pool, device):
     if args.fl_algorithm == "fedavg":
@@ -94,6 +97,9 @@ def load_server(args, global_data, data_dir, message_pool, device):
     elif args.fl_algorithm == "fedsage_plus":
         from flcore.fedsage_plus.server import FedSagePlusServer
         return FedSagePlusServer(args, global_data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "adafgl":
+        from flcore.adafgl.server import AdaFGLServer
+        return AdaFGLServer(args, global_data, data_dir, message_pool, device)
         
     
 def load_optim(args):

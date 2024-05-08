@@ -104,7 +104,7 @@ class FedSagePlusClient(BaseClient):
         # switch phase
         if self.message_pool["round"] == 0:
             self.phase = 0
-            self.task.rewrite_evaluate = self.get_phase_0_rewrite_evaluate()
+            self.task.override_evaluate = self.get_phase_0_override_evaluate()
         elif self.message_pool["round"] == config["gen_rounds"]:
             self.phase = 1
             self.splitted_filled_data = self.get_filled_subgraph()
@@ -112,7 +112,7 @@ class FedSagePlusClient(BaseClient):
             def get_evaluate_splitted_data():
                 return self.splitted_filled_data
             self.task.evaluate_splitted_data = get_evaluate_splitted_data()
-            self.task.rewrite_evaluate = self.get_phase_1_rewrite_evaluate()
+            self.task.override_evaluate = self.get_phase_1_override_evaluate()
             
         # execute
         if self.phase == 0:
@@ -279,15 +279,15 @@ class FedSagePlusClient(BaseClient):
 
             return splitted_filled_data
         
-    def get_phase_0_rewrite_evaluate(self):
-        def rewrite_evaluate(splitted_data=None, mute=False):
+    def get_phase_0_override_evaluate(self):
+        def override_evaluate(splitted_data=None, mute=False):
             eval_output = {"accuracy_val": "-", "accuracy_test": "-"}
             return eval_output
-        return rewrite_evaluate
+        return override_evaluate
     
-    def get_phase_1_rewrite_evaluate(self):
+    def get_phase_1_override_evaluate(self):
         from utils.metrics import compute_supervised_metrics
-        def rewrite_evaluate(splitted_data=None, mute=False):
+        def override_evaluate(splitted_data=None, mute=False):
             if splitted_data is None:
                 splitted_data = self.splitted_filled_data
             else:
@@ -329,4 +329,4 @@ class FedSagePlusClient(BaseClient):
                 print(prefix+info)
             return eval_output
         
-        return rewrite_evaluate
+        return override_evaluate
