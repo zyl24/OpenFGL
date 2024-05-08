@@ -41,7 +41,5 @@ Coar - Louvain - GCN - 10 Clients
 > fedsage   -
 > fedpub    -   73.79
 > fedgta    -   72.16
-> fedtad    -   72.08
-    
-    
+> fedtad    -   72.08 
 """
