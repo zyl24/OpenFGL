@@ -12,7 +12,8 @@ class BaseTask:
         self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
 
         self.load_train_val_test_split()
-    
+
+        self.rewrite_evaluate = None
     
     def train(self):
         raise NotImplementedError

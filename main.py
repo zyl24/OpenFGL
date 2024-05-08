@@ -17,10 +17,10 @@ args.simulation_mode = "fedsubgraph_louvain"
 args.task = "node_cls"
 args.model = ["gcn"]
 args.dataset = ["Cora"]
-args.num_clients = 3
-args.num_epochs = 3
-args.fl_algorithm = "fedsage_plus"
-args.evaluation_mode = "global_model_on_local_data" 
+args.num_clients = 10
+args.num_epochs = 1
+args.fl_algorithm = "fedavg"
+args.evaluation_mode = "local_model_on_local_data" 
 
 
 

@@ -47,47 +47,50 @@ class NodeClsTask(BaseTask):
 
     
     def evaluate(self, splitted_data=None, mute=False):
-        if splitted_data is None:
-            splitted_data = self.splitted_data
+        if self.rewrite_evaluate is None:
+            if splitted_data is None:
+                splitted_data = self.splitted_data
+            else:
+                names = ["data", "train_mask", "val_mask", "test_mask"]
+                for name in names:
+                    assert name in splitted_data
+            
+            
+            eval_output = {}
+            self.model.eval()
+            with torch.no_grad():
+                embedding, logits = self.model.forward(splitted_data["data"])
+                loss_train = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["train_mask"])
+                loss_val = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["val_mask"])
+                loss_test = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["test_mask"])
+
+            
+            eval_output["embedding"] = embedding
+            eval_output["logits"] = logits
+            eval_output["loss_train"] = loss_train
+            eval_output["loss_val"]   = loss_val
+            eval_output["loss_test"]  = loss_test
+            
+            
+            metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["train_mask"]], labels=splitted_data["data"].y[splitted_data["train_mask"]], suffix="train")
+            metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["val_mask"]], labels=splitted_data["data"].y[splitted_data["val_mask"]], suffix="val")
+            metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["test_mask"]], labels=splitted_data["data"].y[splitted_data["test_mask"]], suffix="test")
+            eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
+            
+            info = ""
+            for key, val in eval_output.items():
+                try:
+                    info += f"\t{key}: {val:.4f}"
+                except:
+                    continue
+
+            prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
+            if not mute:
+                print(prefix+info)
+            return eval_output
+
         else:
-            names = ["data", "train_mask", "val_mask", "test_mask"]
-            for name in names:
-                assert name in splitted_data
-        
-        
-        eval_output = {}
-        self.model.eval()
-        with torch.no_grad():
-            embedding, logits = self.model.forward(splitted_data["data"])
-            loss_train = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["train_mask"])
-            loss_val = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["val_mask"])
-            loss_test = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["test_mask"])
-
-        
-        eval_output["embedding"] = embedding
-        eval_output["logits"] = logits
-        eval_output["loss_train"] = loss_train
-        eval_output["loss_val"]   = loss_val
-        eval_output["loss_test"]  = loss_test
-        
-        
-        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["train_mask"]], labels=splitted_data["data"].y[splitted_data["train_mask"]], suffix="train")
-        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["val_mask"]], labels=splitted_data["data"].y[splitted_data["val_mask"]], suffix="val")
-        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["test_mask"]], labels=splitted_data["data"].y[splitted_data["test_mask"]], suffix="test")
-        eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
-        
-        info = ""
-        for key, val in eval_output.items():
-            try:
-                info += f"\t{key}: {val:.4f}"
-            except:
-                continue
-
-        prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
-        if not mute:
-            print(prefix+info)
-        return eval_output
-    
+            return self.rewrite_evaluate(splitted_data, mute)
     
     def loss_fn(self, embedding, logits, label, mask):
         return self.default_loss_fn(logits[mask], label[mask])

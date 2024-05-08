@@ -61,9 +61,7 @@ class NeighGen(nn.Module):
         
 
     def mend(self, impaired_data, pred_degree_float, pred_neig_feat):
-        num_impaired_nodes = impaired_data.x.shape[0]
-        mend_x = None
-        mend_edge_index = None        
+        num_impaired_nodes = impaired_data.x.shape[0]    
         ptr = num_impaired_nodes
         remain_feat = []
         remain_edges = []
@@ -114,15 +112,17 @@ class LocSAGEPlus(nn.Module):
         self.output_pred_degree = None
         self.output_pred_neig_feat = None
         self.output_mend_graph = None 
-        
+        self.phase = 0
         
     def forward(self, data):
-        pred_degree, pred_neig_feat, mend_graph = self.neighGen.forward(data)
-        mend_embedding, mend_logits = self.classifier.forward(mend_graph)
-        
-        self.output_pred_degree = pred_degree
-        self.output_pred_neig_feat = pred_neig_feat
-        self.output_mend_graph = mend_graph
-        return mend_embedding, mend_logits # 原始的节点的顺序都没变切在最前面
-    
-    
+        if self.phase == 0:
+            pred_degree, pred_neig_feat, mend_graph = self.neighGen.forward(data)
+            mend_embedding, mend_logits = self.classifier.forward(mend_graph)
+            
+            self.output_pred_degree = pred_degree
+            self.output_pred_neig_feat = pred_neig_feat
+            self.output_mend_graph = mend_graph
+            return mend_embedding, mend_logits # 原始的节点的顺序都没变切在最前面
+        else:
+            fill_embedding, fill_logits = self.classifier(data)
+            return fill_embedding, fill_logits

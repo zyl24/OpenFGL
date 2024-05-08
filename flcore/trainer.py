@@ -32,16 +32,16 @@ class FGLTrainer:
             
         
             
-            # if self.args.evaluation_mode == "local_model_on_local_data":
-            #     self.eval_local_model_on_local_data()
-            # elif self.args.evaluation_mode == "local_model_on_global_data":
-            #     self.eval_local_model_on_global_data()
-            # elif self.args.evaluation_mode == "global_model_on_global_data":
-            #     self.eval_global_model_on_global_data()
-            # elif self.args.evaluation_mode == "global_model_on_local_data":
-            #     self.eval_global_model_on_local_data()
-            # else:
-            #     raise ValueError
+            if self.args.evaluation_mode == "local_model_on_local_data":
+                self.eval_local_model_on_local_data()
+            elif self.args.evaluation_mode == "local_model_on_global_data":
+                self.eval_local_model_on_global_data()
+            elif self.args.evaluation_mode == "global_model_on_global_data":
+                self.eval_global_model_on_global_data()
+            elif self.args.evaluation_mode == "global_model_on_local_data":
+                self.eval_global_model_on_local_data()
+            else:
+                raise ValueError
             
             
     def eval_global_model_on_global_data(self):
@@ -82,6 +82,8 @@ class FGLTrainer:
         
         for client_id in range(self.args.num_clients):
             result = self.clients[client_id].task.evaluate()
+            if result["accuracy_val"] == "-":
+                return
             val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
             num_nodes = self.clients[client_id].task.num_samples
             global_val_acc += val_acc * num_nodes

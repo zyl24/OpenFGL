@@ -12,18 +12,33 @@ class FedSagePlusServer(BaseServer):
                                                         output_dim=self.task.num_global_classes, 
                                                         max_pred=config["max_pred"], 
                                                         dropout=self.args.dropout))
-   
+
     def execute(self):
-        with torch.no_grad():
-            num_tot_samples = sum([self.message_pool[f"client_{client_id}"]["num_samples"] for client_id in self.message_pool[f"sampled_clients"]])
-            for it, client_id in enumerate(self.message_pool["sampled_clients"]):
-                weight = self.message_pool[f"client_{client_id}"]["num_samples"] / num_tot_samples
+        # switch phase
+        if self.message_pool["round"] == 0:
+            self.phase = 0
+        elif self.message_pool["round"] == config["gen_rounds"] - 1: # last round for neighGen, server should switch phase 1
+            self.phase = 1
+            
+        # execute
+        if self.phase == 0: # do nothing
+            pass
+        elif self.phase == 1: # classifier aggregation
+            with torch.no_grad():
+                num_tot_samples = sum([self.message_pool[f"client_{client_id}"]["num_samples"] for client_id in self.message_pool[f"sampled_clients"]])
+                for it, client_id in enumerate(self.message_pool["sampled_clients"]):
+                    weight = self.message_pool[f"client_{client_id}"]["num_samples"] / num_tot_samples
+                    for (local_param, global_param_with_name) in zip(self.message_pool[f"client_{client_id}"]["weight"], self.task.model.named_parameters()):
+                        name = global_param_with_name[0]
+                        global_param = global_param_with_name[1]       
+                        if "classifier" in name:
+                            if it == 0:
+                                global_param.data.copy_(weight * local_param)
+                            else:
+                                global_param.data += weight * local_param
                 
-                for (local_param, global_param) in zip(self.message_pool[f"client_{client_id}"]["weight"], self.task.model.parameters()):
-                    if it == 0:
-                        global_param.data.copy_(weight * local_param)
-                    else:
-                        global_param.data += weight * local_param
+            
+            
         
     def send_message(self):
         self.message_pool["server"] = {
