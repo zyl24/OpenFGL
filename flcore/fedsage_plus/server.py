@@ -25,9 +25,8 @@ class FedSagePlusServer(BaseServer):
             pass
         elif self.phase == 1: # classifier aggregation
             with torch.no_grad():
-                num_tot_samples = sum([self.message_pool[f"client_{client_id}"]["num_samples"] for client_id in self.message_pool[f"sampled_clients"]])
                 for it, client_id in enumerate(self.message_pool["sampled_clients"]):
-                    weight = self.message_pool[f"client_{client_id}"]["num_samples"] / num_tot_samples
+                    weight = 1 / len(self.message_pool["sampled_clients"])
                     for (local_param, global_param_with_name) in zip(self.message_pool[f"client_{client_id}"]["weight"], self.task.model.named_parameters()):
                         name = global_param_with_name[0]
                         global_param = global_param_with_name[1]       

@@ -17,7 +17,7 @@ def accuracy_missing(output, labels):
     for pred,label in zip(preds,labels):
         if int(pred)==int(label):
             correct+=1.0
-    return correct / len(labels)
+    return correct / len(labels) * 100
 
 
 def accuracy(pred,true):
@@ -82,10 +82,10 @@ class FedSagePlusClient(BaseClient):
 
                         loss_other += loss_train_feat_other    
 
-                loss = config["num_missing_trade_off"] * loss_train_missing + \
+                loss = (config["num_missing_trade_off"] * loss_train_missing + \
                        config["missing_feat_trade_off"] * loss_train_feat + \
                        config["cls_trade_off"] * loss_train_label + \
-                       config["missing_feat_trade_off"] * loss_other / len(self.message_pool["sampled_clients"])
+                       config["missing_feat_trade_off"] * loss_other) / len(self.message_pool["sampled_clients"])
                        
                 acc_degree = accuracy_missing(pred_degree[mask], self.num_missing[mask])
                 acc_cls = accuracy(impaired_logits[mask], label[mask])
@@ -118,8 +118,6 @@ class FedSagePlusClient(BaseClient):
         if self.phase == 0:
             self.task.loss_fn = self.get_custom_loss_fn()
             self.task.train(self.splitted_impaired_data)
-            
-
         else:
             with torch.no_grad():
                 for (local_param_with_name, global_param) in zip(self.task.model.named_parameters(), self.message_pool["server"]["weight"]):
@@ -130,7 +128,6 @@ class FedSagePlusClient(BaseClient):
                         
             self.task.loss_fn = self.get_custom_loss_fn()
             self.task.train(self.splitted_filled_data)
-            self.task
 
             
             

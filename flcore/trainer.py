@@ -21,7 +21,7 @@ class FGLTrainer:
         
         for round_id in range(self.args.num_rounds):
             sampled_clients = sorted(random.sample(list(range(self.args.num_clients)), int(self.args.num_clients * self.args.client_frac)))
-            print(f"sampled_clients: {sampled_clients}")
+            print(f"round # {round_id}\t\tsampled_clients: {sampled_clients}")
             self.message_pool["round"] = round_id
             self.message_pool["sampled_clients"] = sampled_clients
             self.server.send_message()
@@ -42,6 +42,7 @@ class FGLTrainer:
                 self.eval_global_model_on_local_data()
             else:
                 raise ValueError
+            print("-"*50)
             
             
     def eval_global_model_on_global_data(self):
@@ -68,7 +69,7 @@ class FGLTrainer:
         
         print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
         print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
-        print("-"*50)
+        
             
 
         
@@ -99,7 +100,7 @@ class FGLTrainer:
         
         print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
         print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
-        print("-"*50)
+        
         
         
         
@@ -126,7 +127,7 @@ class FGLTrainer:
         
         print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
         print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
-        print("-"*50)
+        
             
     
     
@@ -162,7 +163,7 @@ class FGLTrainer:
         
         print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
         print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
-        print("-"*50)
+        
             
     
     

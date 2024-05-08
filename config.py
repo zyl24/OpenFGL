@@ -57,7 +57,7 @@ parser.add_argument("--hete_injection_ratio", type=float, default=0.)
 
 # fl settings
 parser.add_argument("--num_clients", type=int, default=10)
-parser.add_argument("--num_rounds", type=int, default=100)
+parser.add_argument("--num_rounds", type=int, default=500)
 parser.add_argument("--fl_algorithm", type=str, default="fedavg", choices=supported_fl_algorithm)
 parser.add_argument("--client_frac", type=float, default=1.0)
 
@@ -78,7 +78,7 @@ parser.add_argument("--task", type=str, default="graph_cls", choices=supported_f
 parser.add_argument("--train_val_test", type=str, default="default_split")
 parser.add_argument("--num_epochs", type=int, default=3)
 parser.add_argument("--dropout", type=float, default=0.5)
-parser.add_argument("--lr", type=float, default=1e-2)
+parser.add_argument("--lr", type=float, default=1e-3)
 parser.add_argument("--optim", type=str, default="adam")
 parser.add_argument("--weight_decay", type=float, default=5e-4)
 parser.add_argument("--batch_size", type=int, default=128)
