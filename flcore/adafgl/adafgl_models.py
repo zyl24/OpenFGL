@@ -83,12 +83,12 @@ class AdaFGLModel(nn.Module):
         self.processed_feature = self.nodes_embedding
 
     def homo_forward(self, device):
-        local_smooth_embedding, local_smooth_logits, global_emb, global_logits = self.homo_model(
+        local_smooth_emb, global_emb= self.homo_model(
             smoothed_feature=self.smoothed_feature,
             processed_feature=self.processed_feature,
             device=device
         )
-        return local_smooth_embedding, local_smooth_logits, global_emb, global_logits
+        return local_smooth_emb, global_emb
 
     def hete_forward(self, device):
         local_ori_emb, local_smooth_emb, local_message_propagation  = self.hete_model(
@@ -312,13 +312,12 @@ class HomoPropagateModel(nn.Module):
                 smoothed_feature = self.norms[i](smoothed_feature)
             smoothed_feature = self.prelu(smoothed_feature)
             smoothed_feature = self.dropout(smoothed_feature)
-            
-        local_smooth_embedding = smoothed_feature
-        local_smooth_logits = self.lr_smooth_trans[-1](smoothed_feature)
 
-        processed_logits = self.lr_smooth_trans[-1](processed_feature)
+        local_smooth_emb = self.lr_smooth_trans[-1](smoothed_feature)
 
-        return local_smooth_embedding, local_smooth_logits, processed_feature, processed_logits
+
+
+        return local_smooth_emb, processed_feature
     
     
 
