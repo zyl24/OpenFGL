@@ -50,10 +50,10 @@ class AdaFGLModel(nn.Module):
         self.total_trainable_params = round(sum(p.numel() for p in self.hete_model.parameters() if p.requires_grad)/1000000, 3)
 
 
-    def non_para_lp(self, subgraph, nodes_embedding, x, device):
-        self.nodes_embedding = nodes_embedding
+    def non_para_lp(self, subgraph, soft_label, x, device):
+        self.soft_label = soft_label
         self.ori_feature = x
-        self.NonPLP.preprocess(self.nodes_embedding, subgraph, device)
+        self.NonPLP.preprocess(self.soft_label, subgraph, device)
         self.NonPLP.propagate(adj=subgraph.adj)
         self.reliability_acc = self.NonPLP.eval()
         self.homo_init()
@@ -62,43 +62,43 @@ class AdaFGLModel(nn.Module):
 
     def preprocess(self, adj):
         self.pre_msg_op = ConcatMessageOp(start=0, end=self.prop_steps+1)
-        self.universal_re = getre_scale(self.nodes_embedding)
+        self.universal_re = getre_scale(self.soft_label)
         self.universal_re_smooth = torch.where(self.universal_re>0.999, 1, 0)
         self.universal_re = torch.where(self.universal_re>0.999, 1, 0)
         edge_u = torch.where(self.universal_re_smooth != 0)[0].cpu().numpy()
         edge_v = torch.where(self.universal_re_smooth != 0)[1].cpu().numpy()
         self.universal_re_smooth = np.vstack((edge_u,edge_v))
-        universal_re_smooth_adj = sp.coo_matrix((torch.ones([len(self.universal_re_smooth[0])]), (self.universal_re_smooth[0], self.universal_re_smooth[1])), shape=(self.nodes_embedding.shape[0], self.nodes_embedding.shape[0]))
+        universal_re_smooth_adj = sp.coo_matrix((torch.ones([len(self.universal_re_smooth[0])]), (self.universal_re_smooth[0], self.universal_re_smooth[1])), shape=(self.soft_label.shape[0], self.soft_label.shape[0]))
         self.adj = self.alpha * adj + (1-self.alpha) * universal_re_smooth_adj
         self.adj = self.adj.tocoo()
         row, col, edge_weight = self.adj.row, self.adj.col, self.adj.data
         if isinstance(row, Tensor) or isinstance(col, Tensor):
             self.adj = csr_matrix((edge_weight.numpy(), (row.numpy(), col.numpy())),
-                                            shape=(self.nodes_embedding.shape[0], self.nodes_embedding.shape[0]))
+                                            shape=(self.soft_label.shape[0], self.soft_label.shape[0]))
         else:
-            self.adj = csr_matrix((edge_weight, (row, col)), shape=(self.nodes_embedding.shape[0], self.nodes_embedding.shape[0]))
+            self.adj = csr_matrix((edge_weight, (row, col)), shape=(self.soft_label.shape[0], self.soft_label.shape[0]))
 
         self.processed_feat_list = self.pre_graph_op.propagate(self.adj, self.ori_feature)
         self.smoothed_feature = self.pre_msg_op.aggregate(self.processed_feat_list)
-        self.processed_feature = self.nodes_embedding
+        self.processed_feature = self.soft_label
 
     def homo_forward(self, device):
-        local_smooth_emb, global_emb= self.homo_model(
+        local_smooth_logits, global_logits= self.homo_model(
             smoothed_feature=self.smoothed_feature,
-            processed_feature=self.processed_feature,
+            global_logits=self.processed_feature,
             device=device
         )
-        return local_smooth_emb, global_emb
+        return local_smooth_logits, global_logits
 
     def hete_forward(self, device):
-        local_ori_emb, local_smooth_emb, local_message_propagation  = self.hete_model(
+        local_ori_logits, local_smooth_logits, local_message_propagation  = self.hete_model(
             ori_feature=self.ori_feature,
             smoothed_feature=self.smoothed_feature,
             processed_feature=self.processed_feature,
             universal_re=self.universal_re,
             device=device)
 
-        return local_ori_emb, local_smooth_emb, local_message_propagation 
+        return local_ori_logits, local_smooth_logits, local_message_propagation 
 
     def postprocess(self, adj, output):
         if self.post_graph_op is not None:
@@ -302,9 +302,9 @@ class HomoPropagateModel(nn.Module):
             nn.init.xavier_uniform_(lr_smooth_tran.weight, gain=gain)
             nn.init.zeros_(lr_smooth_tran.bias)
 
-    def forward(self, smoothed_feature, processed_feature, device):
+    def forward(self, smoothed_feature, global_logits, device):
         smoothed_feature = smoothed_feature.to(device)
-        processed_feature = processed_feature.to(device)
+        global_logits = global_logits.to(device)
 
         for i in range(self.num_layers - 1):
             smoothed_feature = self.lr_smooth_trans[i](smoothed_feature)
@@ -313,11 +313,11 @@ class HomoPropagateModel(nn.Module):
             smoothed_feature = self.prelu(smoothed_feature)
             smoothed_feature = self.dropout(smoothed_feature)
 
-        local_smooth_emb = self.lr_smooth_trans[-1](smoothed_feature)
+        local_smooth_logits = self.lr_smooth_trans[-1](smoothed_feature)
 
 
 
-        return local_smooth_emb, processed_feature
+        return local_smooth_logits, global_logits
     
     
 

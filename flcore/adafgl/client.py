@@ -37,7 +37,7 @@ class AdaFGLClient(BaseClient):
             eval_output = self.task.evaluate()
             node_logits = eval_output["logits"]
             soft_label = nn.Softmax(dim=1)(node_logits)
-            self.adafgl_model.non_para_lp(subgraph=self.task.data, nodes_embedding=soft_label, x=self.task.data.x, device=self.device)
+            self.adafgl_model.non_para_lp(subgraph=self.task.data, soft_label=soft_label, x=self.task.data.x, device=self.device)
             self.adafgl_model.preprocess(adj=self.task.data.adj)
             self.adafgl_model = self.adafgl_model.to(self.device)
             
@@ -71,15 +71,15 @@ class AdaFGLClient(BaseClient):
         self.adafgl_optimizer.zero_grad()
 
         # homo forward
-        local_smooth_emb, global_emb = self.adafgl_model.homo_forward(self.device)
-        loss_train1 = loss_ce_fn(local_smooth_emb[self.task.train_mask], self.task.data.y[self.task.train_mask])
-        loss_train2 = nn.MSELoss()(local_smooth_emb, global_emb)
+        local_smooth_logits, global_logits = self.adafgl_model.homo_forward(self.device)
+        loss_train1 = loss_ce_fn(local_smooth_logits[self.task.train_mask], self.task.data.y[self.task.train_mask])
+        loss_train2 = nn.MSELoss()(local_smooth_logits, global_logits)
         loss_train_homo = loss_train1 + loss_train2
             
         # hete forward
-        local_ori_emb, local_smooth_emb, local_message_propagation = self.adafgl_model.hete_forward(self.device)
-        loss_train1 = loss_ce_fn(local_ori_emb[self.task.train_mask], self.task.data.y[self.task.train_mask])
-        loss_train2 = loss_ce_fn(local_smooth_emb[self.task.train_mask], self.task.data.y[self.task.train_mask])
+        local_ori_logits, local_smooth_logits, local_message_propagation = self.adafgl_model.hete_forward(self.device)
+        loss_train1 = loss_ce_fn(local_ori_logits[self.task.train_mask], self.task.data.y[self.task.train_mask])
+        loss_train2 = loss_ce_fn(local_smooth_logits[self.task.train_mask], self.task.data.y[self.task.train_mask])
         loss_train3 = loss_ce_fn(local_message_propagation[self.task.train_mask], self.task.data.y[self.task.train_mask])
         loss_train_hete = loss_train1 + loss_train2 + loss_train3
         
@@ -102,13 +102,13 @@ class AdaFGLClient(BaseClient):
             
             # homo eval
             with torch.no_grad():
-                local_smooth_emb, global_emb = self.adafgl_model.homo_forward(self.device)
-                output_homo = (F.softmax(local_smooth_emb.data, 1) + F.softmax(global_emb.data, 1)) / 2
+                local_smooth_logits, global_logits = self.adafgl_model.homo_forward(self.device)
+                output_homo = (F.softmax(local_smooth_logits.data, 1) + F.softmax(global_logits.data, 1)) / 2
 
 
                 # hete eval
-                local_ori_emb, local_smooth_emb, local_message_propagation = self.adafgl_model.hete_forward(self.device)
-                output_hete = (F.softmax(local_ori_emb.data, 1) + F.softmax(local_smooth_emb.data, 1) + F.softmax(
+                local_ori_logits, local_smooth_logits, local_message_propagation = self.adafgl_model.hete_forward(self.device)
+                output_hete = (F.softmax(local_ori_logits.data, 1) + F.softmax(local_smooth_logits.data, 1) + F.softmax(
                     local_message_propagation.data, 1)) / 3
                 
                 # merge
