@@ -6,6 +6,8 @@ import copy
 import torch
 import json
 
+from utils.analysis import *
+
 class FGLDataset(Dataset):
     def __init__(self, args, transform=None, pre_transform=None, pre_filter=None):
         self.check_args(args)
@@ -175,6 +177,37 @@ class FGLDataset(Dataset):
             self.local_data = hete_random_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.hete_injection_ratio)
         else:
             raise ValueError
+        
+        # analysis module test
+        for client_id in range(self.args.num_clients):
+            print(self.local_data[client_id].num_nodes, self.local_data[client_id].num_edges)
+            # res = degree_distribution(self.local_data[client_id])
+            # res = degree_kurtosis(self.local_data[client_id])
+            # res = degree_mean(self.local_data[client_id])
+            # res = degree_variance(self.local_data[client_id])
+            # res = degree_centrality(self.local_data[client_id])
+            # res = closeness_centrality(self.local_data[client_id])
+            # res = degree_assortativity_coefficient(self.local_data[client_id])
+            # res = degree_pearson_correlation_coefficient(self.local_data[client_id])
+            # res = average_degree_connectivity(self.local_data[client_id])
+            # res = clustering_coefficient(self.local_data[client_id])
+            # res = avg_clustering_coefficient(self.local_data[client_id])
+            # res = avg_shortest_path_length(self.local_data[client_id])
+            # res = largest_component_percentage(self.local_data[client_id])
+            # res = avg_local_efficiency(self.local_data[client_id])
+            # res = avg_global_efficiency(self.local_data[client_id])
+            # res = diameter(self.local_data[client_id])
+            # res = transitivity(self.local_data[client_id])
+            # res = label_distribution(self.local_data[client_id])
+            # res = homophily(self.local_data[client_id], method='node')
+            # res = homophily(self.local_data[client_id], method='edge')
+            # res = homophily(self.local_data[client_id], method='edge_insensitive')
+            # res = homophily(self.local_data[client_id], method='adjusted')
+            # res = label_informativeness(self.local_data[client_id], method='node')
+            # res = label_informativeness(self.local_data[client_id], method='edge')
+            # res = feature_sparsity(self.local_data[client_id])
+            res = edge_sparsity(self.local_data[client_id])
+            print(res)
 
         
 # FGLDataset <- args

@@ -2,10 +2,12 @@ import networkx as nx
 import torch
 import torch_geometric
 import torch_geometric.data
-from torch_geometric.utils import to_networkx, homophily, to_dgl
+from torch_geometric.utils import to_networkx, to_dgl
 from torch_geometric.utils import degree as pyg_degree
+from torch_geometric.utils import homophily as pyg_homophily
 import numpy as np
-import dgl # pytroch2.1.*+dgl_cu11.8
+import dgl 
+# pytroch2.1.*+dgl_cu11.8
 
 # graph-level 
 
@@ -42,7 +44,7 @@ def degree_centrality(data: torch_geometric.data.Data) -> dict:
     degree_centrality = nx.degree_centrality(graph_nx)
     return degree_centrality
 
-def closeness_centrality(data: torch_geometric.data.Data, u=None) -> dict|float:
+def closeness_centrality(data: torch_geometric.data.Data, u=None):
     graph_nx = to_networkx(data, to_undirected=True)
     if u is None:
         closeness_centrality = nx.closeness_centrality(graph_nx)
@@ -118,8 +120,18 @@ def avg_global_efficiency(data: torch_geometric.data.Data):
 
 def diameter(data: torch_geometric.data.Data):
     graph_nx = to_networkx(data, to_undirected=True)
-    diameter_lower_bound = nx.diameter(graph_nx)
-    return diameter_lower_bound
+    if nx.is_connected(graph_nx):
+        diameter = nx.diameter(graph_nx)
+        return diameter
+    else:
+        diameter_list = []
+        connected_components = nx.connected_components(graph_nx)
+        # 遍历每个连通分量，并计算其直径
+        for i, component in enumerate(connected_components):
+            subgraph = graph_nx.subgraph(component)
+            diameter = nx.diameter(subgraph)
+            diameter_list.append(diameter)
+        return diameter_list
 
 def transitivity(data: torch_geometric.data.Data):
     graph_nx = to_networkx(data, to_undirected=True)
@@ -142,7 +154,7 @@ def homophily(data: torch_geometric.data.Data, method=None):
     if method in ['node', 'edge', 'edge_insensitive']:
         edge_index = data.edge_index
         labels = data.y
-        homo_score = homophily(edge_index, labels, method=method)
+        homo_score = pyg_homophily(edge_index, labels, method=method)
         return homo_score
     elif method in ['adjusted',]:
         from collections import Counter
@@ -150,12 +162,12 @@ def homophily(data: torch_geometric.data.Data, method=None):
         labels = data.y
         num_nodes = data.num_nodes
         num_edges = data.num_edges
-        homo_score = homophily(edge_index, labels, method='edge')
+        homo_score = pyg_homophily(edge_index, labels, method='edge')
         label_distribution = Counter(labels.tolist())
         degrees = pyg_degree(edge_index[0])
         degree_dict = {label: 0 for label in label_distribution.keys()}
         for nd in range(num_nodes):
-            degree_dict[labels[nd].item()] += degrees[nd]
+            degree_dict[labels[nd].item()] += degrees[nd].item()
 
         sum_p2 = 0.
         for label in label_distribution.keys():
@@ -189,4 +201,4 @@ def edge_sparsity(data: torch_geometric.data.Data):
     num_nodes = data.num_nodes
     num_edges = data.num_edges
     # undirected graph
-    return num_edges / num_nodes * (num_nodes - 1)
+    return num_edges / (num_nodes * (num_nodes - 1))

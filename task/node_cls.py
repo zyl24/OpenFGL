@@ -233,10 +233,9 @@ class NodeClsTask(BaseTask):
         for class_i in range(local_subgraph.num_global_classes):
             class_i_node_mask = local_subgraph.y == class_i
             num_class_i_nodes = class_i_node_mask.sum()
-            
             class_i_node_list = mask_tensor_to_idx(class_i_node_mask)
             if shuffle:
-                class_i_node_list = np.random.shuffle(class_i_node_list)
+                np.random.shuffle(class_i_node_list)
             train_mask += idx_to_mask_tensor(class_i_node_list[:int(train_ * num_class_i_nodes)], num_nodes)
             val_mask += idx_to_mask_tensor(class_i_node_list[int(train_ * num_class_i_nodes) : int((train_+val_) * num_class_i_nodes)], num_nodes)
             test_mask += idx_to_mask_tensor(class_i_node_list[int((train_+val_) * num_class_i_nodes): min(num_class_i_nodes, int((train_+val_+test_) * num_class_i_nodes))], num_nodes)
