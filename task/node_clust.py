@@ -22,15 +22,7 @@ def compute_edge_logits(node_embedding, edge_index):
 class NodeClustTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device):
         super(NodeClustTask, self).__init__(args, client_id, data, data_dir, device)
-        merged_edge_label = torch.eye(self.num_samples).float()
-        for edge_id in range(self.data.edge_index.shape[1]):
-            source = self.data.edge_index[0, edge_id]
-            target = self.data.edge_index[1, edge_id]
-            merged_edge_label[source, target] = 1
-            merged_edge_label[target, source] = 1
-        
-        merged_edge_label = merged_edge_label.flatten().to(self.device)
-        
+
         merged_edge_index_list = []
         
         for source in range(self.num_samples):
@@ -38,6 +30,19 @@ class NodeClustTask(BaseTask):
                 merged_edge_index_list.append((source, target))
                 
         merged_edge_index = torch.tensor(merged_edge_index_list).T.long().to(self.device)
+        merged_edge_label = torch.zeros((merged_edge_index.shape[1],)).float().to(self.device)
+            
+        for edge_id in range(self.data.edge_index.shape[1]):
+            source = self.data.edge_index[0, edge_id].item()
+            target = self.data.edge_index[1, edge_id].item()
+            idx = source * self.num_samples + target
+            merged_edge_label[idx] = 1
+        for source in range(self.num_samples):
+            idx = source * self.num_samples + source
+            merged_edge_label[idx] = 1
+        
+        merged_edge_label = merged_edge_label.to(self.device)
+        
         
         self.splitted_data = {
             "data": self.data,

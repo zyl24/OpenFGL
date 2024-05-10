@@ -119,7 +119,6 @@ class FGLTrainer:
                 for metric in self.args.metrics:
                     metric_value = result[f"{metric}"]
                     evaluation_result[f"current_{metric}"] += metric_value * num_samples
-                    evaluation_result[f"current_{metric}"] += metric_value * num_samples
                 
             if one_time_infer:
                 tot_samples = num_samples
