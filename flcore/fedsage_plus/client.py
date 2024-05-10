@@ -281,7 +281,7 @@ class FedSagePlusClient(BaseClient):
         
     def get_phase_0_override_evaluate(self):
         def override_evaluate(splitted_data=None, mute=False):
-            eval_output = {"accuracy_val": "-", "accuracy_test": "-"}
+            eval_output = {"skip"}
             return eval_output
         return override_evaluate
     

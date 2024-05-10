@@ -6,16 +6,15 @@ from os import path as osp
 from utils.metrics import compute_supervised_metrics
 import os
 import torch
-from utils.task_utils import load_node_cls_default_model
+from utils.task_utils import load_node_edge_level_default_model
 import pickle
-
+import numpy as np
 
     
 
 class NodeClsTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device):
         super(NodeClsTask, self).__init__(args, client_id, data, data_dir, device)
-        self.step_preprocess = None
         
         self.splitted_data = {
             "data": self.data,
@@ -97,7 +96,7 @@ class NodeClsTask(BaseTask):
         
     @property
     def default_model(self):            
-        return load_node_cls_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_global_classes, client_id=self.client_id)
+        return load_node_edge_level_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_global_classes, client_id=self.client_id)
     
     @property
     def default_optim(self):
@@ -178,8 +177,12 @@ class NodeClsTask(BaseTask):
             train_path = osp.join(self.train_val_test_path, f"train_{self.client_id}.pt")
             val_path = osp.join(self.train_val_test_path, f"val_{self.client_id}.pt")
             test_path = osp.join(self.train_val_test_path, f"test_{self.client_id}.pt")
+            glb_train_path = osp.join(self.train_val_test_path, f"glb_train_{self.client_id}.pkl")
+            glb_val_path = osp.join(self.train_val_test_path, f"glb_val_{self.client_id}.pkl")
+            glb_test_path = osp.join(self.train_val_test_path, f"glb_test_{self.client_id}.pkl")
             
-            if osp.exists(train_path) and osp.exists(val_path) and osp.exists(test_path): 
+            if osp.exists(train_path) and osp.exists(val_path) and osp.exists(test_path)\
+                and osp.exists(glb_train_path) and osp.exists(glb_val_path) and osp.exists(glb_test_path): 
                 train_mask = torch.load(train_path)
                 val_mask = torch.load(val_path)
                 test_mask = torch.load(test_path)
@@ -203,11 +206,11 @@ class NodeClsTask(BaseTask):
                     glb_val_id.append(self.data.global_map[id_val.item()])
                 for id_test in test_mask.nonzero():
                     glb_test_id.append(self.data.global_map[id_test.item()])
-                with open(osp.join(self.train_val_test_path, f"glb_train_{self.client_id}.pkl"), 'wb') as file:
+                with open(glb_train_path, 'wb') as file:
                     pickle.dump(glb_train_id, file)
-                with open(osp.join(self.train_val_test_path, f"glb_val_{self.client_id}.pkl"), 'wb') as file:
+                with open(glb_val_path, 'wb') as file:
                     pickle.dump(glb_val_id, file)
-                with open(osp.join(self.train_val_test_path, f"glb_test_{self.client_id}.pkl"), 'wb') as file:
+                with open(glb_test_path, 'wb') as file:
                     pickle.dump(glb_test_id, file)
             
         self.train_mask = train_mask.to(self.device)
@@ -216,7 +219,7 @@ class NodeClsTask(BaseTask):
             
             
             
-    def local_subgraph_train_val_test_split(self, local_subgraph, split):
+    def local_subgraph_train_val_test_split(self, local_subgraph, split, shuffle=True):
         num_nodes = local_subgraph.x.shape[0]
         
         if split == "default_split":
@@ -230,9 +233,13 @@ class NodeClsTask(BaseTask):
         for class_i in range(local_subgraph.num_global_classes):
             class_i_node_mask = local_subgraph.y == class_i
             num_class_i_nodes = class_i_node_mask.sum()
-            train_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask) [:int(train_ * num_class_i_nodes)], num_nodes)
-            val_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask)[int(train_ * num_class_i_nodes) : int((train_+val_) * num_class_i_nodes)], num_nodes)
-            test_mask += idx_to_mask_tensor(mask_tensor_to_idx(class_i_node_mask)[int((train_+val_) * num_class_i_nodes): ], num_nodes)
+            
+            class_i_node_list = mask_tensor_to_idx(class_i_node_mask)
+            if shuffle:
+                class_i_node_list = np.random.shuffle(class_i_node_list)
+            train_mask += idx_to_mask_tensor(class_i_node_list[:int(train_ * num_class_i_nodes)], num_nodes)
+            val_mask += idx_to_mask_tensor(class_i_node_list[int(train_ * num_class_i_nodes) : int((train_+val_) * num_class_i_nodes)], num_nodes)
+            test_mask += idx_to_mask_tensor(class_i_node_list[int((train_+val_) * num_class_i_nodes): min(num_class_i_nodes, int((train_+val_+test_) * num_class_i_nodes))], num_nodes)
         
         
         train_mask = train_mask.bool()

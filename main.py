@@ -21,7 +21,8 @@ args.num_clients = 3
 args.num_epochs = 1
 args.fl_algorithm = "fedavg"
 args.evaluation_mode = "local_model_on_local_data" 
-args.num_rounds = 300
+args.num_rounds = 100
+args.metrics = ["accuracy"]
 args.lr = 1e-2
 
 

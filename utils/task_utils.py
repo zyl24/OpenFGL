@@ -22,7 +22,7 @@ def load_graph_cls_default_model(args, input_dim, output_dim, client_id=None):
 
 
 
-def load_node_cls_default_model(args, input_dim, output_dim, client_id=None):
+def load_node_edge_level_default_model(args, input_dim, output_dim, client_id=None):
     if client_id is None: # server
         if len(args.model) > 1:
             return None

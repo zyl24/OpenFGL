@@ -13,9 +13,11 @@ class FGLTrainer:
         self.clients = [load_client(args, client_id, fgl_dataset.local_data[client_id], fgl_dataset.processed_dir, self.message_pool, self.device) for client_id in range(self.args.num_clients)]
         self.server = load_server(args, fgl_dataset.global_data, fgl_dataset.processed_dir, self.message_pool, self.device)
         
-        self.best_val_acc = 0
-        self.best_test_acc = 0
-        self.best_round = 0
+        self.evaluation_result = {"best_round":0}
+        for metric in self.args.metrics:
+            self.evaluation_result[f"best_val_{metric}"] = 0
+            self.evaluation_result[f"best_test_{metric}"] = 0
+
         
     def train(self):
         
@@ -30,18 +32,7 @@ class FGLTrainer:
                 self.clients[client_id].send_message()
             self.server.execute()
             
-        
-            
-            if self.args.evaluation_mode == "local_model_on_local_data":
-                self.eval_local_model_on_local_data()
-            elif self.args.evaluation_mode == "local_model_on_global_data":
-                self.eval_local_model_on_global_data()
-            elif self.args.evaluation_mode == "global_model_on_global_data":
-                self.eval_global_model_on_global_data()
-            elif self.args.evaluation_mode == "global_model_on_local_data":
-                self.eval_global_model_on_local_data()
-            else:
-                raise ValueError
+            self.evaluate()
             print("-"*50)
             
             
@@ -75,105 +66,70 @@ class FGLTrainer:
         
         
         
-    def eval_local_model_on_local_data(self):
+    def evaluate(self):
         # download -> local-train -> evaluate on local data
-        global_val_acc = 0
-        global_test_acc = 0
-        tot_nodes = 0
+        evaluation_result = {"current_round": self.message_pool["round"]}
+        for metric in self.args.metrics:
+            evaluation_result[f"current_val_{metric}"] = 0
+            evaluation_result[f"current_test_{metric}"] = 0
+
+        tot_samples = 0
+        one_time_infer = False
         
         for client_id in range(self.args.num_clients):
-            result = self.clients[client_id].task.evaluate()
-            if result["accuracy_val"] == "-":
+            if self.args.evaluation_mode == "local_model_on_local_data":
+                num_samples = self.clients[client_id].task.num_samples
+                result = self.clients[client_id].task.evaluate()
+            elif self.args.evaluation_mode == "local_model_on_global_data":
+                num_samples = self.server.task.num_samples
+                result = self.clients[client_id].task.evaluate(self.server.task.splitted_data)
+            elif self.args.evaluation_mode == "global_model_on_local_data":
+                num_samples = self.clients[client_id].task.num_samples
+                if self.server.personalized:
+                    self.server.switch_personalized_global_model(client_id)
+                result = self.server.task.evaluate(self.clients[client_id].task.splitted_data)
+            elif self.args.evaluation_mode == "global_model_on_global_data":
+                num_samples = self.server.task.num_samples
+                if self.server.personalized:
+                    self.server.switch_personzlied_global_model(client_id)
+                else:
+                    # only one-time infer
+                    one_time_infer = True
+                result = self.server.task.evaluate()
+            
+            
+            if "skip" in result:
                 return
-            val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
-            num_nodes = self.clients[client_id].task.num_samples
-            global_val_acc += val_acc * num_nodes
-            global_test_acc += test_acc * num_nodes
-            tot_nodes += num_nodes
-        global_val_acc /= tot_nodes
-        global_test_acc /= tot_nodes
-        
-        if global_val_acc > self.best_val_acc:
-            self.best_val_acc = global_val_acc
-            self.best_test_acc = global_test_acc
-            self.best_round = self.message_pool["round"]
-        
-        print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
-        print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
-        
-        
-        
-        
-    def eval_local_model_on_global_data(self):
-        # download -> local-train -> evaluate on global data
-        global_val_acc = 0
-        global_test_acc = 0
-        tot_nodes = 0
-        
-        for client_id in range(self.args.num_clients):
-            result = self.clients[client_id].task.evaluate(self.server.task.splitted_data)
-            val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
-            num_nodes = self.clients[client_id].task.num_samples
-            global_val_acc += val_acc * num_nodes
-            global_test_acc += test_acc * num_nodes
-            tot_nodes += num_nodes
-        global_val_acc /= tot_nodes
-        global_test_acc /= tot_nodes
-        
-        if global_val_acc > self.best_val_acc:
-            self.best_val_acc = global_val_acc
-            self.best_test_acc = global_test_acc
-            self.best_round = self.message_pool["round"]
-        
-        print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
-        print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
-        
             
-    
-    
-    def eval_global_model_on_local_data(self):
-        # for non-personalized fl-algorithm:
-        # server: global model -> evaluate on local data
-        # client: download -> local-train -> evaluate on local data
-    
-        # for personalized fl-algorithm:
-        # server: personalized global model -> evaluate on local data
-        # client: download -> evaluate on local data
-        global_val_acc = 0
-        global_test_acc = 0
-        tot_nodes = 0
-        
-        for client_id in range(self.args.num_clients):
-            if self.server.personalized:
-                self.server.switch_personalized_global_model(client_id)
+            for metric in self.args.metrics:
+                val_metric, test_metric = result[f"{metric}_val"], result[f"{metric}_test"]
+                evaluation_result[f"current_val_{metric}"] += val_metric * num_samples
+                evaluation_result[f"current_test_{metric}"] += test_metric * num_samples
                 
-            result = self.server.task.evaluate(self.clients[client_id].task.splitted_data)
-            val_acc, test_acc = result["accuracy_val"], result["accuracy_test"]
-            num_nodes = self.clients[client_id].task.num_samples
-            global_val_acc += val_acc * num_nodes
-            global_test_acc += test_acc * num_nodes
-            tot_nodes += num_nodes
-        global_val_acc /= tot_nodes
-        global_test_acc /= tot_nodes
+            if one_time_infer:
+                tot_samples = num_samples
+                break
+            else:
+                tot_samples += num_samples
         
-        if global_val_acc > self.best_val_acc:
-            self.best_val_acc = global_val_acc
-            self.best_test_acc = global_test_acc
-            self.best_round = self.message_pool["round"]
+        for metric in self.args.metrics:
+            evaluation_result[f"current_val_{metric}"] /= tot_samples
+            evaluation_result[f"current_test_{metric}"] /= tot_samples
         
-        print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
-        print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
-        
-            
+        if evaluation_result[f"current_val_{self.args.metrics[0]}"] > self.evaluation_result[f"best_val_{self.args.metrics[0]}"]:
+            for metric in self.args.metrics:
+                self.evaluation_result[f"best_val_{metric}"] = evaluation_result[f"current_val_{metric}"]
+                self.evaluation_result[f"best_test_{metric}"] = evaluation_result[f"current_test_{metric}"]
+            self.evaluation_result[f"best_round"] = evaluation_result[f"current_round"]
     
-    
-    
-    
-    
+        current_output = f"curr_round: {evaluation_result['current_round']}\t" + \
+            "\t".join([f"curr_val_{metric}: {evaluation_result[f'current_val_{metric}']:.4f}\tcurr_test_{metric}: {evaluation_result[f'current_test_{metric}']:.4f}" for metric in self.args.metrics])
+           
+        best_output = f"best_round: {self.evaluation_result['best_round']}\t" + \
+            "\t".join([f"best_val_{metric}: {self.evaluation_result[f'best_val_{metric}']:.4f}\tbest_test_{metric}: {self.evaluation_result[f'best_test_{metric}']:.4f}" for metric in self.args.metrics])
+        
+        print(current_output)
+        print(best_output)
         
         
-        
-    
-        
-        
-        
+     

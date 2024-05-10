@@ -115,6 +115,9 @@ def load_task(args, client_id, data, data_dir, device):
     elif args.task == "graph_cls":
         from task.graph_cls import GraphClsTask
         return GraphClsTask(args, client_id, data, data_dir, device)
+    elif args.task == "link_pred":
+        from task.link_pred import LinkPredTask
+        return LinkPredTask(args, client_id, data, data_dir, device)
     
 
 
