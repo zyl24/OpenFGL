@@ -259,7 +259,6 @@ class LinkPredTask(BaseTask):
                 torch.save(merged_edge_test_mask, merged_edge_test_path)
                 
                 # map to global
-
                 glb_merged_edge_index = torch.zeros_like(merged_edge_index)
                 for edge_id in range(glb_merged_edge_index.shape[1]):
                     glb_merged_edge_index[0, edge_id] = self.data.global_map[merged_edge_index[0, edge_id].item()]

@@ -264,7 +264,7 @@ class GraphClsTask(BaseTask):
             num_class_i_graphs = class_i_graph_mask.sum()
             class_i_graph_list = mask_tensor_to_idx(class_i_graph_mask)
             if shuffle:
-                class_i_graph_list = np.random.shuffle(class_i_graph_list)
+                np.random.shuffle(class_i_graph_list)
             train_mask += idx_to_mask_tensor(class_i_graph_list[:int(train_ * num_class_i_graphs)], num_graphs)
             val_mask += idx_to_mask_tensor(class_i_graph_list[int(train_ * num_class_i_graphs) : int((train_+val_) * num_class_i_graphs)], num_graphs)
             test_mask += idx_to_mask_tensor(class_i_graph_list[int((train_+val_) * num_class_i_graphs): min(num_class_i_graphs, int((train_+val_+test_) * num_class_i_graphs))], num_graphs)
