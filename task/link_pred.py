@@ -12,27 +12,16 @@ from utils.task_utils import load_node_edge_level_default_model
 import pickle
 import numpy as np
 
-def compute_edge_embedding_logits(node_embedding, edge_index, reduce_type):
-    assert reduce_type in ["sum", "mean", "max"]
-    # aggregate node embedding -> edge embedding
+def compute_edge_logits(node_embedding, edge_index):
     source_node_embedding = node_embedding[edge_index[0]]
     target_node_embedding = node_embedding[edge_index[1]]
-    
-    if reduce_type == "sum":
-        edge_embedding = source_node_embedding + target_node_embedding
-    elif reduce_type == "mean":
-        edge_embedding = (source_node_embedding + target_node_embedding) / 2
-    elif reduce_type == "max":
-        edge_embedding = torch.max(source_node_embedding, target_node_embedding)
-
-    edge_pred = torch.sigmoid((source_node_embedding * target_node_embedding).sum(dim=1))
-    return edge_embedding, edge_pred
+    edge_logits = (source_node_embedding * target_node_embedding).sum(dim=1)
+    return edge_logits
 
     
 class LinkPredTask(BaseTask):
-    def __init__(self, args, client_id, data, data_dir, device, reduce="sum"):
+    def __init__(self, args, client_id, data, data_dir, device):
         super(LinkPredTask, self).__init__(args, client_id, data, data_dir, device)
-        self.reduce = reduce
         
         self.splitted_data = {
             "forward_data": self.forward_data,
@@ -55,8 +44,8 @@ class LinkPredTask(BaseTask):
         for _ in range(self.args.num_epochs):
             self.optim.zero_grad()
             node_embedding, node_logits = self.model.forward(splitted_data["forward_data"])
-            edge_embedding, edge_logits = compute_edge_embedding_logits(node_embedding, splitted_data["merged_edge_index"], reduce_type=self.reduce)
-            loss_train = self.loss_fn(edge_embedding, edge_logits, splitted_data["merged_edge_label"], splitted_data["merged_edge_train_mask"])
+            edge_logits = compute_edge_logits(node_embedding, splitted_data["merged_edge_index"])
+            loss_train = self.loss_fn(node_embedding, edge_logits, splitted_data["merged_edge_label"], splitted_data["merged_edge_train_mask"])
             loss_train.backward()
             
             if self.step_preprocess is not None:
@@ -80,13 +69,13 @@ class LinkPredTask(BaseTask):
             self.model.eval()
             with torch.no_grad():
                 node_embedding, node_logits = self.model.forward(splitted_data["forward_data"])
-                edge_embedding, edge_logits = compute_edge_embedding_logits(node_embedding, splitted_data["merged_edge_index"], reduce_type=self.reduce)
-                loss_train = self.loss_fn(edge_embedding, edge_logits, splitted_data["merged_edge_label"], splitted_data["merged_edge_train_mask"])
-                loss_val = self.loss_fn(edge_embedding, edge_logits, splitted_data["merged_edge_label"], splitted_data["merged_edge_val_mask"])
-                loss_test = self.loss_fn(edge_embedding, edge_logits, splitted_data["merged_edge_label"], splitted_data["merged_edge_test_mask"])
+                edge_logits = compute_edge_logits(node_embedding, splitted_data["merged_edge_index"])
+                loss_train = self.loss_fn(None, edge_logits, splitted_data["merged_edge_label"], splitted_data["merged_edge_train_mask"])
+                loss_val = self.loss_fn(None, edge_logits, splitted_data["merged_edge_label"], splitted_data["merged_edge_val_mask"])
+                loss_test = self.loss_fn(None, edge_logits, splitted_data["merged_edge_label"], splitted_data["merged_edge_test_mask"])
 
             
-            eval_output["embedding"] = edge_embedding
+            eval_output["embedding"] = None
             eval_output["logits"] = edge_logits
             eval_output["loss_train"] = loss_train
             eval_output["loss_val"]   = loss_val

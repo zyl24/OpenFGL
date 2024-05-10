@@ -14,10 +14,13 @@ class FGLTrainer:
         self.server = load_server(args, fgl_dataset.global_data, fgl_dataset.processed_dir, self.message_pool, self.device)
         
         self.evaluation_result = {"best_round":0}
-        for metric in self.args.metrics:
-            self.evaluation_result[f"best_val_{metric}"] = 0
-            self.evaluation_result[f"best_test_{metric}"] = 0
-
+        if self.args.task in ["graph_cls", "graph_reg", "node_cls", "link_pred"]:
+            for metric in self.args.metrics:
+                self.evaluation_result[f"best_val_{metric}"] = 0
+                self.evaluation_result[f"best_test_{metric}"] = 0
+        elif self.args.task in ["node_clust"]:
+            for metric in self.args.metrics:
+                self.evaluation_result[f"best_{metric}"] = 0
         
     def train(self):
         
@@ -69,12 +72,18 @@ class FGLTrainer:
     def evaluate(self):
         # download -> local-train -> evaluate on local data
         evaluation_result = {"current_round": self.message_pool["round"]}
-        for metric in self.args.metrics:
-            evaluation_result[f"current_val_{metric}"] = 0
-            evaluation_result[f"current_test_{metric}"] = 0
+        
+        if self.args.task in ["graph_cls", "graph_reg", "node_cls", "link_pred"]:
+            for metric in self.args.metrics:
+                evaluation_result[f"current_val_{metric}"] = 0
+                evaluation_result[f"current_test_{metric}"] = 0
+        elif self.args.task in ["node_clust"]:
+            for metric in self.args.metrics:
+                evaluation_result[f"current_{metric}"] = 0
 
         tot_samples = 0
         one_time_infer = False
+        
         
         for client_id in range(self.args.num_clients):
             if self.args.evaluation_mode == "local_model_on_local_data":
@@ -101,10 +110,16 @@ class FGLTrainer:
             if "skip" in result:
                 return
             
-            for metric in self.args.metrics:
-                val_metric, test_metric = result[f"{metric}_val"], result[f"{metric}_test"]
-                evaluation_result[f"current_val_{metric}"] += val_metric * num_samples
-                evaluation_result[f"current_test_{metric}"] += test_metric * num_samples
+            if self.args.task in ["graph_cls", "graph_reg", "node_cls", "link_pred"]:
+                for metric in self.args.metrics:
+                    val_metric, test_metric = result[f"{metric}_val"], result[f"{metric}_test"]
+                    evaluation_result[f"current_val_{metric}"] += val_metric * num_samples
+                    evaluation_result[f"current_test_{metric}"] += test_metric * num_samples
+            elif self.args.task in ["node_clust"]:
+                for metric in self.args.metrics:
+                    metric_value = result[f"{metric}"]
+                    evaluation_result[f"current_{metric}"] += metric_value * num_samples
+                    evaluation_result[f"current_{metric}"] += metric_value * num_samples
                 
             if one_time_infer:
                 tot_samples = num_samples
@@ -112,24 +127,47 @@ class FGLTrainer:
             else:
                 tot_samples += num_samples
         
-        for metric in self.args.metrics:
-            evaluation_result[f"current_val_{metric}"] /= tot_samples
-            evaluation_result[f"current_test_{metric}"] /= tot_samples
         
-        if evaluation_result[f"current_val_{self.args.metrics[0]}"] > self.evaluation_result[f"best_val_{self.args.metrics[0]}"]:
+        
+        if self.args.task in ["graph_cls", "graph_reg", "node_cls", "link_pred"]:
             for metric in self.args.metrics:
-                self.evaluation_result[f"best_val_{metric}"] = evaluation_result[f"current_val_{metric}"]
-                self.evaluation_result[f"best_test_{metric}"] = evaluation_result[f"current_test_{metric}"]
-            self.evaluation_result[f"best_round"] = evaluation_result[f"current_round"]
-    
-        current_output = f"curr_round: {evaluation_result['current_round']}\t" + \
-            "\t".join([f"curr_val_{metric}: {evaluation_result[f'current_val_{metric}']:.4f}\tcurr_test_{metric}: {evaluation_result[f'current_test_{metric}']:.4f}" for metric in self.args.metrics])
-           
-        best_output = f"best_round: {self.evaluation_result['best_round']}\t" + \
-            "\t".join([f"best_val_{metric}: {self.evaluation_result[f'best_val_{metric}']:.4f}\tbest_test_{metric}: {self.evaluation_result[f'best_test_{metric}']:.4f}" for metric in self.args.metrics])
+                evaluation_result[f"current_val_{metric}"] /= tot_samples
+                evaluation_result[f"current_test_{metric}"] /= tot_samples
+                
+            if evaluation_result[f"current_val_{self.args.metrics[0]}"] > self.evaluation_result[f"best_val_{self.args.metrics[0]}"]:
+                for metric in self.args.metrics:
+                    self.evaluation_result[f"best_val_{metric}"] = evaluation_result[f"current_val_{metric}"]
+                    self.evaluation_result[f"best_test_{metric}"] = evaluation_result[f"current_test_{metric}"]
+                self.evaluation_result[f"best_round"] = evaluation_result[f"current_round"]
+            
+            current_output = f"curr_round: {evaluation_result['current_round']}\t" + \
+                "\t".join([f"curr_val_{metric}: {evaluation_result[f'current_val_{metric}']:.4f}\tcurr_test_{metric}: {evaluation_result[f'current_test_{metric}']:.4f}" for metric in self.args.metrics])
         
-        print(current_output)
-        print(best_output)
+            best_output = f"best_round: {self.evaluation_result['best_round']}\t" + \
+                "\t".join([f"best_val_{metric}: {self.evaluation_result[f'best_val_{metric}']:.4f}\tbest_test_{metric}: {self.evaluation_result[f'best_test_{metric}']:.4f}" for metric in self.args.metrics])
+    
+            print(current_output)
+            print(best_output)
+        else:
+            for metric in self.args.metrics:
+                evaluation_result[f"current_{metric}"] /= tot_samples
+        
+            if evaluation_result[f"current_{self.args.metrics[0]}"] > self.evaluation_result[f"best_{self.args.metrics[0]}"]:
+                for metric in self.args.metrics:
+                    self.evaluation_result[f"best_{metric}"] = evaluation_result[f"current_{metric}"]
+                self.evaluation_result[f"best_round"] = evaluation_result[f"current_round"]
+            
+            current_output = f"curr_round: {evaluation_result['current_round']}\t" + \
+                "\t".join([f"curr_{metric}: {evaluation_result[f'current_{metric}']:.4f}" for metric in self.args.metrics])
+        
+            best_output = f"best_round: {self.evaluation_result['best_round']}\t" + \
+                "\t".join([f"best_{metric}: {self.evaluation_result[f'best_{metric}']:.4f}" for metric in self.args.metrics])
+        
+            print(current_output)
+            print(best_output)
+            
+    
+        
         
         
      

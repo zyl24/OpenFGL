@@ -73,7 +73,7 @@ parser.add_argument("--metis_num_coms", type=float, default=100)
 
 # task settings
 parser.add_argument("--task", type=str, default="graph_cls", choices=supported_fedgraph_task + supported_fedsubgraph_task)
-
+parser.add_argument("--num_clusters", type=int, default=7)
 # training settings
 parser.add_argument("--train_val_test", type=str, default="default_split")
 parser.add_argument("--num_epochs", type=int, default=3)

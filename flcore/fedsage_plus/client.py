@@ -17,13 +17,13 @@ def accuracy_missing(output, labels):
     for pred,label in zip(preds,labels):
         if int(pred)==int(label):
             correct+=1.0
-    return correct / len(labels) * 100
+    return correct / len(labels)
 
 
 def accuracy(pred,true):
     correct = (pred.max(1)[1] == true).sum()
     tot = true.shape[0]
-    acc = float(correct / tot) * 100
+    acc = float(correct / tot)
     return acc
 
 

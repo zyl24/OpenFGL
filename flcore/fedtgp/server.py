@@ -33,7 +33,7 @@ class FedTGPServer(BaseServer):
         self.fedtgp_lambda = fedtgp_lambda
         self.num_glb_epochs = num_glb_epochs
         self.lr_glb = lr_glb
-        self.trainable_prototypes = Trainable_prototypes(self.task.data.num_classes, args.hid_dim, args.hid_dim, device).to(device)
+        self.trainable_prototypes = Trainable_prototypes(self.task.num_global_classes, args.hid_dim, args.hid_dim, device).to(device)
         self.gp_optimizer = torch.optim.Adam(self.trainable_prototypes.parameters(), lr=lr_glb, weight_decay=args.weight_decay)
         self.global_prototype = {}
         
@@ -42,26 +42,26 @@ class FedTGPServer(BaseServer):
         y_list = []
         tensor_list = []
         for client_i in self.message_pool["sampled_clients"]:
-            for class_i in range(self.task.data.num_classes):
+            for class_i in range(self.task.num_global_classes):
                 y_list.append(class_i)
                 tensor_list.append(self.message_pool[f"client_{client_i}"]["local_prototype"][class_i])
         y = torch.tensor(y_list).type(torch.int64).to(self.device)
         all_local_prototypes = torch.cat([v.unsqueeze(0) for v in tensor_list], dim=0)
-        row_id = [class_id for class_id in range(self.task.data.num_classes)]
+        row_id = [class_id for class_id in range(self.task.num_global_classes)]
             
-        avg_proto = torch.zeros((self.task.data.num_classes, all_local_prototypes.shape[1])).to(self.device)
+        avg_proto = torch.zeros((self.task.num_global_classes, all_local_prototypes.shape[1])).to(self.device)
         num_local_prototypes = len(tensor_list) 
         for proto_i in range(num_local_prototypes):
             avg_proto[y_list[proto_i]] += all_local_prototypes[proto_i,:]
-        for class_i in range(self.task.data.num_classes):
+        for class_i in range(self.task.num_global_classes):
             avg_proto /= y_list.count(class_i)
             
                 
-        gap = torch.ones(self.task.data.num_classes, device=self.device) * 1e9  
+        gap = torch.ones(self.task.num_global_classes, device=self.device) * 1e9  
             
 
-        for k1 in range(self.task.data.num_classes):
-            for k2 in range(self.task.data.num_classes):
+        for k1 in range(self.task.num_global_classes):
+            for k2 in range(self.task.num_global_classes):
                 if k1 > k2:
                     dis = torch.norm(avg_proto[k1] - avg_proto[k2], p=2)
                     gap[k1] = torch.min(gap[k1], dis)
@@ -86,7 +86,7 @@ class FedTGPServer(BaseServer):
             dist = features_square - 2 * features_into_centers + centers_square.T
             dist = torch.sqrt(dist)
             
-            one_hot = F.one_hot(y, self.task.data.num_classes).to(self.device)
+            one_hot = F.one_hot(y, self.task.num_global_classes).to(self.device)
             gap2 = min(max_gap.item(), 100)
             
             
@@ -97,7 +97,7 @@ class FedTGPServer(BaseServer):
             glb_loss.backward()
             self.gp_optimizer.step()
         
-        for class_i in range(self.task.data.num_classes):
+        for class_i in range(self.task.num_global_classes):
             self.global_prototype[class_i] = self.trainable_prototypes.forward(class_i).detach()
         
     def send_message(self):

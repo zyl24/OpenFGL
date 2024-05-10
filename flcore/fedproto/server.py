@@ -9,7 +9,7 @@ class FedProtoServer(BaseServer):
     def execute(self):
         with torch.no_grad():
             num_tot_samples = sum([self.message_pool[f"client_{client_id}"]["num_samples"] for client_id in self.message_pool[f"sampled_clients"]])
-            for class_i in range(self.task.data.num_classes):
+            for class_i in range(self.task.num_global_classes):
                 for it, client_id in enumerate(self.message_pool["sampled_clients"]):
                     weight = self.message_pool[f"client_{client_id}"]["num_samples"] / num_tot_samples
                     

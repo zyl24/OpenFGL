@@ -118,6 +118,9 @@ def load_task(args, client_id, data, data_dir, device):
     elif args.task == "link_pred":
         from task.link_pred import LinkPredTask
         return LinkPredTask(args, client_id, data, data_dir, device)
+    elif args.task == "node_clust":
+        from task.node_clust import NodeClustTask
+        return NodeClustTask(args, client_id, data, data_dir, device)
     
 
 

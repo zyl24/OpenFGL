@@ -14,15 +14,16 @@ print(args)
 
 args.scenario = "fedsubgraph"
 args.simulation_mode = "fedsubgraph_louvain"
-args.task = "node_cls"
-args.model = ["graphsage"]
+args.task = "node_clust"
+args.model = ["gcn"]
 args.dataset = ["Cora"]
 args.num_clients = 3
-args.num_epochs = 1
-args.fl_algorithm = "fedavg"
+args.num_epochs = 3
+args.fl_algorithm = "fedpub"
 args.evaluation_mode = "local_model_on_local_data" 
 args.num_rounds = 100
-args.metrics = ["accuracy"]
+# args.metrics = ["ap", "auc"]
+args.metrics = ["nmi", "ari", "clustering_accuracy"]
 args.lr = 1e-2
 
 
