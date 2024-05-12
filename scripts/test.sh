@@ -16,6 +16,3 @@ for dataset in "${datasets[@]}"; do
         done
     done
 done
-
-
-python main.py --dataset Cora --fl_algorithm fedavg --num_clients 5 --scenario fedsubgraph --processing raw --num_rounds 100 --num_epochs 3 --simulation_mode fedsubgraph_louvain --task node_cls --lr 1e-2 --model gcn --metrics accuracy
