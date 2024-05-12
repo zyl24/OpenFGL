@@ -2,7 +2,7 @@ import torch
 import random
 from data.distributed_dataset_loader import FGLDataset
 from utils.basic_utils import load_client, load_server
-import logging
+from utils.logger import Logger
 
 class FGLTrainer:
     
@@ -23,7 +23,7 @@ class FGLTrainer:
             for metric in self.args.metrics:
                 self.evaluation_result[f"best_{metric}"] = 0
         
-        
+        self.logger = Logger(args, self.message_pool, FGLDataset.processed_dir)
       
       
       
@@ -44,7 +44,7 @@ class FGLTrainer:
             self.evaluate()
             print("-"*50)
             
-
+        self.logger.save()
         
         
         
@@ -142,6 +142,8 @@ class FGLTrainer:
         
             print(current_output)
             print(best_output)
+            
+        self.logger.add_log(evaluation_result)
             
     
         

@@ -1,5 +1,9 @@
 import os
 import copy
+import pickle
+import datetime
+
+
 
 class Logger:
     
@@ -12,20 +16,13 @@ class Logger:
         
     @property
     def log_path(self):
-        return os.path.join(self.task_path, "debug", self.args.fl_algorithm)
+        return os.path.join(self.task_path, "debug", self.args.fl_algorithm, datetime.datetime.now())
     
     
-    def get_round_logs(self, evaluation_result):
+    def add_log(self, evaluation_result):
         # 1. save task-oriented metric in each round
         self.log_list.append(copy.deepcopy(evaluation_result))
     
-        # 2. auto compute bandwidth
-        total_bytes = 0
-
-        # # # 遍历字典，找到所有的 tensor 并计算总字节数
-        # for key, value in tensor_dict.items():
-        #     if torch.is_tensor(value):
-        #         # 计算当前 tensor 的字节数
-        #         bytes_of_tensor = value.element_size() * value.nelement()
-        #         total_bytes += bytes_of_tensor
-        #         print(f"Tensor '{key}' has {bytes_of_tensor} bytes.")
+    def save(self):
+        with open(self.log_path, 'wb') as file:
+            pickle.dump(self.log_list, file)
