@@ -16,7 +16,7 @@ class Logger:
         
     @property
     def log_path(self):
-        return os.path.join(self.task_path, "debug", self.args.fl_algorithm, datetime.datetime.now())
+        return os.path.join(self.task_path, "debug", f"{self.args.fl_algorithm}_{datetime.datetime.now()}.pkl")
     
     
     def add_log(self, evaluation_result):
