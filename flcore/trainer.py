@@ -84,10 +84,6 @@ class FGLTrainer:
                 one_time_infer = True
                 result = self.server.task.evaluate()
             
-            
-            if "skip" in result:
-                return
-            
             if self.args.task in ["graph_cls", "graph_reg", "node_cls", "link_pred"]:
                 for metric in self.args.metrics:
                     val_metric, test_metric = result[f"{metric}_val"], result[f"{metric}_test"]

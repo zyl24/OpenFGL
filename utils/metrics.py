@@ -41,10 +41,6 @@ def compute_supervised_metrics(metrics, logits, labels, suffix):
         if labels.max() > 1:
             raise ValueError("AUC is not directly supported for multi-class classification.")
         result[f"auc_{suffix}"] = roc_auc_score(labels, probs)
-    
-    if "roc" in metrics:
-        fpr, tpr, _ = roc_curve(labels, probs[:, 1] if probs.ndim > 1 else probs)
-        result[f"roc_{suffix}"] = (fpr, tpr)
 
     if "ap" in metrics:
         result[f"ap_{suffix}"] = average_precision_score(labels, probs[:, 1] if probs.ndim > 1 else probs)
