@@ -44,7 +44,7 @@ parser.add_argument("--seed", type=int, default=2024)
 # global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
 parser.add_argument("--scenario", type=str, default="fedsubgraph", choices=supported_scenario)
-parser.add_argument("--dataset", type=list, default=["Cora"])
+parser.add_argument("--dataset", type=str, default=[], action='append')
 parser.add_argument("--processing", type=str, default="raw", choices=supported_data_processing)
 # post_process: 
 # random feature mask ratio
@@ -85,12 +85,12 @@ parser.add_argument("--batch_size", type=int, default=128)
 
 
 # model settings
-parser.add_argument("--model", type=list, default=["gcn"], choices=supported_fedgraph_model + supported_fedsubgraph_model)
+parser.add_argument("--model", type=str, default=[], action='append')
 parser.add_argument("--num_layers", type=int, default=2)
 parser.add_argument("--hid_dim", type=int, default=64)
 
 # evaluation settings
-parser.add_argument("--metrics", type=list, default=["accuracy"])
+parser.add_argument("--metrics", type=str, default=[], action='append')
 parser.add_argument("--evaluation_mode", type=str, default="local_model_on_local_data", choices=supported_evaluation_modes)
 
 
