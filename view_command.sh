@@ -1,1 +1,0 @@
-ps -u ai2 -ef | grep bash
