@@ -4,8 +4,7 @@ import argparse
 supported_scenario = ["fedgraph", "fedsubgraph"]
 
 supported_fedgraph_datasets = [
-"AIDS", "BZR", "COLLAB", "COX2", "DD", "DHFR", "ENZYMES", "IMDB-BINARY", "IMDB-MULTI", "MUTAG", "NCI1", "PROTEINS", "PTC_MR",
-"Cora", "CiteSeer", "PubMed", "hERG"
+"AIDS", "BZR", "COLLAB", "COX2", "DD", "DHFR", "ENZYMES", "IMDB-BINARY", "IMDB-MULTI", "MUTAG", "NCI1", "PROTEINS", "PTC_MR", "hERG"
 ]
 supported_fedsubgraph_datasets = [
 "Cora", "CiteSeer", "PubMed"
@@ -57,7 +56,7 @@ parser.add_argument("--hete_injection_ratio", type=float, default=0.)
 
 # fl settings
 parser.add_argument("--num_clients", type=int, default=10)
-parser.add_argument("--num_rounds", type=int, default=500)
+parser.add_argument("--num_rounds", type=int, default=100)
 parser.add_argument("--fl_algorithm", type=str, default="fedavg", choices=supported_fl_algorithm)
 parser.add_argument("--client_frac", type=float, default=1.0)
 
@@ -92,6 +91,12 @@ parser.add_argument("--hid_dim", type=int, default=64)
 # evaluation settings
 parser.add_argument("--metrics", type=list, default=["accuracy"])
 parser.add_argument("--evaluation_mode", type=str, default="global", choices=supported_evaluation_modes)
+
+
+# debug
+parser.add_argument("--debug", type=bool, default=True)
+
+
 
 
 

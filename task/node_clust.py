@@ -121,6 +121,9 @@ class NodeClustTask(BaseTask):
     def loss_fn(self, embedding, logits, label, mask):
         return self.default_loss_fn(logits, label)
     
+    @property
+    def train_val_test_path(self):
+        return osp.join(self.data_dir, f"node_clust")
     
     @property
     def default_model(self):            

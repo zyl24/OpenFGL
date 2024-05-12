@@ -2,6 +2,8 @@ import torch
 import random
 from data.distributed_dataset_loader import FGLDataset
 from utils.basic_utils import load_client, load_server
+from utils.logger import Logger
+
 
 class FGLTrainer:
     
@@ -21,6 +23,12 @@ class FGLTrainer:
         elif self.args.task in ["node_clust"]:
             for metric in self.args.metrics:
                 self.evaluation_result[f"best_{metric}"] = 0
+                
+
+        # self.logger = Logger(args, self.message_pool, self.evaluation_result, self.server.task.train_val_test_path)
+      
+      
+      
         
     def train(self):
         
@@ -37,33 +45,6 @@ class FGLTrainer:
             
             self.evaluate()
             print("-"*50)
-            
-            
-    def eval_global_model_on_global_data(self):
-        if self.server.personalized:
-            global_val_acc = 0
-            global_test_acc = 0
-            
-            for client_id in range(self.args.num_clients):
-                self.server.switch_personzlied_global_model(client_id)
-                result = self.server.task.evaluate()
-                global_val_acc += result["accuracy_val"]
-                global_test_acc += result["accuracy_test"]
-                
-            global_val_acc /= self.args.num_clients
-            global_test_acc /= self.args.num_clients
-        else:
-            result = self.server.task.evaluate()
-            global_val_acc, global_test_acc = result["accuracy_val"], result["accuracy_test"]
-        
-        if global_val_acc > self.best_val_acc:
-            self.best_val_acc = global_val_acc
-            self.best_test_acc = global_test_acc
-            self.best_round = self.message_pool["round"]
-        
-        print(f"curr_round: {self.message_pool['round']}\tcurr_val: {global_val_acc:.4f}\tcurr_test: {global_test_acc:.4f}")
-        print(f"best_round: {self.best_round}\tbest_val: {self.best_val_acc:.4f}\tbest_test: {self.best_test_acc:.4f}")
-        
             
 
         

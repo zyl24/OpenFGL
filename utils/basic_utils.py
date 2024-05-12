@@ -59,6 +59,9 @@ def load_client(args, client_id, data, data_dir, message_pool, device):
     elif args.fl_algorithm == "adafgl":
         from flcore.adafgl.client import AdaFGLClient
         return AdaFGLClient(args, client_id, data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "gcfl_plus":
+        from flcore.gcfl_plus.client import GCFLPlusClient
+        return GCFLPlusClient(args, client_id, data, data_dir, message_pool, device)
     
 def load_server(args, global_data, data_dir, message_pool, device):
     if args.fl_algorithm == "fedavg":
@@ -100,6 +103,9 @@ def load_server(args, global_data, data_dir, message_pool, device):
     elif args.fl_algorithm == "adafgl":
         from flcore.adafgl.server import AdaFGLServer
         return AdaFGLServer(args, global_data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "gcfl_plus":
+        from flcore.gcfl_plus.server import GCFLPlusServer
+        return GCFLPlusServer(args, global_data, data_dir, message_pool, device)
         
     
 def load_optim(args):

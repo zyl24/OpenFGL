@@ -11,7 +11,7 @@ from scipy import sparse as sp
         
 class AdaFGLServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
-        super(AdaFGLServer, self).__init__(args, global_data, data_dir, message_pool, device)
+        super(AdaFGLServer, self).__init__(args, global_data, data_dir, message_pool, device, personalized=True)
         self.phase = 0
 
     def execute(self):
@@ -40,3 +40,10 @@ class AdaFGLServer(BaseServer):
         self.message_pool["server"] = {
             "weight": list(self.task.model.parameters())
         }
+        
+        
+    def switch_personalized_global_model(self, client_id):
+        # all clients share the same global model
+        # the personalize processing is in phase 2
+        pass # do nothing
+        
