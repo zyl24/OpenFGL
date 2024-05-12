@@ -16,12 +16,7 @@ class NodeClsTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device):
         super(NodeClsTask, self).__init__(args, client_id, data, data_dir, device)
         
-        self.splitted_data = {
-            "data": self.data,
-            "train_mask": self.train_mask,
-            "val_mask": self.val_mask,
-            "test_mask": self.test_mask
-        }
+
         
     def train(self, splitted_data=None):
         if splitted_data is None:
@@ -95,7 +90,7 @@ class NodeClsTask(BaseTask):
         return self.default_loss_fn(logits[mask], label[mask])
         
     @property
-    def default_model(self):            
+    def default_model(self):
         return load_node_edge_level_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_global_classes, client_id=self.client_id)
     
     @property
@@ -147,7 +142,7 @@ class NodeClsTask(BaseTask):
     
 
     def load_train_val_test_split(self):
-        if self.client_id is None: # server
+        if self.client_id is None and len(self.args.dataset) == 1: # server
             glb_train = []
             glb_val = []
             glb_test = []
@@ -196,26 +191,35 @@ class NodeClsTask(BaseTask):
                 torch.save(val_mask, val_path)
                 torch.save(test_mask, test_path)
                 
-                # map to global
-                glb_train_id = []
-                glb_val_id = []
-                glb_test_id = []
-                for id_train in train_mask.nonzero():
-                    glb_train_id.append(self.data.global_map[id_train.item()])
-                for id_val in val_mask.nonzero():
-                    glb_val_id.append(self.data.global_map[id_val.item()])
-                for id_test in test_mask.nonzero():
-                    glb_test_id.append(self.data.global_map[id_test.item()])
-                with open(glb_train_path, 'wb') as file:
-                    pickle.dump(glb_train_id, file)
-                with open(glb_val_path, 'wb') as file:
-                    pickle.dump(glb_val_id, file)
-                with open(glb_test_path, 'wb') as file:
-                    pickle.dump(glb_test_id, file)
-            
+                if len(self.args.dataset) == 1:
+                    # map to global
+                    glb_train_id = []
+                    glb_val_id = []
+                    glb_test_id = []
+                    for id_train in train_mask.nonzero():
+                        glb_train_id.append(self.data.global_map[id_train.item()])
+                    for id_val in val_mask.nonzero():
+                        glb_val_id.append(self.data.global_map[id_val.item()])
+                    for id_test in test_mask.nonzero():
+                        glb_test_id.append(self.data.global_map[id_test.item()])
+                    with open(glb_train_path, 'wb') as file:
+                        pickle.dump(glb_train_id, file)
+                    with open(glb_val_path, 'wb') as file:
+                        pickle.dump(glb_val_id, file)
+                    with open(glb_test_path, 'wb') as file:
+                        pickle.dump(glb_test_id, file)
+                
         self.train_mask = train_mask.to(self.device)
         self.val_mask = val_mask.to(self.device)
         self.test_mask = test_mask.to(self.device)
+        
+        
+        self.splitted_data = {
+            "data": self.data,
+            "train_mask": self.train_mask,
+            "val_mask": self.val_mask,
+            "test_mask": self.test_mask
+        }
             
             
             

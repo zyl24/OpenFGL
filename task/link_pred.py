@@ -23,15 +23,7 @@ class LinkPredTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device):
         super(LinkPredTask, self).__init__(args, client_id, data, data_dir, device)
         
-        self.splitted_data = {
-            "forward_data": self.forward_data,
-            "merged_edge_index": self.merged_edge_index,
-            "merged_edge_label": self.merged_edge_label,
-            "merged_edge_train_mask": self.merged_edge_train_mask,
-            "merged_edge_val_mask": self.merged_edge_val_mask,
-            "merged_edge_test_mask": self.merged_edge_test_mask
-        }
-        
+
     def train(self, splitted_data=None):
         if splitted_data is None:
             splitted_data = self.splitted_data
@@ -158,7 +150,7 @@ class LinkPredTask(BaseTask):
     
 
     def load_train_val_test_split(self):
-        if self.client_id is None: # server
+        if self.client_id is None and len(self.args.dataset) == 1: # server
             glb_merged_edge_index_list = []
             glb_label_list = []
             glb_train_mask_list = []
@@ -247,12 +239,13 @@ class LinkPredTask(BaseTask):
                 torch.save(merged_edge_val_mask, merged_edge_val_path)
                 torch.save(merged_edge_test_mask, merged_edge_test_path)
                 
-                # map to global
-                glb_merged_edge_index = torch.zeros_like(merged_edge_index)
-                for edge_id in range(glb_merged_edge_index.shape[1]):
-                    glb_merged_edge_index[0, edge_id] = self.data.global_map[merged_edge_index[0, edge_id].item()]
-                    glb_merged_edge_index[1, edge_id] = self.data.global_map[merged_edge_index[1, edge_id].item()]
-                    
+                if len(self.args.dataset) == 1:
+                    # map to global
+                    glb_merged_edge_index = torch.zeros_like(merged_edge_index)
+                    for edge_id in range(glb_merged_edge_index.shape[1]):
+                        glb_merged_edge_index[0, edge_id] = self.data.global_map[merged_edge_index[0, edge_id].item()]
+                        glb_merged_edge_index[1, edge_id] = self.data.global_map[merged_edge_index[1, edge_id].item()]
+                        
                 torch.save(glb_merged_edge_index, glb_merged_edge_index_path)
                 
    
@@ -264,6 +257,15 @@ class LinkPredTask(BaseTask):
         self.merged_edge_train_mask = merged_edge_train_mask.to(self.device)
         self.merged_edge_val_mask = merged_edge_val_mask.to(self.device)
         self.merged_edge_test_mask = merged_edge_test_mask.to(self.device)
+        
+        self.splitted_data = {
+            "forward_data": self.forward_data,
+            "merged_edge_index": self.merged_edge_index,
+            "merged_edge_label": self.merged_edge_label,
+            "merged_edge_train_mask": self.merged_edge_train_mask,
+            "merged_edge_val_mask": self.merged_edge_val_mask,
+            "merged_edge_test_mask": self.merged_edge_test_mask
+        }
         
         
         
