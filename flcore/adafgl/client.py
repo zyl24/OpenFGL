@@ -62,8 +62,10 @@ class AdaFGLClient(BaseClient):
     def send_message(self):
         self.message_pool[f"client_{self.client_id}"] = {
                 "num_samples": self.task.num_samples,
-                "weight": list(self.task.model.parameters())
             }
+        
+        if self.phase == 0:
+            self.message_pool[f"client_{self.client_id}"]["weight"] = list(self.task.model.parameters())
         
         
     def adafgl_postprocess(self, loss_ce_fn=nn.CrossEntropyLoss()):

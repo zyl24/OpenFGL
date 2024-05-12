@@ -30,3 +30,4 @@ args.evaluation_mode = "local_model_on_local_data"
 seed_everything(args.seed)
 trainer = FGLTrainer(args)
 trainer.train()
+

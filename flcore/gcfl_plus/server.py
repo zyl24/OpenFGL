@@ -4,18 +4,16 @@ from dtaidistance import dtw
 import networkx as nx
 from flcore.gcfl_plus.gcfl_plus_config import config
 import numpy as np
+from flcore.gcfl_plus.models import CrossDomainGIN
 
 
 class GCFLPlusServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
         super(GCFLPlusServer, self).__init__(args, global_data, data_dir, message_pool, device, personalized=True)
-        self.W = {}
-        self.other_W = {}
-        for k,v in self.task.model.named_parameters():
-            if 'convs' in k:
-                self.W[k] = v
-            else:
-                self.other_W[k] = v
+        self.task.load_custom_model(
+            CrossDomainGIN(nhid=self.args.hid_dim, nlayer=self.args.num_layers))
+        self.W = {key: value for key, value in self.task.model.named_parameters()}
+
         self.cluster_indices = [[i for i in range(args.num_clients)]]
         self.seqs_grads = {i:[] for i in range(args.num_clients)}
         self.EPS_1 = config['eps1']
@@ -83,17 +81,6 @@ class GCFLPlusServer(BaseServer):
 
             weights.append(targs)
         return weights
-
-    def switch_personalized_global_model(self, client_id):
-        for i, ids in enumerate(self.cluster_indices):
-            if client_id in ids:
-                j = ids.index(client_id)
-                tar = self.cluster_weights[i][j]
-                for k in tar:
-                    self.W[k].data = tar[k].data.clone()
-        tar = self.message_pool[f"client_{client_id}"]["W"]
-        for k in self.other_W:
-            self.other_W[k].data = tar[k].data.clone()
 
     def compute_max_update_norm(self, cluster):
         max_dW = -np.inf

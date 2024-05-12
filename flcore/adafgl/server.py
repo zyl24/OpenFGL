@@ -41,9 +41,3 @@ class AdaFGLServer(BaseServer):
             "weight": list(self.task.model.parameters())
         }
         
-        
-    def switch_personalized_global_model(self, client_id):
-        # all clients share the same global model
-        # the personalize processing is in phase 2
-        pass # do nothing
-        

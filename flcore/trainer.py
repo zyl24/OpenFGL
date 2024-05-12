@@ -2,8 +2,7 @@ import torch
 import random
 from data.distributed_dataset_loader import FGLDataset
 from utils.basic_utils import load_client, load_server
-from utils.logger import Logger
-
+import logging
 
 class FGLTrainer:
     
@@ -23,9 +22,8 @@ class FGLTrainer:
         elif self.args.task in ["node_clust"]:
             for metric in self.args.metrics:
                 self.evaluation_result[f"best_{metric}"] = 0
-                
-
-        # self.logger = Logger(args, self.message_pool, self.evaluation_result, self.server.task.train_val_test_path)
+        
+        
       
       
       
@@ -76,15 +74,14 @@ class FGLTrainer:
             elif self.args.evaluation_mode == "global_model_on_local_data":
                 num_samples = self.clients[client_id].task.num_samples
                 if self.server.personalized:
-                    self.server.switch_personalized_global_model(client_id)
+                    raise ValueError(f"personalized algorithm {self.args.fl_algorithm} doesn't support global model evaluation.")
                 result = self.server.task.evaluate(self.clients[client_id].task.splitted_data)
             elif self.args.evaluation_mode == "global_model_on_global_data":
                 num_samples = self.server.task.num_samples
                 if self.server.personalized:
-                    self.server.switch_personzlied_global_model(client_id)
-                else:
-                    # only one-time infer
-                    one_time_infer = True
+                    raise ValueError(f"personalized algorithm {self.args.fl_algorithm} doesn't support global model evaluation.")
+                # only one-time infer
+                one_time_infer = True
                 result = self.server.task.evaluate()
             
             

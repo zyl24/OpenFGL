@@ -2,20 +2,26 @@ import torch
 import torch.nn as nn
 from flcore.base import BaseClient
 import numpy as np
+from flcore.gcfl_plus.models import GIN
 
 
 class GCFLPlusClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(GCFLPlusClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
+        self.task.load_custom_model(GIN(nfeat=self.task.num_feats,nhid=self.args.hid_dim,nlayer=self.args.num_layers,nclass=self.task.num_global_classes,dropout=self.args.dropout))
+
         self.W = {key: value for key, value in self.task.model.named_parameters()}
         self.dW = {key: torch.zeros_like(value) for key, value in self.task.model.named_parameters()}
         self.W_old = {key: value.data.clone() for key, value in self.task.model.named_parameters()}
-        self.gconvNames = []
-        for k,v in self.task.model.named_parameters():
-            if 'convs' in k:
-                self.gconvNames.append(k)
+        self.gconvNames = None
+        # for k,v in self.task.model.named_parameters():
+        #     if 'convs' in k:
+        #         self.gconvNames.append(k)
 
     def execute(self):
+        if self.message_pool["round"] == 0:
+            self.gconvNames = self.message_pool["server"]["cluster_weights"][0][0].keys()
+
         for i, ids in enumerate(self.message_pool["server"]["cluster_indices"]):
             if self.client_id in ids:
                 j = ids.index(self.client_id)
