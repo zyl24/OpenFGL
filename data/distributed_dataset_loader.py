@@ -2,6 +2,7 @@ import os
 from os import path as osp
 from data.global_dataset_loader import load_global_dataset
 from torch_geometric.data import Dataset
+from torch_geometric.utils import remove_self_loops, to_undirected
 import copy
 import torch
 import json
@@ -87,6 +88,10 @@ class FGLDataset(Dataset):
 
     def get_client_data(self, client_id):
         data = torch.load(osp.join(self.processed_dir, "data_{}.pt".format(client_id)))
+        data.x = data.x.to(torch.float)
+        data.y = data.y.squeeze()
+        
+        data.edge_index, data.edge_attr = remove_self_loops(*to_undirected(data.edge_index, data.edge_attr))
         return data
 
     def save_client_data(self, data, client_id):
@@ -154,7 +159,7 @@ class FGLDataset(Dataset):
             self.global_data = None
         
         
-        
+
         
 
         # data processing

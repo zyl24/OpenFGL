@@ -146,12 +146,9 @@ class GraphClsTask(BaseTask):
     
     @property
     def default_train_val_test_split(self):
-        return 0.1, 0.1, 0.8
+        return 0.8, 0.1, 0.1
         
-    
-        
-        
-        
+  
     @property
     def train_val_test_path(self):
         return osp.join(self.data_dir, "graph_cls")

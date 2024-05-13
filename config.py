@@ -7,8 +7,8 @@ supported_fedgraph_datasets = [
 "AIDS", "BZR", "COLLAB", "COX2", "DD", "DHFR", "ENZYMES", "IMDB-BINARY", "IMDB-MULTI", "MUTAG", "NCI1", "PROTEINS", "PTC_MR", "hERG"
 ]
 supported_fedsubgraph_datasets = [
-"Cora", "CiteSeer", "PubMed"
-]
+"Cora", "CiteSeer", "PubMed", "CS", "Physics", "Computers", "Photo", "Chameleon", "Squirrel", "ogbn-arxiv", "ogbn-products", "Tolokers", "Actor", \
+"Amazon-ratings", "Roman-empire", "Questions", "Minesweeper"]
 
 
 supported_fedgraph_simulations = ["fedgraph_cross_domain", "fedgraph_label_dirichlet"]

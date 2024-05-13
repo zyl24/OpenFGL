@@ -18,9 +18,14 @@ class Logger:
         self.start_time = time.time()
     
     def add_log(self, evaluation_result):
+        if not self.debug:
+            return
         self.metrics_list.append(copy.deepcopy(evaluation_result))
     
     def save(self):
+        if not self.debug:
+            return
+        
         if not os.path.exists(os.path.dirname(self.log_path)):
             os.makedirs(os.path.dirname(self.log_path))
             

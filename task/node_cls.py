@@ -125,15 +125,16 @@ class NodeClsTask(BaseTask):
         else:
             name = self.args.dataset[0]
             
-        if name == "Cora":
+        if name in ["Cora", "CiteSeer", "PubMed", "CS", "Physics", "Photo", "Computers"]:
             return 0.2, 0.4, 0.4
-        elif name == "CiteSeer":
-            return 0.2, 0.4, 0.4
-        elif name == "PubMed":
-            return 0.2, 0.4, 0.4
-        elif name == "Computers":
-            return 0.2, 0.4, 0.4
-        
+        elif name in ["Chameleon", "Squirrel"]:
+            return 0.48, 0.32, 0.20
+        elif name in ["ogbn-arxiv"]:
+            return 0.6, 0.2, 0.2
+        elif name in ["ogbn-products"]:
+            return 0.1, 0.05, 0.85
+        elif name in ["Roman-empire", "Amazon-ratings", "Tolokers", "Actor", "Questions", "Minesweeper"]:
+            return 0.5, 0.25, 0.25
         
         
     @property
