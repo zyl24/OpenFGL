@@ -88,10 +88,16 @@ class FGLDataset(Dataset):
 
     def get_client_data(self, client_id):
         data = torch.load(osp.join(self.processed_dir, "data_{}.pt".format(client_id)))
-        data.x = data.x.to(torch.float)
-        data.y = data.y.squeeze()
-        
-        data.edge_index, data.edge_attr = remove_self_loops(*to_undirected(data.edge_index, data.edge_attr))
+        if hasattr(data, "x"):
+            data.x = data.x.to(torch.float32)
+        if hasattr(data, "y"):
+            data.y = data.y.squeeze()
+        if hasattr(data, "edge_attr"):
+            data.edge_index, data.edge_attr = remove_self_loops(*to_undirected(data.edge_index, data.edge_attr))
+        else:
+            data.edge_index = remove_self_loops(to_undirected(data.edge_index))[0]
+        # reset cache
+        data._data_list = None
         return data
 
     def save_client_data(self, data, client_id):
@@ -151,7 +157,7 @@ class FGLDataset(Dataset):
             if self.args.scenario == "fedgraph":
                 self.global_data = global_dataset
             else:
-                self.global_data = global_dataset._data
+                self.global_data = global_dataset.data
             self.global_data.num_global_classes = global_dataset.num_classes
             
             

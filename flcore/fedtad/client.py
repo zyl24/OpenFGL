@@ -26,7 +26,7 @@ class FedTADClient(BaseClient):
             }
     
     def fedtad_initialization(self):        
-        ckr_root = os.path.join(self.data_dir, "ckr")
+        ckr_root = os.path.join(self.task.data_dir, "ckr")
         ckr_filename = os.path.join(ckr_root, f"client_{self.client_id}.pt")
         
         if os.path.exists(ckr_filename):

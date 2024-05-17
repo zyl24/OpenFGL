@@ -11,8 +11,9 @@ def compute_supervised_metrics(metrics, logits, labels, suffix):
     result = {}
     
     if logits.dtype == torch.long: # clustering labels
-        probs = preds = logits.cpu().numpy()
-        labels = labels.cpu().numpy()
+        probs = logits.cpu().numpy()
+        preds = logits.cpu().numpy()
+        np_labels = labels.cpu().numpy()
     else: # classification logits
         if logits.dim() == 1: # binary
             probs = F.sigmoid(logits)
@@ -23,37 +24,37 @@ def compute_supervised_metrics(metrics, logits, labels, suffix):
             
         probs = probs.cpu().numpy()
         preds = preds.cpu().numpy()
-        labels = labels.cpu().numpy()
+        np_labels = labels.cpu().numpy()
         
     if "accuracy" in metrics:
-        result[f"accuracy_{suffix}"] = accuracy_score(labels, preds)
+        result[f"accuracy_{suffix}"] = accuracy_score(np_labels, preds)
     
     if "precision" in metrics:
-        result[f"precision_{suffix}"] = precision_score(labels, preds, average='macro')
+        result[f"precision_{suffix}"] = precision_score(np_labels, preds, average='macro')
 
     if "recall" in metrics:
-        result[f"recall_{suffix}"] = recall_score(labels, preds, average='macro')
+        result[f"recall_{suffix}"] = recall_score(np_labels, preds, average='macro')
         
     if "f1" in metrics:
-        result[f"f1_{suffix}"] = f1_score(labels, preds, average='macro')
+        result[f"f1_{suffix}"] = f1_score(np_labels, preds, average='macro')
         
     if "auc" in metrics:
-        if labels.max() > 1:
+        if np_labels.max() > 1:
             raise ValueError("AUC is not directly supported for multi-class classification.")
-        result[f"auc_{suffix}"] = roc_auc_score(labels, probs)
+        result[f"auc_{suffix}"] = roc_auc_score(np_labels, probs)
 
     if "ap" in metrics:
-        result[f"ap_{suffix}"] = average_precision_score(labels, probs[:, 1] if probs.ndim > 1 else probs)
+        result[f"ap_{suffix}"] = average_precision_score(np_labels, probs[:, 1] if probs.ndim > 1 else probs)
         
     # Clustering specific metrics
     if "clustering_accuracy" in metrics:
-        result["clustering_accuracy"] = clustering_acc(labels, preds)
+        result["clustering_accuracy"] = clustering_acc(np_labels, preds)
     
     if "nmi" in metrics:
-        result["nmi"] = normalized_mutual_info_score(labels, preds)
+        result["nmi"] = normalized_mutual_info_score(np_labels, preds)
 
     if "ari" in metrics:
-        result["ari"] = adjusted_rand_score(labels, preds)
+        result["ari"] = adjusted_rand_score(np_labels, preds)
         
     return result
 

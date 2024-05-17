@@ -134,14 +134,7 @@ class LinkPredTask(BaseTask):
         else:
             name = self.args.dataset[0]
             
-        if name == "Cora":
-            return 0.8, 0.1, 0.1
-        elif name == "CiteSeer":
-            return 0.8, 0.1, 0.1
-        elif name == "PubMed":
-            return 0.8, 0.1, 0.1
-        elif name == "Computers":
-            return 0.8, 0.1, 0.1
+        return 0.8, 0.1, 0.1
         
         
     @property
