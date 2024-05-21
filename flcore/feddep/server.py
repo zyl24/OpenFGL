@@ -37,7 +37,7 @@ class FedDEPEServer(BaseServer):
 
         def override_evaluate(splitted_data=None, mute=False):
             if splitted_data is None:
-                splitted_data = self.global_data
+                splitted_data = self.task.splitted_data
             else:
                 names = ["train_mask", "val_mask", "test_mask"]
                 for name in names:

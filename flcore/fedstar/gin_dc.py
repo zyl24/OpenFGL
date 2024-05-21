@@ -2,6 +2,24 @@ import torch
 from torch_geometric.nn import GCNConv, GINConv, global_add_pool
 import torch.nn.functional as F
 
+class serverGIN_dc(torch.nn.Module):
+    def __init__(self, n_se, num_layers, hid_dim):
+        super(serverGIN_dc, self).__init__()
+
+        self.embedding_s = torch.nn.Linear(n_se, hid_dim)
+        self.Whp = torch.nn.Linear(hid_dim + hid_dim, hid_dim)
+
+        self.graph_convs = torch.nn.ModuleList()
+        self.nn1 = torch.nn.Sequential(torch.nn.Linear(hid_dim + hid_dim, hid_dim), torch.nn.ReLU(), torch.nn.Linear(hid_dim, hid_dim))
+        self.graph_convs.append(GINConv(self.nn1))
+        self.graph_convs_s_gcn = torch.nn.ModuleList()
+        self.graph_convs_s_gcn.append(GCNConv(hid_dim, hid_dim))
+
+        for l in range(num_layers - 1):
+            self.nnk = torch.nn.Sequential(torch.nn.Linear(hid_dim + hid_dim, hid_dim), torch.nn.ReLU(), torch.nn.Linear(hid_dim, hid_dim))
+            self.graph_convs.append(GINConv(self.nnk))
+            self.graph_convs_s_gcn.append(GCNConv(hid_dim, hid_dim))
+
 
 class DecoupledGIN(torch.nn.Module):
     def __init__(self, input_dim, hid_dim, output_dim, n_se, num_layers=2, dropout=0.5):
@@ -45,6 +63,6 @@ class DecoupledGIN(torch.nn.Module):
         x = self.post(x)
         y = F.dropout(x, self.dropout, training=self.training)
         y = self.readout(y)
-        x = F.log_softmax(x, dim=1)
+        y = F.log_softmax(y, dim=1)
         return x,y
 
