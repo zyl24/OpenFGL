@@ -86,12 +86,11 @@ def FedRecLoss(pred_embs, true_embs, pred_missing, num_preds):
     return loss.mean(1).mean(0).float()
 
 
-def get_prototypes(emb, K, batch_size, use_cuda, gpuid, ae_pretrained_epochs, ae_finetune_epochs, dec_epochs):
+def get_prototypes(emb, K, batch_size, device, ae_pretrained_epochs, ae_finetune_epochs, dec_epochs):
     emb_shape = emb.shape[1]
     proto_idx = train_clustering(
         node_embs=emb, num_prototypes=K,
-        batch_size=batch_size, use_cuda=use_cuda,
-        gpuid=gpuid, ae_pretrained_epochs=ae_pretrained_epochs,
+        batch_size=batch_size, device=device, ae_pretrained_epochs=ae_pretrained_epochs,
         ae_finetune_epochs=ae_finetune_epochs, dec_epochs=dec_epochs).reshape(-1)
 
     prototypes = np.zeros(shape=(K, emb_shape))
@@ -105,10 +104,7 @@ def get_prototypes(emb, K, batch_size, use_cuda, gpuid, ae_pretrained_epochs, ae
     return prototypes, proto_idx
 
 
-def get_emb(data, use_cuda=True, gpuid=0):
-    device = torch.device(
-        f"cuda:{gpuid}" if (torch.cuda.is_available() and use_cuda) else "cpu"
-    )
+def get_emb(data, device):
     subgraph_sampler = NeighborSampler(
         data.edge_index,
         num_nodes=data.num_nodes,
@@ -162,22 +158,21 @@ def get_emb(data, use_cuda=True, gpuid=0):
 
 
 class HideGraph(BaseTransform):
-    def __init__(self, hidden_portion, num_preds, num_protos, use_cuda=True, gpuid=0):
+    def __init__(self, hidden_portion, num_preds, num_protos, device):
         self.hidden_portion = hidden_portion
         self.num_preds = num_preds
         self.num_protos = num_protos
-        self.use_cuda = use_cuda
-        self.gpuid = gpuid
-
+        self.device = device
+        
+        
     def __call__(self, data):
         # get prototypes
-        emb = get_emb(data=data, use_cuda=self.use_cuda, gpuid=self.gpuid)
+        emb = get_emb(data=data, device=self.device)
         self.prototypes, self.proto_idx = get_prototypes(
             emb=emb,
             K=self.num_protos,
             batch_size=config["cluster_batch_size"],
-            use_cuda=self.use_cuda,
-            gpuid=self.gpuid,
+            device=self.device,
             ae_pretrained_epochs=config["ae_pretrained_epochs"],
             ae_finetune_epochs=config["ae_finetune_epochs"],
             dec_epochs=config["dec_epochs"])

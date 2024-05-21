@@ -18,8 +18,7 @@ def train(
     scheduler: Any = None,
     validation: Optional[torch.utils.data.Dataset] = None,
     corruption: Optional[float] = None,
-    use_cuda: bool = True,
-    gpuid: int = 0,
+    device=None,
     sampler: Optional[torch.utils.data.sampler.Sampler] = None,
     silent: bool = False,
     update_freq: Optional[int] = 1,
@@ -61,8 +60,7 @@ def train(
             if (isinstance(batch,tuple) or isinstance(batch,list)):
                 batch=batch[0] # if we have a prediction label, strip it away
 
-            if use_cuda:
-                batch = batch.cuda(device=gpuid, non_blocking=True)
+            batch = batch.to(device)
             # run the batch through the autoencoder and obtain the output
             if corruption is not None:
                 output = autoencoder(F.dropout(batch, corruption))
@@ -85,15 +83,13 @@ def train(
                     validation,
                     autoencoder,
                     batch_size,
-                    use_cuda=use_cuda,
-                    gpuid=gpuid,
+                    device=device,
                     silent=True,
                     encode=False,
                 )
                 validation_actual = torch.cat([val_batch for val_batch in validation_loader])
-                if use_cuda:
-                    validation_actual = validation_actual.cuda(device=gpuid, non_blocking=True)
-                    validation_output = validation_output.cuda(device=gpuid, non_blocking=True)
+                validation_actual = validation_actual.to(device)
+                validation_output = validation_output.to(device)
                 validation_loss = loss_function(validation_output, validation_actual)
                 # validation_accuracy = pretrain_accuracy(validation_output, validation_actual)
                 validation_loss_value = float(validation_loss.item())
@@ -131,8 +127,7 @@ def pretrain(
     scheduler: Optional[Callable[[torch.optim.Optimizer], Any]] = None,
     validation: Optional[torch.utils.data.Dataset] = None,
     corruption: Optional[float] = None,
-    use_cuda: bool = True,
-    gpuid: int = 0,
+    device=None,
     sampler: Optional[torch.utils.data.sampler.Sampler] = None,
     silent: bool = False,
     update_freq: Optional[int] = 1,
@@ -160,8 +155,7 @@ def pretrain(
             else None,
             corruption=nn.Dropout(corruption) if corruption is not None else None,
         )
-        if use_cuda:
-            sub_autoencoder = sub_autoencoder.cuda(device=gpuid)
+        sub_autoencoder = sub_autoencoder.to(device)
         ae_optimizer = optimizer(sub_autoencoder)
         ae_scheduler = scheduler(ae_optimizer) if scheduler is not None else scheduler
         train(
@@ -173,8 +167,7 @@ def pretrain(
             validation=current_validation,
             corruption=None,  # already have dropout in the DAE
             scheduler=ae_scheduler,
-            use_cuda=use_cuda,
-            gpuid=gpuid,
+            device=device,
             sampler=sampler,
             silent=silent,
             update_freq=update_freq,
@@ -191,8 +184,7 @@ def pretrain(
                     current_dataset,
                     sub_autoencoder,
                     batch_size,
-                    use_cuda=use_cuda,
-                    gpuid=gpuid,
+                    device,
                     silent=silent,
                 )
             )
@@ -202,8 +194,7 @@ def pretrain(
                         current_validation,
                         sub_autoencoder,
                         batch_size,
-                        use_cuda=use_cuda,
-                        gpuid=gpuid,
+                        device,
                         silent=silent,
                     )
                 )
@@ -216,8 +207,7 @@ def predict(
     dataset: torch.utils.data.Dataset,
     model: torch.nn.Module,
     batch_size: int,
-    use_cuda: bool = True,
-    gpuid: int = 0,
+    device,
     silent: bool = False,
     encode: bool = True,
 ) -> torch.Tensor:
@@ -231,8 +221,7 @@ def predict(
     for batch in data_iterator:
         if (isinstance(batch,tuple) or isinstance(batch,list)):
             batch=batch[0] # if we have a prediction label, strip it away
-        if use_cuda:
-            batch = batch.cuda(device=gpuid, non_blocking=True)
+        batch = batch.to(device)
         batch = batch.squeeze(1).view(batch.size(0), -1)
         if encode:
             output = model.encode(batch)

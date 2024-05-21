@@ -19,13 +19,17 @@ class FedDEPClient(BaseClient):
             input_dim=(self.task.num_feats, config["emb_shape"]),
             hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes,
             num_layers=self.args.num_layers, dropout=self.args.dropout))
-        self.data.train_mask = self.task.train_mask
-        self.data.val_mask = self.task.val_mask
-        self.data.test_mask = self.task.test_mask
-        self.hide_data, self.emb, self.x_missing = HideGraph(
-            hidden_portion=config["hide_portion"], num_preds=config["num_preds"],
-            num_protos=config["num_protos"], use_cuda=self.args.use_cuda,
-            gpuid=self.args.gpuid)(data=self.data)
+
+        self.hide_graph_model = HideGraph(hidden_portion=config["hide_portion"], num_preds=config["num_preds"], num_protos=config["num_protos"], device=device)
+        
+        
+        self.data = self.task.splitted_data["data"]
+        self.data.train_mask = self.task.splitted_data["train_mask"]
+        self.data.val_mask = self.task.splitted_data["val_mask"]
+        self.data.test_mask = self.task.splitted_data["test_mask"]
+        
+        
+        self.hide_data, self.emb, self.x_missing = self.hide_graph_model(data=self.data)
         self.loss_fn_num = F.smooth_l1_loss
         self.loss_fn_rec = LocalRecLoss
         self.loss_fn_clf = F.cross_entropy

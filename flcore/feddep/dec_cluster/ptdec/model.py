@@ -16,8 +16,7 @@ def train(
     optimizer: torch.optim.Optimizer,
     stopping_delta: Optional[float] = None,
     collate_fn=default_collate,
-    use_cuda: bool = True,
-    gpuid: int = 0,
+    device=None,
     sampler: Optional[torch.utils.data.sampler.Sampler] = None,
     silent: bool = False,
     update_freq: int = 10,
@@ -59,8 +58,7 @@ def train(
     for index, batch in enumerate(data_iterator):
         if not isinstance(batch, torch.Tensor):
             batch = torch.tensor(batch)
-        if use_cuda:
-            batch = batch.cuda(device=gpuid, non_blocking=True)
+        batch = batch.to(device)
         features.append(model.encoder(batch).detach().cpu())
     predicted = kmeans.fit_predict(torch.cat(features).numpy())
     predicted_previous = torch.tensor(
@@ -69,8 +67,7 @@ def train(
     cluster_centers = torch.tensor(
         kmeans.cluster_centers_, dtype=torch.float, requires_grad=True
     )
-    if use_cuda:
-        cluster_centers = cluster_centers.cuda(device=gpuid, non_blocking=True)
+    cluster_centers = cluster_centers.to(device)
     with torch.no_grad():
         # initialise the cluster centers
         model.state_dict()["assignment.cluster_centers"].copy_(cluster_centers)
@@ -93,8 +90,7 @@ def train(
         for index, batch in enumerate(data_iterator):
             if not isinstance(batch, torch.Tensor):
                 batch = torch.tensor(batch)
-            if use_cuda:
-                batch = batch.cuda(device=gpuid, non_blocking=True)
+            batch = batch.to(device)
             output = model(batch)
             target = target_distribution(output).detach()
             loss = loss_function(output.log(), target) / output.shape[0]
@@ -122,8 +118,7 @@ def train(
             batch_size=evaluate_batch_size,
             collate_fn=collate_fn,
             silent=True,
-            use_cuda=use_cuda,
-            gpuid=gpuid,
+            device=device
         )
         delta_label = (
             float((predicted != predicted_previous).float().sum().item())
@@ -150,8 +145,7 @@ def predict(
     model: torch.nn.Module,
     batch_size: int = 1024,
     collate_fn=default_collate,
-    use_cuda: bool = True,
-    gpuid: int = 0,
+    device=None,
     silent: bool = False,
 ) -> Union[Tuple[torch.Tensor, torch.Tensor], torch.Tensor]:
     dataloader = DataLoader(
@@ -166,8 +160,7 @@ def predict(
     features = []
     model.eval()
     for batch in data_iterator:
-        if use_cuda:
-            batch = batch.cuda(device=gpuid, non_blocking=True)
+        batch = batch.to(device)
         features.append(
             model(batch).detach().cpu()
         )  # move to the CPU to prevent out of memory on the GPU

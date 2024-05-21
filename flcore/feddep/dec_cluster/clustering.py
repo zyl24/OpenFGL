@@ -28,8 +28,7 @@ def train_clustering(
     node_embs,
     num_prototypes,
     batch_size,
-    use_cuda,
-    gpuid,
+    device,
     ae_pretrained_epochs,
     ae_finetune_epochs,
     dec_epochs,
@@ -41,14 +40,13 @@ def train_clustering(
     autoencoder = StackedDenoisingAutoEncoder(
         [emb_len, 128, 512, 128, emb_len], final_activation=None
     )
-    if use_cuda:
-        autoencoder.cuda(device=gpuid)
+    
+    autoencoder.to(device)
     print("Pretraining stage.")
     ae.pretrain(
         ds_train,
         autoencoder,
-        use_cuda=use_cuda,
-        gpuid=gpuid,
+        device=device,
         validation=None,
         epochs=ae_pretrained_epochs,
         batch_size=batch_size,
@@ -62,8 +60,7 @@ def train_clustering(
     ae.train(
         ds_train,
         autoencoder,
-        use_cuda=use_cuda,
-        gpuid=gpuid,
+        device=device,
         validation=None,
         epochs=ae_finetune_epochs,
         batch_size=batch_size,
@@ -77,8 +74,7 @@ def train_clustering(
         hidden_dimension=emb_len,
         encoder=autoencoder.encoder,
     )
-    if use_cuda:
-        model.cuda(device=gpuid)
+    model.to(device)
     dec_optimizer = SGD(model.parameters(), lr=0.01, momentum=0.9)
     train(
         dataset=ds_train,
@@ -87,10 +83,9 @@ def train_clustering(
         batch_size=batch_size,
         optimizer=dec_optimizer,
         stopping_delta=0.000001,
-        use_cuda=use_cuda,
-        gpuid=gpuid,
+        device=device
     )
-    predicted = predict(ds_train, model, 1024, silent=True, use_cuda=use_cuda, gpuid=gpuid)
+    predicted = predict(ds_train, model, 1024, silent=True, device=device)
     predicted = predicted.cpu().numpy()
     print("Finish DEC!")
 
