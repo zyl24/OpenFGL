@@ -9,7 +9,7 @@ import torch
 from utils.task_utils import load_node_edge_level_default_model
 import pickle
 import numpy as np
-
+from utils.privacy_utils import clip_gradients, add_noise
     
 
 class NodeClsTask(BaseTask):
@@ -31,13 +31,19 @@ class NodeClsTask(BaseTask):
             self.optim.zero_grad()
             embedding, logits = self.model.forward(splitted_data["data"])
             loss_train = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["train_mask"])
-            loss_train.backward()
+            if self.args.dp_mech != "no_dp":
+                # clip the gradient of each sample in this batch
+                clip_gradients(self.model, loss_train, loss_train.shape[0], self.args.dp_mech, self.args.grad_clip)
+            else:
+                loss_train.backward()
             
             if self.step_preprocess is not None:
                 self.step_preprocess()
             
             self.optim.step()
-    
+            if self.args.dp_mech != "no_dp":
+                # add noise to parameters
+                add_noise(self.args, self.model, loss_train.shape[0])
 
     
     def evaluate(self, splitted_data=None, mute=False):
@@ -113,7 +119,10 @@ class NodeClsTask(BaseTask):
         
     @property
     def default_loss_fn(self):
-        return nn.CrossEntropyLoss()
+        if self.args.dp_mech != "no_dp":
+            return nn.CrossEntropyLoss(reduction="none")
+        else:
+            return nn.CrossEntropyLoss()
     
     @property
     def default_train_val_test_split(self):
@@ -251,3 +260,6 @@ class NodeClsTask(BaseTask):
         val_mask = val_mask.bool()
         test_mask = test_mask.bool()
         return train_mask, val_mask, test_mask
+    
+    
+    

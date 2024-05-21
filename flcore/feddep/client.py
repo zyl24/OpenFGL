@@ -16,7 +16,7 @@ class FedDEPClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
         super(FedDEPClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
         self.task.load_custom_model(Classifier_F(
-            input_dim=(self.task.num_feats, config["emb_shape"]),
+            input_dim=(self.task.num_feats, self.args.hid_dim),
             hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes,
             num_layers=self.args.num_layers, dropout=self.args.dropout))
 

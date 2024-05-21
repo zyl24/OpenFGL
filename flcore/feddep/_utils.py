@@ -129,7 +129,7 @@ def get_emb(data, device):
 
     encoder = Encoder(
         input_dim=data.x.shape[1],
-        hid_dim=config["encoder"]["hidden"],
+        hid_dim=config["encoder"]["hid_dim"],
         output_dim=config["encoder"]["out_channels"],
         num_layers=config["encoder"]["L"],
         dropout=0.5).to(device)
