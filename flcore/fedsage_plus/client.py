@@ -282,7 +282,7 @@ class FedSagePlusClient(BaseClient):
     def get_phase_0_override_evaluate(self):
         def override_evaluate(splitted_data=None, mute=False):
             if splitted_data is None:
-                splitted_data = self.task.data
+                splitted_data = self.task.splitted_data
             else:
                 names = ["data", "train_mask", "val_mask", "test_mask"]
                 for name in names:
@@ -291,11 +291,12 @@ class FedSagePlusClient(BaseClient):
             self.task.model.phase = 1 # temporary modification for evaluation
             with torch.no_grad():
                 embedding, logits = self.task.model.forward(splitted_data["data"])
-                loss_train = self.task.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["train_mask"])
-                loss_val = self.task.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["val_mask"])
-                loss_test = self.task.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["test_mask"])
+                
+                loss_train = F.cross_entropy(logits[splitted_data["train_mask"]], splitted_data["data"].y[splitted_data["train_mask"]])
+                loss_val = F.cross_entropy(logits[splitted_data["val_mask"]], splitted_data["data"].y[splitted_data["val_mask"]])
+                loss_test = F.cross_entropy(logits[splitted_data["test_mask"]], splitted_data["data"].y[splitted_data["test_mask"]])
 
-            
+            eval_output = {}
             eval_output["embedding"] = embedding
             eval_output["logits"] = logits
             eval_output["loss_train"] = loss_train
@@ -318,8 +319,8 @@ class FedSagePlusClient(BaseClient):
             prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
             if not mute:
                 print(prefix+info)
+            self.task.model.phase = 0 # reset
             return eval_output
-        self.task.model.phase = 0 # reset for evaluation
         return override_evaluate
     
     def get_phase_1_override_evaluate(self):

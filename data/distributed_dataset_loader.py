@@ -91,7 +91,7 @@ class FGLDataset(Dataset):
         if hasattr(data, "x"):
             data.x = data.x.to(torch.float32)
         if hasattr(data, "y"):
-            data.y = data.y.squeeze()
+            data.y = data.y.squeeze() # could be int64 (for classification) / float32 (for regression)
         if hasattr(data, "edge_attr"):
             data.edge_index, data.edge_attr = remove_self_loops(*to_undirected(data.edge_index, data.edge_attr))
         else:
