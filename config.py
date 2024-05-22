@@ -42,7 +42,7 @@ parser.add_argument("--gpuid", type=int, default=0)
 parser.add_argument("--seed", type=int, default=2024)
 
 # global dataset settings 
-parser.add_argument("--root", type=str, default="/home/ai2/work/dataset")
+parser.add_argument("--root", type=str, default="/home/ai2/work/OPENFGL/dataset")
 parser.add_argument("--scenario", type=str, default="fedsubgraph", choices=supported_scenario)
 parser.add_argument("--dataset", type=str, default=[], action='append')
 parser.add_argument("--processing", type=str, default="raw", choices=supported_data_processing)
