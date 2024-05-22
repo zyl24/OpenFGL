@@ -3,8 +3,8 @@ cd /home/ai2/work/OPENFGL
 datasets=("COX2")
 fl_algorithms=("fedavg" "fedprox" "scaffold" "moon"  "feddc" "gcfl_plus" "fedstar")
 simulation_modes=("fedgraph_label_dirichlet")
-num_clients=("5")
-repeats=1
+num_clients=("10")
+repeats=3
 
 
 for dataset in "${datasets[@]}"; do

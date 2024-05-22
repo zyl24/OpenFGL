@@ -14,7 +14,11 @@ def create_variation(base, noise_level=1, decay=0.2, seed=None):
     return np.clip(base + np.random.normal(0, effective_noise_level, size=x.shape) - decay * np.arange(len(x)), 0, 80)
 
 def create_data(search_str):
-    path = "/home/ai2/work/dataset/distrib/fedsubgraph_louvain_1_Cora_client_5/debug/"
+    dataset = ["Cora", "CiteSeer", "PubMed"]
+    simu = ["label_dirichlet_10.00", "louvain_1", "metis_clustering_100", "louvain_clustering_1", "metis"]
+    
+    
+    path = f"/home/ai2/work/dataset/distrib/fedsubgraph_{simu[4]}_{dataset[0]}_client_10/debug/"
     search_str = search_str
     found_files = []
     for dirpath, dirnames, filenames in os.walk(path):
@@ -48,13 +52,19 @@ def create_data(search_str):
     return base_line, lower_bound, upper_bound
 
 # Data generation with confidence intervals
+fl_algorithms=("fedavg" "fedprox" "scaffold" "moon"  "feddc" "fedgta" "fedproto" "fedtgp" "adafgl" "fedpub" "fedsage_plus") # fgssl, fedgl, fggp, feddep
 algorithms = {
     "FedAvg": create_data("fedavg"),
     "FedProx": create_data("fedprox"),
     "Scaffold": create_data("scaffold"),
     "MOON": create_data("moon"),
+    "FedDC": create_data("feddc"),
+    "FedTGP": create_data("fedtgp"),
+    "FedProto": create_data("fedproto"),
+    "FedSage+": create_data("fedsage_plus"),
     "FedPub": create_data("fedpub"),
-    "FedGTA (ours)": create_data("fedgta"),
+    "FedGTA": create_data("fedgta"),
+    "AdaFGL": create_data("adafgl")
 }
 
 # Plotting
@@ -69,4 +79,4 @@ plt.xlabel('Running Time (s)')
 plt.ylabel('Test Accuracy (%)')
 plt.legend()
 plt.grid(True)
-plt.savefig("./exp/fig.png")
+plt.savefig("/home/ai2/work/OPENFGL/fig.png")

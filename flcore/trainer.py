@@ -25,9 +25,7 @@ class FGLTrainer:
         
         self.logger = Logger(args, self.message_pool, fgl_dataset.processed_dir)
       
-      
-      
-        
+  
     def train(self):
         
         for round_id in range(self.args.num_rounds):

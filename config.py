@@ -93,6 +93,11 @@ parser.add_argument("--hid_dim", type=int, default=64)
 parser.add_argument("--metrics", type=str, default=[], action='append')
 parser.add_argument("--evaluation_mode", type=str, default="local_model_on_local_data", choices=supported_evaluation_modes)
 
+# privacy
+parser.add_argument("--dp_mech", type=str, default='no_dp')
+parser.add_argument("--dp_eps", type=float, default=10.0)
+parser.add_argument("--dp_delta", type=float, default=1e-5)
+parser.add_argument("--grad_clip", type=float, default=10.0)
 
 # debug
 parser.add_argument("--debug", type=bool, default=True)

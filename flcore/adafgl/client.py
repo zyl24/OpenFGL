@@ -15,7 +15,7 @@ def accuracy(pred, label):
 
 class AdaFGLClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(AdaFGLClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
+        super(AdaFGLClient, self).__init__(args, client_id, data, data_dir, message_pool, device, personalized=True)
         
         self.phase = 0
 
