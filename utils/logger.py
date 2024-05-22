@@ -31,7 +31,7 @@ class Logger:
             
             
         log = {
-            "args": str(self.args),
+            "args": vars(self.args),
             "time": time.time() - self.start_time,
             "metric": self.metrics_list
         }

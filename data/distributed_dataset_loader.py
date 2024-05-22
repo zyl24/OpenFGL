@@ -158,6 +158,18 @@ class FGLDataset(Dataset):
                 self.global_data = global_dataset
             else:
                 self.global_data = global_dataset.data
+                if hasattr(self.global_data, "x"):
+                    self.global_data.x = self.global_data.x.to(torch.float32)
+                if hasattr(self.global_data, "y"):
+                    self.global_data.y = self.global_data.y.squeeze() # could be int64 (for classification) / float32 (for regression)
+                if hasattr(self.global_data, "edge_attr"):
+                    self.global_data.edge_index, self.global_data.edge_attr = remove_self_loops(*to_undirected(self.global_data.edge_index, self.global_data.edge_attr))
+                else:
+                    self.global_data.edge_index = remove_self_loops(to_undirected(self.global_data.edge_index))[0]
+                # reset cache
+                self.global_data._data_list = None
+                
+                
             self.global_data.num_global_classes = global_dataset.num_classes
             
             
