@@ -17,7 +17,7 @@ class FedProtoClient(BaseClient):
 
     def get_custom_loss_fn(self):
         def custom_loss_fn(embedding, logits, label, mask):
-            if self.message_pool["round"] == 0:
+            if self.message_pool["round"] == 0 or self.task.num_samples != label.shape[0]: # first round or eval on global
                 return self.task.default_loss_fn(logits[mask], label[mask]) 
             else:
                 loss_fedproto = 0

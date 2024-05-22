@@ -1,0 +1,28 @@
+Running Isolate+GCN with Dataset=Cora Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=CiteSeer Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=PubMed Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=Photo Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=Computers Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=CS Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=Physics Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=Chameleon Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=Squirrel Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=Actor Local Model on Global Data, Repeat=1
+Running Isolate+GCN with Dataset=Amazon-ratings Local Model on Global Data, Repeat=1
+-----------
+Local Model on Global Data - Done!
+-----------
+Running Isolate+GCN with Dataset=Cora Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=CiteSeer Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=PubMed Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=Photo Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=Computers Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=CS Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=Physics Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=Chameleon Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=Squirrel Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=Actor Local Model on Local Data, Repeat=1
+Running Isolate+GCN with Dataset=Amazon-ratings Local Model on Local Data, Repeat=1
+-----------
+Local Model on Local Data - Done!
+-----------

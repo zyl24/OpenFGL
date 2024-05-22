@@ -1,0 +1,7 @@
+Running fedavg with Dataset=Cora Local Model on Global Data, Repeat=1
+Running feddc with Dataset=Cora Local Model on Global Data, Repeat=1
+Running fedproto with Dataset=Cora Local Model on Global Data, Repeat=1
+Running fedtgp with Dataset=Cora Local Model on Global Data, Repeat=1
+Running fedsage_plus with Dataset=Cora Local Model on Global Data, Repeat=1
+Running fedpub with Dataset=Cora Local Model on Global Data, Repeat=1
+Running fedgta with Dataset=Cora Local Model on Global Data, Repeat=1
