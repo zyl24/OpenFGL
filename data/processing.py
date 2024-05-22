@@ -26,6 +26,66 @@ def random_feature_mask(local_data, process_dir, mask_prob=0.1):
         local_data[client_id].x = masked_feature
     return local_data
 
+def random_feature_noise(local_data, process_dir, noise_std=0.1):
+    if isinstance(local_data, list):
+        noise_root = osp.join(process_dir, f"noise_{noise_std}")
+        if not osp.exists(noise_root):
+            os.makedirs(noise_root)
+        for client_id in range(len(local_data)):
+            raw_feature = local_data[client_id].x
+            noise_file = osp.join(noise_root, f"noise_{client_id}.pt")
+            if osp.exists(noise_file):
+                noise = torch.load(noise_file)
+            else:
+                noise = torch.randn_like(raw_feature) * noise_std
+                torch.save(noise, noise_file)        
+            noisy_feature = raw_feature + noise
+            local_data[client_id].x = noisy_feature
+        return local_data
+    elif isinstance(local_data, dict):
+        # NOTE deepcopy local_data
+        noise_root = osp.join(process_dir, f"splitted_data_noise_{noise_std}")
+        if not osp.exists(noise_root):
+            os.makedirs(noise_root)
+        if osp.exists(noise_root):
+            noisy_data = torch.load(noise_root)
+            local_data["data"].x = noisy_data
+        else:
+            raw_feature = local_data["data"].x
+            noise = torch.randn_like(raw_feature) * noise_std
+            noisy_feature = raw_feature + noise
+            local_data["data"].x = noisy_feature
+            # TODO save the results into file
+        return local_data
+        
+
+def edge_random_mask(local_data, process_dir, mask_prob=0.1, num_choice=2):
+    edge_random_mask_root = osp.join(process_dir, f"edge_mask_{mask_prob}")
+    if not osp.exists(edge_random_mask_root):
+        os.makedirs(edge_random_mask_root)
+    for client_id in range(len(local_data)):
+        edge_file = osp.join(edge_random_mask_root, f"edge_list_{client_id}.pt")
+        if osp.exists(edge_file):
+            new_edge_list = torch.load(edge_file)
+        else:
+            edge_list = local_data[client_id].edge_index.T.tolist()
+            num_nodes = local_data[client_id].num_nodes
+            new_edge_list = []
+            for i in range(num_nodes):
+                for j in range(i+1, num_nodes):
+                    if ([i,j] in edge_list) or ([j,i] in edge_list):
+                        # undirected graph
+                        rnd = np.random.random()
+                        if rnd <= mask_prob:
+                            new_edge_list.append((i, j))
+                            new_edge_list.append((j, i))
+
+            new_edge_list = torch.tensor(new_edge_list).T
+            torch.save(new_edge_list, edge_file)  
+            
+        local_data[client_id].edge_index = new_edge_list
+    return local_data
+
 def link_random_response(local_data, process_dir, epsilon=0., num_choice=2):
     assert not isinstance(epsilon, list)
 
@@ -131,3 +191,56 @@ def hete_random_injection(local_data, process_dir, ratio=0.):
             
         local_data[client_id].edge_index = new_edge_list
     return local_data
+
+def label_noise(splitted_data, process_dir, percentage=0.1):
+    # NOTE deepcopy splitted_data
+
+    label_noise_root = osp.join(process_dir, f"splitted_data_label_noise_{percentage}")
+    if not osp.exists(label_noise_root):
+        os.makedirs(label_noise_root)
+
+    if osp.exists(label_noise_root):
+        noisy_label = torch.load(label_noise_root)
+        splitted_data["data"].y = noisy_label
+    else:
+        label_pool = splitted_data["data"].y.unique().tolist()
+        assert len(label_pool) > 1
+
+        train_mask = splitted_data["train_mask"]
+        indices = torch.nonzero(train_mask, as_tuple=True)[0]
+        print(splitted_data["data"].x.shape[0], len(indices), indices)
+        num_samples = int(len(indices) * percentage / 100)
+        selected_indices = np.random.choice(indices.tolist(), num_samples, replace=False)
+        print(selected_indices)
+        for idx in selected_indices:
+            raw_label = splitted_data["data"].y[idx].item()
+            new_label = raw_label
+            while(new_label == raw_label):
+                new_label = np.random.choice(label_pool)
+            splitted_data["data"].y[idx] = new_label
+        
+        # TODO save the results into file
+
+    return splitted_data
+
+def label_sparsity(splitted_data, process_dir, percentage=0.1):
+    # NOTE deepcopy splitted_data
+
+    label_sparsity_root = osp.join(process_dir, f"splitted_data_label_sparsity_{percentage}")
+    if not osp.exists(label_sparsity_root):
+        os.makedirs(label_sparsity_root)
+    if osp.exists(label_sparsity_root):
+        train_mask = torch.load(label_sparsity_root)
+        splitted_data["train_mask"] = train_mask
+    else:
+        train_mask = splitted_data["train_mask"]
+        indices = torch.nonzero(train_mask, as_tuple=True)[0]
+        num_samples = int(len(indices) * percentage / 100)
+        selected_indices = np.random.sample(indices.tolist(), num_samples, replace=False)
+        train_mask[selected_indices] = 0
+        splitted_data["train_mask"] = train_mask
+        # TODO save the results into file
+
+    return splitted_data
+
+## todo feature noise也给一个splitted data的接口
