@@ -251,8 +251,9 @@ def fedsubgraph_metis(args, global_dataset):
     graph_nx = to_networkx(global_dataset[0], to_undirected=True)
     n_cuts, membership = metis.part_graph(args.metis_num_coms, graph_nx)
     
+    client_indices = [None] * args.num_clients
     for client_id in range(args.num_clients):
-        client_indices = np.where(np.array(membership) == client_id)[0].tolist()
+        client_indices[client_id] = np.where(np.array(membership) == client_id)[0].tolist()
         
     local_data = []
     
