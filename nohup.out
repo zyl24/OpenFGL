@@ -1,0 +1,9 @@
+[master cdfc25c] update
+ 5 files changed, 34 insertions(+), 23 deletions(-)
+ rewrite fig.png (98%)
+ create mode 100644 nohup.out
+remote: This repository moved. Please use the new location:        
+remote:   git@github.com:zyl24/OpenFGL.git        
+To github.com:zyl24/OPENFGL.git
+   a234923..cdfc25c  master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.

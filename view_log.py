@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 
 
 def create_data(search_str):
-    dataset = ["Cora", "CiteSeer", "PubMed", "Photo" "CS" "Physics" "Computers" "Squirrel" "Chameleon"]
+    dataset = ["Cora", "CiteSeer", "PubMed", "Photo" "CS" "Physics" "Computers" "Squirrel" "Chameleon" "ogbn-products"]
     simu = ["metis"]
     
     
-    path = f"/home/ai2/work/OPENFGL/dataset/distrib/fedsubgraph_{simu[0]}_Squirrel_client_10/debug/"
+    path = f"/home/ai2/work/OPENFGL/dataset/distrib/fedsubgraph_{simu[0]}_{dataset[-1]}_client_10/debug/"
     search_str = search_str
     found_files = []
     for dirpath, dirnames, filenames in os.walk(path):
