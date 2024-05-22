@@ -36,7 +36,7 @@ class FedProtoClient(BaseClient):
         with torch.no_grad():
             embedding = self.task.evaluate(mute=True)["embedding"]
             for class_i in range(self.task.num_global_classes):
-                selected_idx = self.task.train_mask & (self.task.data.y == class_i)
+                selected_idx = self.task.train_mask & (self.task.data.y.to(self.device) == class_i)
                 if selected_idx.sum() == 0:
                     self.local_prototype[class_i] = torch.zeros(self.args.hid_dim).to(self.device)
                 else:

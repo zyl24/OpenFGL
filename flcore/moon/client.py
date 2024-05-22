@@ -15,7 +15,9 @@ class MoonClient(BaseClient):
     def get_custom_loss_fn(self):
         def custom_loss_fn(embedding, logits, label, mask):
             task_loss = self.task.default_loss_fn(logits[mask], label[mask])
-            if self.message_pool["round"] != 0:
+            if self.message_pool["round"] == 0 or self.task.num_samples != label.shape[0]: # first round eval on global
+                return task_loss
+            else:
                 sim_global = torch.cosine_similarity(embedding, self.global_embedding, dim=-1).view(-1, 1)
                 sim_prev = torch.cosine_similarity(embedding, self.prev_local_embedding, dim=-1).view(-1, 1)
                 logits = torch.cat((sim_global, sim_prev), dim=1) / config["temperature"]
@@ -23,8 +25,7 @@ class MoonClient(BaseClient):
                 contrastive_loss = nn.CrossEntropyLoss()(logits ,lbls)
                 moon_loss = config["moon_mu"] * contrastive_loss
                 return task_loss + moon_loss
-            else:
-                return task_loss
+                
         
         return custom_loss_fn    
     
