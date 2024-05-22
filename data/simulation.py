@@ -7,7 +7,7 @@ from sknetwork.clustering import Louvain
 import sys
 from sklearn.cluster import KMeans
 import pymetis as metis
-
+from tqdm import tqdm
 
 
 def get_subgraph_pyg_data(global_dataset, node_list):
@@ -20,7 +20,7 @@ def get_subgraph_pyg_data(global_dataset, node_list):
         global_id_to_local_id[global_id] = local_id
         local_id_to_global_id[local_id] = global_id
         
-    for edge_id in range(global_edge_index.shape[1]):
+    for edge_id in tqdm(range(global_edge_index.shape[1]), desc="Processing Edge Mapping"):
         src = global_edge_index[0, edge_id].item()
         tgt = global_edge_index[1, edge_id].item()
         if src in node_id_set and tgt in node_id_set:
@@ -251,8 +251,9 @@ def fedsubgraph_metis(args, global_dataset):
     graph_nx = to_networkx(global_dataset[0], to_undirected=True)
     n_cuts, membership = metis.part_graph(args.metis_num_coms, graph_nx)
     
+    client_indices = [None] * args.num_clients
     for client_id in range(args.num_clients):
-        client_indices = np.where(np.array(membership) == client_id)[0].tolist()
+        client_indices[client_id] = np.where(np.array(membership) == client_id)[0].tolist()
         
     local_data = []
     

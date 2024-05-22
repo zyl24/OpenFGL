@@ -2,6 +2,7 @@ import os
 from os import path as osp
 from data.global_dataset_loader import load_global_dataset
 from torch_geometric.data import Dataset
+from torch_geometric.utils import remove_self_loops, to_undirected
 import copy
 import torch
 import json
@@ -89,6 +90,16 @@ class FGLDataset(Dataset):
 
     def get_client_data(self, client_id):
         data = torch.load(osp.join(self.processed_dir, "data_{}.pt".format(client_id)))
+        if hasattr(data, "x"):
+            data.x = data.x.to(torch.float32)
+        if hasattr(data, "y"):
+            data.y = data.y.squeeze() # could be int64 (for classification) / float32 (for regression)
+        if hasattr(data, "edge_attr"):
+            data.edge_index, data.edge_attr = remove_self_loops(*to_undirected(data.edge_index, data.edge_attr))
+        else:
+            data.edge_index = remove_self_loops(to_undirected(data.edge_index))[0]
+        # reset cache
+        data._data_list = None
         return data
 
     def save_client_data(self, data, client_id):
@@ -148,7 +159,19 @@ class FGLDataset(Dataset):
             if self.args.scenario == "fedgraph":
                 self.global_data = global_dataset
             else:
-                self.global_data = global_dataset._data
+                self.global_data = global_dataset.data
+                if hasattr(self.global_data, "x"):
+                    self.global_data.x = self.global_data.x.to(torch.float32)
+                if hasattr(self.global_data, "y"):
+                    self.global_data.y = self.global_data.y.squeeze() # could be int64 (for classification) / float32 (for regression)
+                if hasattr(self.global_data, "edge_attr"):
+                    self.global_data.edge_index, self.global_data.edge_attr = remove_self_loops(*to_undirected(self.global_data.edge_index, self.global_data.edge_attr))
+                else:
+                    self.global_data.edge_index = remove_self_loops(to_undirected(self.global_data.edge_index))[0]
+                # reset cache
+                self.global_data._data_list = None
+                
+                
             self.global_data.num_global_classes = global_dataset.num_classes
             
             
@@ -156,7 +179,7 @@ class FGLDataset(Dataset):
             self.global_data = None
         
         
-        
+
         
 
         # data processing

@@ -16,15 +16,6 @@ class GraphClsTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device):
         super(GraphClsTask, self).__init__(args, client_id, data, data_dir, device)
         
-        self.splitted_data = {
-            "data": self.data,
-            "train_dataloader": self.train_dataloader,
-            "val_dataloader": self.val_dataloader,
-            "test_dataloader": self.test_dataloader,
-            "train_mask": self.train_mask,
-            "val_mask": self.val_mask,
-            "test_mask": self.test_mask
-        }
         
         
     def train(self, splitted_data=None):
@@ -62,6 +53,7 @@ class GraphClsTask(BaseTask):
         
         embedding_all = torch.zeros((num_samples, self.args.hid_dim)).to(self.device)
         logits_all = torch.zeros((num_samples, num_global_classes)).to(self.device)
+        label_all = torch.zeros((num_samples)).to(self.device).long()
         
         train_idx = splitted_data["train_mask"].nonzero().squeeze().tolist()
         if isinstance(train_idx, int):
@@ -83,21 +75,24 @@ class GraphClsTask(BaseTask):
                 embedding, logits = self.model.forward(batch)
                 embedding_all[train_idx[train_cnt:train_cnt+batch.num_graphs]] = embedding
                 logits_all[train_idx[train_cnt:train_cnt+batch.num_graphs]] = logits
+                label_all[train_idx[train_cnt:train_cnt+batch.num_graphs]] = batch.y
                 train_cnt += batch.num_graphs
             for batch in splitted_data["val_dataloader"]:
                 embedding, logits = self.model.forward(batch)
                 embedding_all[val_idx[val_cnt:val_cnt+batch.num_graphs]] = embedding
                 logits_all[val_idx[val_cnt:val_cnt+batch.num_graphs]] = logits
+                label_all[val_idx[val_cnt:val_cnt+batch.num_graphs]] = batch.y
                 val_cnt += batch.num_graphs
             for batch in splitted_data["test_dataloader"]:
                 embedding, logits = self.model.forward(batch)
                 embedding_all[test_idx[test_cnt:test_cnt+batch.num_graphs]] = embedding
                 logits_all[test_idx[test_cnt:test_cnt+batch.num_graphs]] = logits
+                label_all[test_idx[test_cnt:test_cnt+batch.num_graphs]] = batch.y
                 test_cnt += batch.num_graphs
 
-            loss_train = self.loss_fn(embedding_all, logits_all, splitted_data["data"].y, splitted_data["train_mask"])
-            loss_val = self.loss_fn(embedding_all, logits_all, splitted_data["data"].y, splitted_data["val_mask"])
-            loss_test = self.loss_fn(embedding_all, logits_all, splitted_data["data"].y, splitted_data["test_mask"])
+            loss_train = self.loss_fn(embedding_all, logits_all, label_all, splitted_data["train_mask"])
+            loss_val = self.loss_fn(embedding_all, logits_all, label_all, splitted_data["val_mask"])
+            loss_test = self.loss_fn(embedding_all, logits_all, label_all, splitted_data["test_mask"])
 
         eval_output["embedding"] = embedding_all
         eval_output["logits"] = logits_all
@@ -106,9 +101,9 @@ class GraphClsTask(BaseTask):
         eval_output["loss_test"]  = loss_test
         
         
-        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["train_mask"]], labels=splitted_data["data"].y[splitted_data["train_mask"]], suffix="train")
-        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["val_mask"]], labels=splitted_data["data"].y[splitted_data["val_mask"]], suffix="val")
-        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["test_mask"]], labels=splitted_data["data"].y[splitted_data["test_mask"]], suffix="test")
+        metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["train_mask"]], labels=label_all[splitted_data["train_mask"]], suffix="train")
+        metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["val_mask"]], labels=label_all[splitted_data["val_mask"]], suffix="val")
+        metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits_all[splitted_data["test_mask"]], labels=label_all[splitted_data["test_mask"]], suffix="test")
         eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
         
         info = ""
@@ -155,19 +150,16 @@ class GraphClsTask(BaseTask):
     
     @property
     def default_train_val_test_split(self):
-        return 0.1, 0.1, 0.8
+        return 0.8, 0.1, 0.1
         
-    
-        
-        
-        
+  
     @property
     def train_val_test_path(self):
         return osp.join(self.data_dir, "graph_cls")
     
 
     def load_train_val_test_split(self):
-        if self.client_id is None: # server
+        if self.client_id is None and len(self.args.dataset) == 1: # server
             glb_train = []
             glb_val = []
             glb_test = []
@@ -193,13 +185,6 @@ class GraphClsTask(BaseTask):
             val_mask = idx_to_mask_tensor(glb_val, self.num_samples).bool()
             test_mask = idx_to_mask_tensor(glb_test, self.num_samples).bool()
             
-            self.train_dataloader = DataLoader(self.data[train_mask], batch_size=self.args.batch_size, shuffle=True)
-            self.val_dataloader = DataLoader(self.data[val_mask], batch_size=self.args.batch_size, shuffle=False)
-            self.test_dataloader = DataLoader(self.data[test_mask], batch_size=self.args.batch_size, shuffle=False)
-            
-
-            
-            
         else: # client
             train_path = osp.join(self.train_val_test_path, f"train_{self.client_id}.pt")
             val_path = osp.join(self.train_val_test_path, f"val_{self.client_id}.pt")
@@ -223,22 +208,23 @@ class GraphClsTask(BaseTask):
                 torch.save(val_mask, val_path)
                 torch.save(test_mask, test_path)
                 
-                # map to global
-                glb_train_id = []
-                glb_val_id = []
-                glb_test_id = []
-                for id_train in train_mask.nonzero():
-                    glb_train_id.append(self.data.global_map[id_train.item()])
-                for id_val in val_mask.nonzero():
-                    glb_val_id.append(self.data.global_map[id_val.item()])
-                for id_test in test_mask.nonzero():
-                    glb_test_id.append(self.data.global_map[id_test.item()])
-                with open(glb_train_path, 'wb') as file:
-                    pickle.dump(glb_train_id, file)
-                with open(glb_val_path, 'wb') as file:
-                    pickle.dump(glb_val_id, file)
-                with open(glb_test_path, 'wb') as file:
-                    pickle.dump(glb_test_id, file)
+                if len(self.args.dataset) == 1:
+                    # map to global
+                    glb_train_id = []
+                    glb_val_id = []
+                    glb_test_id = []
+                    for id_train in train_mask.nonzero():
+                        glb_train_id.append(self.data.global_map[id_train.item()])
+                    for id_val in val_mask.nonzero():
+                        glb_val_id.append(self.data.global_map[id_val.item()])
+                    for id_test in test_mask.nonzero():
+                        glb_test_id.append(self.data.global_map[id_test.item()])
+                    with open(glb_train_path, 'wb') as file:
+                        pickle.dump(glb_train_id, file)
+                    with open(glb_val_path, 'wb') as file:
+                        pickle.dump(glb_val_id, file)
+                    with open(glb_test_path, 'wb') as file:
+                        pickle.dump(glb_test_id, file)
             
         self.train_mask = train_mask.to(self.device)
         self.val_mask = val_mask.to(self.device)
@@ -246,7 +232,16 @@ class GraphClsTask(BaseTask):
         self.train_dataloader = DataLoader(self.data[self.train_mask], batch_size=self.args.batch_size, shuffle=False)
         self.val_dataloader = DataLoader(self.data[self.val_mask], batch_size=self.args.batch_size, shuffle=False)
         self.test_dataloader = DataLoader(self.data[self.test_mask], batch_size=self.args.batch_size, shuffle=False)
-            
+        
+        self.splitted_data = {
+            "data": self.data,
+            "train_dataloader": self.train_dataloader,
+            "val_dataloader": self.val_dataloader,
+            "test_dataloader": self.test_dataloader,
+            "train_mask": self.train_mask,
+            "val_mask": self.val_mask,
+            "test_mask": self.test_mask
+        } 
 
     def local_graph_train_val_test_split(self, local_graphs, split, shuffle=True):
         num_graphs = self.num_samples
@@ -264,7 +259,7 @@ class GraphClsTask(BaseTask):
             num_class_i_graphs = class_i_graph_mask.sum()
             class_i_graph_list = mask_tensor_to_idx(class_i_graph_mask)
             if shuffle:
-                class_i_graph_list = np.random.shuffle(class_i_graph_list)
+                np.random.shuffle(class_i_graph_list)
             train_mask += idx_to_mask_tensor(class_i_graph_list[:int(train_ * num_class_i_graphs)], num_graphs)
             val_mask += idx_to_mask_tensor(class_i_graph_list[int(train_ * num_class_i_graphs) : int((train_+val_) * num_class_i_graphs)], num_graphs)
             test_mask += idx_to_mask_tensor(class_i_graph_list[int((train_+val_) * num_class_i_graphs): min(num_class_i_graphs, int((train_+val_+test_) * num_class_i_graphs))], num_graphs)

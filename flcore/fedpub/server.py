@@ -131,24 +131,6 @@ class FedPubServer(BaseServer):
             tmp = self.aggregate(local_weights,ratio)
             self.update_weights.append(tmp)
 
-    def switch_personalized_global_model(self, client_id):
-        if f'personalized_{client_id}' in self.message_pool["server"]:
-            weight = self.message_pool["server"][f'personalized_{client_id}']
-        else:
-            weight = self.message_pool["server"]["weight"]
-
-        model_state = self.task.model.state_dict()
-        for k, v in weight.items():
-            if 'running' in k or 'tracked' in k:
-                weight[k] = model_state[k]
-                continue
-            if 'mask' in k or 'pre' in k or 'pos' in k:
-                weight[k] = model_state[k]
-                continue
-        self.task.model.load_state_dict(weight)
-        
-        
-        
         
         
     def send_message(self):

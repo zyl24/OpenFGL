@@ -1,0 +1,43 @@
+{
+    "use_cuda": true,
+    "gpuid": 0,
+    "seed": 2024,
+    "root": "./dataset",
+    "scenario": "fedsubgraph",
+    "dataset": [
+        "Cora"
+    ],
+    "processing": "raw",
+    "feature_mask_prob": 0.1,
+    "dp_epsilon": 0.0,
+    "homo_injection_ratio": 0.0,
+    "hete_injection_ratio": 0.0,
+    "num_clients": 10,
+    "num_rounds": 100,
+    "fl_algorithm": "fedavg",
+    "client_frac": 1.0,
+    "simulation_mode": "fedsubgraph_louvain",
+    "dirichlet_alpha": 10,
+    "dirichlet_try_cnt": 100,
+    "least_samples": 5,
+    "louvain_resolution": 1,
+    "louvain_delta": 20,
+    "metis_num_coms": 100,
+    "task": "node_cls",
+    "train_val_test": "default_split",
+    "num_epochs": 1,
+    "dropout": 0.5,
+    "lr": 0.01,
+    "optim": "adam",
+    "weight_decay": 0.0005,
+    "batch_size": 128,
+    "model": [
+        "graphsage"
+    ],
+    "num_layers": 2,
+    "hid_dim": 64,
+    "metrics": [
+        "accuracy"
+    ],
+    "evaluation_mode": "local_model_on_local_data"
+}

@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GINConv
 from torch_geometric.nn.pool import global_add_pool
-
+import torch
 
 class GIN(nn.Module):
     def __init__(self, input_dim, hid_dim, output_dim, num_layers=2, dropout=0.5):
@@ -30,6 +30,7 @@ class GIN(nn.Module):
     def forward(self, data):
         x, edge_index, batch = data.x, data.edge_index, data.batch
         for conv, batch_norm in zip(self.convs, self.batch_norms):
+            assert x.dtype is torch.float32 and edge_index.dtype is torch.int64
             x = F.relu(batch_norm(conv(x, edge_index)))
             x = F.dropout(x, p=self.dropout, training=self.training)
         embedding = global_add_pool(x, batch)

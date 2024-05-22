@@ -8,7 +8,7 @@ from flcore.fedsage_plus._utils import greedy_loss
 from data.simulation import get_subgraph_pyg_data
 import torch.nn.functional as F
 from torch_geometric.data import Data
-
+from utils.metrics import compute_supervised_metrics
 
 
 def accuracy_missing(output, labels):
@@ -17,13 +17,13 @@ def accuracy_missing(output, labels):
     for pred,label in zip(preds,labels):
         if int(pred)==int(label):
             correct+=1.0
-    return correct / len(labels) * 100
+    return correct / len(labels)
 
 
 def accuracy(pred,true):
     correct = (pred.max(1)[1] == true).sum()
     tot = true.shape[0]
-    acc = float(correct / tot) * 100
+    acc = float(correct / tot)
     return acc
 
 
@@ -281,12 +281,49 @@ class FedSagePlusClient(BaseClient):
         
     def get_phase_0_override_evaluate(self):
         def override_evaluate(splitted_data=None, mute=False):
-            eval_output = {"skip"}
+            if splitted_data is None:
+                splitted_data = self.task.splitted_data
+            else:
+                names = ["data", "train_mask", "val_mask", "test_mask"]
+                for name in names:
+                    assert name in splitted_data
+                    
+            self.task.model.phase = 1 # temporary modification for evaluation
+            with torch.no_grad():
+                embedding, logits = self.task.model.forward(splitted_data["data"])
+                
+                loss_train = F.cross_entropy(logits[splitted_data["train_mask"]], splitted_data["data"].y[splitted_data["train_mask"]])
+                loss_val = F.cross_entropy(logits[splitted_data["val_mask"]], splitted_data["data"].y[splitted_data["val_mask"]])
+                loss_test = F.cross_entropy(logits[splitted_data["test_mask"]], splitted_data["data"].y[splitted_data["test_mask"]])
+
+            eval_output = {}
+            eval_output["embedding"] = embedding
+            eval_output["logits"] = logits
+            eval_output["loss_train"] = loss_train
+            eval_output["loss_val"]   = loss_val
+            eval_output["loss_test"]  = loss_test
+            
+            
+            metric_train = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["train_mask"]], labels=splitted_data["data"].y[splitted_data["train_mask"]], suffix="train")
+            metric_val = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["val_mask"]], labels=splitted_data["data"].y[splitted_data["val_mask"]], suffix="val")
+            metric_test = compute_supervised_metrics(metrics=self.args.metrics, logits=logits[splitted_data["test_mask"]], labels=splitted_data["data"].y[splitted_data["test_mask"]], suffix="test")
+            eval_output = {**eval_output, **metric_train, **metric_val, **metric_test}
+            
+            info = ""
+            for key, val in eval_output.items():
+                try:
+                    info += f"\t{key}: {val:.4f}"
+                except:
+                    continue
+
+            prefix = f"[client {self.client_id}]" if self.client_id is not None else "[server]"
+            if not mute:
+                print(prefix+info)
+            self.task.model.phase = 0 # reset
             return eval_output
         return override_evaluate
     
     def get_phase_1_override_evaluate(self):
-        from utils.metrics import compute_supervised_metrics
         def override_evaluate(splitted_data=None, mute=False):
             if splitted_data is None:
                 splitted_data = self.splitted_filled_data

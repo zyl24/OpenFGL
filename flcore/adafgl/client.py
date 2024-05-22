@@ -15,7 +15,7 @@ def accuracy(pred, label):
 
 class AdaFGLClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(AdaFGLClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
+        super(AdaFGLClient, self).__init__(args, client_id, data, data_dir, message_pool, device, personalized=True)
         
         self.phase = 0
 
@@ -62,8 +62,10 @@ class AdaFGLClient(BaseClient):
     def send_message(self):
         self.message_pool[f"client_{self.client_id}"] = {
                 "num_samples": self.task.num_samples,
-                "weight": list(self.task.model.parameters())
             }
+        
+        if self.phase == 0:
+            self.message_pool[f"client_{self.client_id}"]["weight"] = list(self.task.model.parameters())
         
         
     def adafgl_postprocess(self, loss_ce_fn=nn.CrossEntropyLoss()):

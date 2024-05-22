@@ -9,19 +9,14 @@ import torch
 from utils.task_utils import load_node_edge_level_default_model
 import pickle
 import numpy as np
-
+from utils.privacy_utils import clip_gradients, add_noise
     
 
 class NodeClsTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device):
         super(NodeClsTask, self).__init__(args, client_id, data, data_dir, device)
         
-        self.splitted_data = {
-            "data": self.data,
-            "train_mask": self.train_mask,
-            "val_mask": self.val_mask,
-            "test_mask": self.test_mask
-        }
+
         
     def train(self, splitted_data=None):
         if splitted_data is None:
@@ -36,13 +31,19 @@ class NodeClsTask(BaseTask):
             self.optim.zero_grad()
             embedding, logits = self.model.forward(splitted_data["data"])
             loss_train = self.loss_fn(embedding, logits, splitted_data["data"].y, splitted_data["train_mask"])
-            loss_train.backward()
+            if self.args.dp_mech != "no_dp":
+                # clip the gradient of each sample in this batch
+                clip_gradients(self.model, loss_train, loss_train.shape[0], self.args.dp_mech, self.args.grad_clip)
+            else:
+                loss_train.backward()
             
             if self.step_preprocess is not None:
                 self.step_preprocess()
             
             self.optim.step()
-    
+            if self.args.dp_mech != "no_dp":
+                # add noise to parameters
+                add_noise(self.args, self.model, loss_train.shape[0])
 
     
     def evaluate(self, splitted_data=None, mute=False):
@@ -95,7 +96,7 @@ class NodeClsTask(BaseTask):
         return self.default_loss_fn(logits[mask], label[mask])
         
     @property
-    def default_model(self):            
+    def default_model(self):
         return load_node_edge_level_default_model(self.args, input_dim=self.num_feats, output_dim=self.num_global_classes, client_id=self.client_id)
     
     @property
@@ -118,7 +119,10 @@ class NodeClsTask(BaseTask):
         
     @property
     def default_loss_fn(self):
-        return nn.CrossEntropyLoss()
+        if self.args.dp_mech != "no_dp":
+            return nn.CrossEntropyLoss(reduction="none")
+        else:
+            return nn.CrossEntropyLoss()
     
     @property
     def default_train_val_test_split(self):
@@ -130,15 +134,16 @@ class NodeClsTask(BaseTask):
         else:
             name = self.args.dataset[0]
             
-        if name == "Cora":
+        if name in ["Cora", "CiteSeer", "PubMed", "CS", "Physics", "Photo", "Computers"]:
             return 0.2, 0.4, 0.4
-        elif name == "CiteSeer":
-            return 0.2, 0.4, 0.4
-        elif name == "PubMed":
-            return 0.2, 0.4, 0.4
-        elif name == "Computers":
-            return 0.2, 0.4, 0.4
-        
+        elif name in ["Chameleon", "Squirrel"]:
+            return 0.48, 0.32, 0.20
+        elif name in ["ogbn-arxiv"]:
+            return 0.6, 0.2, 0.2
+        elif name in ["ogbn-products"]:
+            return 0.1, 0.05, 0.85
+        elif name in ["Roman-empire", "Amazon-ratings", "Tolokers", "Actor", "Questions", "Minesweeper"]:
+            return 0.5, 0.25, 0.25
         
         
     @property
@@ -147,7 +152,7 @@ class NodeClsTask(BaseTask):
     
 
     def load_train_val_test_split(self):
-        if self.client_id is None: # server
+        if self.client_id is None and len(self.args.dataset) == 1: # server
             glb_train = []
             glb_val = []
             glb_test = []
@@ -196,26 +201,35 @@ class NodeClsTask(BaseTask):
                 torch.save(val_mask, val_path)
                 torch.save(test_mask, test_path)
                 
-                # map to global
-                glb_train_id = []
-                glb_val_id = []
-                glb_test_id = []
-                for id_train in train_mask.nonzero():
-                    glb_train_id.append(self.data.global_map[id_train.item()])
-                for id_val in val_mask.nonzero():
-                    glb_val_id.append(self.data.global_map[id_val.item()])
-                for id_test in test_mask.nonzero():
-                    glb_test_id.append(self.data.global_map[id_test.item()])
-                with open(glb_train_path, 'wb') as file:
-                    pickle.dump(glb_train_id, file)
-                with open(glb_val_path, 'wb') as file:
-                    pickle.dump(glb_val_id, file)
-                with open(glb_test_path, 'wb') as file:
-                    pickle.dump(glb_test_id, file)
-            
+                if len(self.args.dataset) == 1:
+                    # map to global
+                    glb_train_id = []
+                    glb_val_id = []
+                    glb_test_id = []
+                    for id_train in train_mask.nonzero():
+                        glb_train_id.append(self.data.global_map[id_train.item()])
+                    for id_val in val_mask.nonzero():
+                        glb_val_id.append(self.data.global_map[id_val.item()])
+                    for id_test in test_mask.nonzero():
+                        glb_test_id.append(self.data.global_map[id_test.item()])
+                    with open(glb_train_path, 'wb') as file:
+                        pickle.dump(glb_train_id, file)
+                    with open(glb_val_path, 'wb') as file:
+                        pickle.dump(glb_val_id, file)
+                    with open(glb_test_path, 'wb') as file:
+                        pickle.dump(glb_test_id, file)
+                
         self.train_mask = train_mask.to(self.device)
         self.val_mask = val_mask.to(self.device)
         self.test_mask = test_mask.to(self.device)
+        
+        
+        self.splitted_data = {
+            "data": self.data,
+            "train_mask": self.train_mask,
+            "val_mask": self.val_mask,
+            "test_mask": self.test_mask
+        }
             
             
             
@@ -245,3 +259,6 @@ class NodeClsTask(BaseTask):
         val_mask = val_mask.bool()
         test_mask = test_mask.bool()
         return train_mask, val_mask, test_mask
+    
+    
+    
