@@ -51,6 +51,8 @@ parser.add_argument("--processing", type=str, default="raw", choices=supported_d
 parser.add_argument("--feature_mask_prob", type=float, default=0.1)
 parser.add_argument("--edge_mask_prob", type=float, default=0.1)
 parser.add_argument("--feature_noise_std", type=float, default=1.0, help="random gaussian noise~N(0, std)")
+parser.add_argument("--label_noise_prob", type=float, default=0.1)
+parser.add_argument("--label_sparsity_prob", type=float, default=0.1, help="random drop %p labels in trainset")
 # dp parameter: epsilon, support 1) random response for link
 parser.add_argument("--dp_epsilon", type=float, default=0.)
 # homo/hete random injection
