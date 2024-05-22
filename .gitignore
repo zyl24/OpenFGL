@@ -1,6 +1,6 @@
 __pycache__/
 */__pycache__/
-/datasets
+/dataset
 /exp
 /scripts
 main_test.py

@@ -18,7 +18,7 @@ supported_fedgraph_task = ["graph_cls", "graph_reg"]
 supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
 
 
-supported_fl_algorithm = ["fedavg", "fedprox", "scaffold", "moon", "feddc", "fedproto", "fedtgp", "fedpub", "fedstar", "fedgta", "fedtad", "gcfl_plus", "fedsage_plus", "adafgl", "feddep"]
+supported_fl_algorithm = ["isolate", "fedavg", "fedprox", "scaffold", "moon", "feddc", "fedproto", "fedtgp", "fedpub", "fedstar", "fedgta", "fedtad", "gcfl_plus", "fedsage_plus", "adafgl", "feddep"]
 
 
 supported_metrics = ["accuracy", "precision", "f1", "recall", "auc", "ap", "clustering_accuracy", "nmi", "ari"]
@@ -69,7 +69,7 @@ parser.add_argument("--dirichlet_try_cnt", type=int, default=100)
 parser.add_argument("--least_samples", type=int, default=5)
 parser.add_argument("--louvain_resolution", type=float, default=1)
 parser.add_argument("--louvain_delta", type=float, default=20, help="Maximum allowable difference in node counts between any two clients in the fedgraph_louvain simulation.")
-parser.add_argument("--metis_num_coms", type=float, default=100)
+parser.add_argument("--metis_num_coms", type=int, default=100)
 
 # task settings
 parser.add_argument("--task", type=str, default="node_cls", choices=supported_fedgraph_task + supported_fedsubgraph_task)
