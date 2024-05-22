@@ -104,12 +104,12 @@ def get_prototypes(emb, K, batch_size, device, ae_pretrained_epochs, ae_finetune
     return prototypes, proto_idx
 
 
-def get_emb(data, device):
+def get_emb(data, hid_dim, output_dim, num_layers, device):
     subgraph_sampler = NeighborSampler(
         data.edge_index,
         num_nodes=data.num_nodes,
         node_idx=torch.tensor([i for i in range(data.num_nodes)]),
-        sizes=[5] * config["encoder"]["L"],
+        sizes=[5] * num_layers,
         batch_size=4096,
         shuffle=False)
     train_idx = torch.where(data.train_mask == True)[0]
@@ -119,8 +119,8 @@ def get_emb(data, device):
             data.edge_index,
             num_nodes=data.num_nodes,
             node_idx=train_idx,
-            sizes=[5] * config["encoder"]["L"],
-            batch_size=config["encoder"]["batch_size"],
+            sizes=[5] * num_layers,
+            batch_size=config["encoder_batch_size"],
             shuffle=True
         ),
         "val": subgraph_sampler,
@@ -129,14 +129,14 @@ def get_emb(data, device):
 
     encoder = Encoder(
         input_dim=data.x.shape[1],
-        hid_dim=config["encoder"]["hid_dim"],
-        output_dim=config["encoder"]["out_channels"],
-        num_layers=config["encoder"]["L"],
+        hid_dim=hid_dim,
+        output_dim=output_dim,
+        num_layers=num_layers,
         dropout=0.5).to(device)
 
     encoder.train()
     optim = torch.optim.Adam(encoder.parameters(), lr=0.01, weight_decay=5e-4)
-    for epoch in range(config["encoder"]["epochs"]):
+    for epoch in range(config["encoder_epochs"]):
         total_loss, total_correct = 0, 0
         for batch_size, n_id, adjs in dataloader["train"]:
             x, y = data.x[n_id].to(device), data.y[n_id[:batch_size]].to(device)
@@ -158,7 +158,10 @@ def get_emb(data, device):
 
 
 class HideGraph(BaseTransform):
-    def __init__(self, hidden_portion, num_preds, num_protos, device):
+    def __init__(self, encoder_hid_dim, encoder_output_dim, encoder_num_layers, hidden_portion, num_preds, num_protos, device):
+        self.encoder_hid_dim = encoder_hid_dim
+        self.encoder_output_dim = encoder_output_dim
+        self.encoder_num_layers = encoder_num_layers
         self.hidden_portion = hidden_portion
         self.num_preds = num_preds
         self.num_protos = num_protos
@@ -167,7 +170,7 @@ class HideGraph(BaseTransform):
         
     def __call__(self, data):
         # get prototypes
-        emb = get_emb(data=data, device=self.device)
+        emb = get_emb(data=data, hid_dim=self.encoder_hid_dim, output_dim=self.encoder_output_dim, num_layers=self.encoder_num_layers, device=self.device)
         self.prototypes, self.proto_idx = get_prototypes(
             emb=emb,
             K=self.num_protos,
@@ -246,12 +249,17 @@ def GraphMender(model, impaired_data, original_data, num_preds):
             org_id = impaired_data.global_map[node]
             mend_emb[org_id][:num_fill_nodes] += pred_feats[node][:num_fill_nodes]
 
-    filled_data = Data(
-        x=original_data.x,
-        edge_index=new_edge_index.T,
-        y=original_data.y,
-        train_idx=torch.where(original_data.train_mask == True)[0],
-        valid_idx=torch.where(original_data.val_mask == True)[0],
-        test_idx=torch.where(original_data.test_mask == True)[0],
-        mend_emb=mend_emb)
+    filled_data = {
+        "data": Data(
+                x=original_data.x,
+                edge_index=new_edge_index.T,
+                y=original_data.y,
+                # train_idx=torch.where(original_data.train_mask == True)[0],
+                # valid_idx=torch.where(original_data.val_mask == True)[0],
+                # test_idx=torch.where(original_data.test_mask == True)[0],
+                mend_emb=mend_emb),
+        "train_mask": original_data.train_mask,
+        "val_mask": original_data.val_mask,
+        "test_mask": original_data.test_mask
+    }
     return filled_data

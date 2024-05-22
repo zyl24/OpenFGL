@@ -226,10 +226,10 @@ class FedDEP(nn.Module):
         self.gen = local_graph.gen
         self.mend_graph = local_graph.mend_graph
         self.classifier = local_graph.classifier
-        self.encoder_model.requires_grad_(False)
-        self.reg_model.requires_grad_(False)
-        self.mend_graph.requires_grad_(False)
-        self.classifier.requires_grad_(False)
+        # self.encoder_model.requires_grad_(False)
+        # self.reg_model.requires_grad_(False)
+        # self.mend_graph.requires_grad_(False)
+        # self.classifier.requires_grad_(False)
 
     def forward(self, data):
         _, x = self.encoder_model(data)
