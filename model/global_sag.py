@@ -33,7 +33,7 @@ class GlobalSAG(nn.Module):
             x = F.relu(batch_norm(conv(x, edge_index)))
             x = F.dropout(x, p=self.dropout, training=self.training)
             
-        x, connect_out_edge_index, connect_out_edge_attr, connect_out_batch, perm, score = self.sag_pooling(x, edge_index, batch)
+        x, connect_out_edge_index, connect_out_edge_attr, connect_out_batch, perm, score = self.sag_pooling(x=x, edge_index=edge_index, batch=batch)
         
         embedding = global_add_pool(x, connect_out_batch)
         

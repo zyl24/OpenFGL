@@ -16,12 +16,12 @@ class GlobalPAN(nn.Module):
             self.convs.append(PANConv(input_dim, hid_dim, filter_size=0)) 
             self.batch_norms.append(nn.BatchNorm1d(hid_dim))
             for _ in range(num_layers - 2):
-                self.convs.append(PANConv(hid_dim, hid_dim))
+                self.convs.append(PANConv(hid_dim, hid_dim, filter_size=0))
                 self.batch_norms.append(nn.BatchNorm1d(hid_dim))
-            self.convs.append(PANConv(hid_dim, hid_dim))
+            self.convs.append(PANConv(hid_dim, hid_dim, filter_size=0))
             self.batch_norms.append(nn.BatchNorm1d(hid_dim))
         else:
-            self.convs.append(PANConv(input_dim, hid_dim))
+            self.convs.append(PANConv(input_dim, hid_dim, filter_size=0))
             self.batch_norms.append(nn.BatchNorm1d(hid_dim))
             
             
