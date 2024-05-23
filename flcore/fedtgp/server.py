@@ -71,9 +71,6 @@ class FedTGPServer(BaseServer):
             if gap[i] > torch.tensor(1e8, device=self.device):
                 gap[i] = min_gap
         max_gap = torch.max(gap)
-        print(f'class-wise minimum distance', gap)
-        print('min_gap', min_gap.item())
-        print('max_gap', max_gap.item())
         
         for _ in range(self.num_glb_epochs):
             self.gp_optimizer.zero_grad()  

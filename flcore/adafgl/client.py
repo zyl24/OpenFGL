@@ -7,11 +7,6 @@ from flcore.adafgl._utils import adj_initialize
 from torch.optim import Adam
 import torch.nn.functional as F
 
-def accuracy(pred, label):
-    correct = (pred.max(1)[1] == label).sum()
-    tot = label.shape[0]
-    return correct / tot * 100
-    
 
 class AdaFGLClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
@@ -28,7 +23,7 @@ class AdaFGLClient(BaseClient):
             self.adafgl_model = AdaFGLModel(prop_steps=config["prop_steps"], feat_dim=self.task.num_feats, hidden_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, train_mask=self.task.train_mask, val_mask=self.task.val_mask, test_mask=self.task.test_mask, r=config["r"])
             self.task.data = adj_initialize(self.task.data)
             
-            # last-time download global model
+            # last time download global model
             with torch.no_grad():
                 for (local_param, global_param) in zip(self.task.model.parameters(), self.message_pool["server"]["weight"]):
                     local_param.data.copy_(global_param)
@@ -95,7 +90,7 @@ class AdaFGLClient(BaseClient):
     def get_adafgl_override_evaluate(self):
         from utils.metrics import compute_supervised_metrics
         def override_evaluate(splitted_data=None, mute=False):
-            assert splitted_data is None, "AdaFGL is a personalized FGL method, which doesn't support global evaluation."
+            assert splitted_data is None, "AdaFGL doesn't support global data evaluation."
             splitted_data = self.task.splitted_data
             
             eval_output = {}    

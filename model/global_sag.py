@@ -1,15 +1,15 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GINConv
-from torch_geometric.nn.pool import global_add_pool
-import torch
+from torch_geometric.nn.pool import global_add_pool, SAGPooling
 
-class GIN(nn.Module):
+class GlobalSAG(nn.Module):
     def __init__(self, input_dim, hid_dim, output_dim, num_layers=2, dropout=0.5):
-        super(GIN, self).__init__()
+        super(GlobalSAG, self).__init__()
 
         self.convs = nn.ModuleList()
         self.batch_norms = nn.ModuleList()
+        self.sag_pooling = SAGPooling(hid_dim)
 
         for i in range(num_layers):
             mlp = nn.Sequential(
@@ -22,7 +22,6 @@ class GIN(nn.Module):
             self.convs.append(conv)
             self.batch_norms.append(nn.BatchNorm1d(hid_dim))
             input_dim = hid_dim
-            
         self.lin1 = nn.Linear(hid_dim, hid_dim)
         self.batch_norm1 = nn.BatchNorm1d(hid_dim)
         self.lin2 = nn.Linear(hid_dim, output_dim)
@@ -33,7 +32,10 @@ class GIN(nn.Module):
         for conv, batch_norm in zip(self.convs, self.batch_norms):
             x = F.relu(batch_norm(conv(x, edge_index)))
             x = F.dropout(x, p=self.dropout, training=self.training)
-        embedding = global_add_pool(x, batch)
+            
+        x, connect_out_edge_index, connect_out_edge_attr, connect_out_batch, perm, score = self.sag_pooling(x=x, edge_index=edge_index, batch=batch)
+        
+        embedding = global_add_pool(x, connect_out_batch)
         
         if data.y.shape[0] != 1:
             x = self.batch_norm1(self.lin1(embedding))
