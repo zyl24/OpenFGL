@@ -10,6 +10,8 @@ from utils.task_utils import load_node_edge_level_default_model
 import pickle
 import numpy as np
 from utils.privacy_utils import clip_gradients, add_noise
+from data.processing import label_noise, label_sparsity
+import copy
     
 
 class NodeClsTask(BaseTask):
@@ -230,6 +232,10 @@ class NodeClsTask(BaseTask):
             "val_mask": self.val_mask,
             "test_mask": self.test_mask
         }
+        if self.args.processing == 'label_noise':
+            self.splitted_data = label_noise(copy.deepcopy(self.splitted_data), self.data_dir, percentage=self.args.label_noise_prob)
+        elif self.args.processing == 'label_sparsity':
+            self.splitted_data = label_sparsity(copy.deepcopy(self.splitted_data), self.data_dir, percentage=self.args.label_noise_prob)
             
             
             

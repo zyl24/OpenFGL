@@ -189,6 +189,12 @@ class FGLDataset(Dataset):
         elif self.args.processing == "random_feature_mask":
             from .processing import random_feature_mask
             self.local_data = random_feature_mask(self.local_data, process_dir=self.processed_dir, mask_prob=self.args.feature_mask_prob)
+        elif self.args.processing == "edge_random_mask":
+            from .processing import edge_random_mask
+            self.local_data = edge_random_mask(self.local_data, process_dir=self.processed_dir, mask_prob=self.args.edge_mask_prob)
+        elif self.args.processing == "random_feature_noise":
+            from .processing import random_feature_noise
+            self.local_data = random_feature_noise(self.local_data, process_dir=self.processed_dir, noise_std=self.args.feature_noise_std)
         elif self.args.processing == "link_random_response":
             from .processing import link_random_response
             self.local_data = link_random_response(self.local_data, process_dir=self.processed_dir, epsilon=self.args.dp_epsilon)
@@ -198,8 +204,8 @@ class FGLDataset(Dataset):
         elif self.args.processing == "hete_random_injection":
             from .processing import hete_random_injection
             self.local_data = hete_random_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.hete_injection_ratio)
-        else:
-            raise ValueError
+        # else:
+        #     raise ValueError
         
         # analysis module test
         for client_id in range(self.args.num_clients):

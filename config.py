@@ -26,7 +26,7 @@ supported_metrics = ["accuracy", "precision", "f1", "recall", "auc", "ap", "clus
 
 supported_evaluation_modes = ["global_model_on_local_data", "global_model_on_global_data", "local_model_on_local_data", "local_model_on_global_data"]
 
-supported_data_processing = ["raw", "random_feature_mask", "link_random_response", "homo_random_injection", "hete_random_injection"]
+supported_data_processing = ["raw", "random_feature_mask", "edge_random_mask", "random_feature_noise", "link_random_response", "homo_random_injection", "hete_random_injection", "label_noise", "label_sparsity"]
 
 supported_fedgraph_model = ["gin"]
 
@@ -49,7 +49,7 @@ parser.add_argument("--processing", type=str, default="raw", choices=supported_d
 # post_process: 
 # random feature mask ratio
 parser.add_argument("--feature_mask_prob", type=float, default=0.1)
-parser.add_argument("--edge_mask_prob", type=float, default=0.1)
+parser.add_argument("--edge_mask_prob", type=float, default=0.1, help="random drop %p edge in all data")
 parser.add_argument("--feature_noise_std", type=float, default=1.0, help="random gaussian noise~N(0, std)")
 parser.add_argument("--label_noise_prob", type=float, default=0.1)
 parser.add_argument("--label_sparsity_prob", type=float, default=0.1, help="random drop %p labels in trainset")
