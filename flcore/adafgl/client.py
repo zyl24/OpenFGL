@@ -90,7 +90,7 @@ class AdaFGLClient(BaseClient):
     def get_adafgl_override_evaluate(self):
         from utils.metrics import compute_supervised_metrics
         def override_evaluate(splitted_data=None, mute=False):
-            assert splitted_data is None, "AdaFGL doesn't support global data evaluation since "
+            assert splitted_data is None, "AdaFGL doesn't support global data evaluation."
             splitted_data = self.task.splitted_data
             
             eval_output = {}    
