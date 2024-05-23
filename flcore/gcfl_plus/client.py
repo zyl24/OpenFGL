@@ -7,7 +7,7 @@ from flcore.gcfl_plus.models import GIN
 
 class GCFLPlusClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
-        super(GCFLPlusClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
+        super(GCFLPlusClient, self).__init__(args, client_id, data, data_dir, message_pool, device, personalized=True)
         self.task.load_custom_model(GIN(nfeat=self.task.num_feats,nhid=self.args.hid_dim,nlayer=self.args.num_layers,nclass=self.task.num_global_classes,dropout=self.args.dropout))
 
         self.W = {key: value for key, value in self.task.model.named_parameters()}

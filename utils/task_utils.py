@@ -17,8 +17,15 @@ def load_graph_cls_default_model(args, input_dim, output_dim, client_id=None):
     if model_name == "gin":
         from model.gin import GIN
         return GIN(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, num_layers=args.num_layers, dropout=args.dropout)
-    else:
-        raise ValueError
+    elif model_name == "global_edge":
+        from model.global_edge import GlobalEdge
+        return GlobalEdge(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, num_layers=args.num_layers, dropout=args.dropout)
+    elif model_name == "global_pan":
+        from model.global_pan import GlobalPAN
+        return GlobalPAN(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, num_layers=args.num_layers, dropout=args.dropout)
+    elif model_name == "global_sag":
+        from model.global_sag import GlobalSAG
+        return GlobalSAG(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, num_layers=args.num_layers, dropout=args.dropout)
 
 
 

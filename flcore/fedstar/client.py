@@ -10,7 +10,7 @@ from flcore.fedstar.fedstar_config import config
 class FedStarClient(BaseClient):
     def __init__(self, args, client_id, data, data_dir, message_pool, device):
 
-        super(FedStarClient, self).__init__(args, client_id, data, data_dir, message_pool, device)
+        super(FedStarClient, self).__init__(args, client_id, data, data_dir, message_pool, device, personalized=True)
         self.task.load_custom_model(DecoupledGIN(input_dim=self.task.num_feats, hid_dim=self.args.hid_dim, output_dim=self.task.num_global_classes, n_se=config["n_rw"] + config["n_dg"], num_layers=self.args.num_layers, dropout=self.args.dropout).to(self.device))
         self.task.data = init_structure_encoding(config["n_rw"], config["n_dg"], self.task.data, config["type_init"])
 

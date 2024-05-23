@@ -7,7 +7,7 @@ from flcore.fedstar.fedstar_config import config
 
 class FedStarServer(BaseServer):
     def __init__(self, args, global_data, data_dir, message_pool, device):
-        super(FedStarServer, self).__init__(args, global_data, data_dir, message_pool, device)
+        super(FedStarServer, self).__init__(args, global_data, data_dir, message_pool, device, personalized=True)
         self.task.load_custom_model(serverGIN_dc(n_se=config["n_rw"] + config["n_dg"], num_layers=self.args.num_layers, hid_dim=self.args.hid_dim).to(self.device))
 
 
