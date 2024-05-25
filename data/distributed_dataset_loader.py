@@ -185,17 +185,17 @@ class FGLDataset(Dataset):
         if self.args.processing == "raw":
             pass
         elif self.args.processing == "random_feature_mask":
-            from .processing import random_feature_mask
-            self.local_data = random_feature_mask(self.local_data, process_dir=self.processed_dir, mask_prob=self.args.feature_mask_prob)
+            from .processing import random_feature_sparsity
+            self.local_data = random_feature_sparsity(self.local_data, process_dir=self.processed_dir, mask_prob=self.args.feature_mask_prob)
         elif self.args.processing == "link_random_response":
-            from .processing import link_random_response
-            self.local_data = link_random_response(self.local_data, process_dir=self.processed_dir, epsilon=self.args.dp_epsilon)
+            from .processing import random_edge_response
+            self.local_data = random_edge_response(self.local_data, process_dir=self.processed_dir, epsilon=self.args.dp_epsilon)
         elif self.args.processing == "homo_random_injection":
-            from .processing import homo_random_injection
-            self.local_data = homo_random_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.homo_injection_ratio)
+            from .processing import random_home_edge_injection
+            self.local_data = random_home_edge_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.homo_injection_ratio)
         elif self.args.processing == "hete_random_injection":
-            from .processing import hete_random_injection
-            self.local_data = hete_random_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.hete_injection_ratio)
+            from .processing import random_hete_edge_injection
+            self.local_data = random_hete_edge_injection(self.local_data, process_dir=self.processed_dir, ratio=self.args.hete_injection_ratio)
         else:
             raise ValueError
 
