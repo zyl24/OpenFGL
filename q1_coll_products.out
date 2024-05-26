@@ -1,0 +1,11 @@
+Running fedavg with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+Running feddc with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+Running fedproto with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+Running fedtgp with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+Running fedsage_plus with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+Running fedpub with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+Running fedgta with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+Running adafgl with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+-----------
+Local Model on Local Data - Done!
+-----------

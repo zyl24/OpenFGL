@@ -10,7 +10,7 @@ from utils.task_utils import load_node_edge_level_default_model
 import pickle
 import numpy as np
 from utils.privacy_utils import clip_gradients, add_noise
-    
+from data.processing import processing    
 
 class NodeClsTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device):
@@ -20,7 +20,7 @@ class NodeClsTask(BaseTask):
         
     def train(self, splitted_data=None):
         if splitted_data is None:
-            splitted_data = self.splitted_data
+            splitted_data = self.processed_data # use processed_data to train model
         else:
             names = ["data", "train_mask", "val_mask", "test_mask"]
             for name in names:
@@ -49,7 +49,7 @@ class NodeClsTask(BaseTask):
     def evaluate(self, splitted_data=None, mute=False):
         if self.override_evaluate is None:
             if splitted_data is None:
-                splitted_data = self.splitted_data
+                splitted_data = self.splitted_data # use splitted_data to evaluate model
             else:
                 names = ["data", "train_mask", "val_mask", "test_mask"]
                 for name in names:
@@ -115,7 +115,7 @@ class NodeClsTask(BaseTask):
     
     @property
     def num_global_classes(self):
-        return self.data.num_global_classes        
+        return self.data.num_global_classes
         
     @property
     def default_loss_fn(self):
@@ -230,8 +230,9 @@ class NodeClsTask(BaseTask):
             "val_mask": self.val_mask,
             "test_mask": self.test_mask
         }
-            
-            
+        
+        # processing
+        self.processed_data = processing(args=self.args, splitted_data=self.splitted_data, processed_dir=self.data_dir, client_id=self.client_id)
             
     def local_subgraph_train_val_test_split(self, local_subgraph, split, shuffle=True):
         num_nodes = local_subgraph.x.shape[0]

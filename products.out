@@ -1,1 +1,10 @@
 Running Isolate+gcn with Dataset=ogbn-products Local Model on Global Data, Repeat=1
+Running Isolate+gat with Dataset=ogbn-products Local Model on Global Data, Repeat=1
+-----------
+Local Model on Global Data - Done!
+-----------
+Running Isolate+gcn with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+Running Isolate+gat with Dataset=ogbn-products Local Model on Local Data, Repeat=1
+-----------
+Local Model on Local Data - Done!
+-----------

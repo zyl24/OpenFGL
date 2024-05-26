@@ -9,9 +9,9 @@ class BaseTask:
         
         if data is not None:
             self.data = data.to(device)
+            self.load_train_val_test_split()
             self.model = self.default_model.to(device)
             self.optim = Adam(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
-            self.load_train_val_test_split()
 
         self.override_evaluate = None
         self.step_preprocess = None

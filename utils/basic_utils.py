@@ -165,5 +165,3 @@ def mask_tensor_to_idx(tensor):
         result = [result]
     return result
     
-    
-    

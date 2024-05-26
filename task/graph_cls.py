@@ -10,7 +10,9 @@ from utils.task_utils import load_graph_cls_default_model
 import pickle
 from torch_geometric.loader import DataLoader
 import numpy as np
-    
+from data.processing import processing
+
+
 
 class GraphClsTask(BaseTask):
     def __init__(self, args, client_id, data, data_dir, device):
@@ -20,9 +22,9 @@ class GraphClsTask(BaseTask):
         
     def train(self, splitted_data=None):
         if splitted_data is None:
-            splitted_data = self.splitted_data
+            splitted_data = self.processed_data # use processed_data to train
         else:
-            names = ["data", "train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
+            names = ["train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
             for name in names:
                 assert name in splitted_data
                 
@@ -39,9 +41,9 @@ class GraphClsTask(BaseTask):
             
     def evaluate(self, splitted_data=None, mute=False):
         if splitted_data is None:
-            splitted_data = self.splitted_data
+            splitted_data = self.splitted_data # use splitted_data to evaluate
         else:
-            names = ["data", "train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
+            names = ["train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
             for name in names:
                 assert name in splitted_data
                 
@@ -229,9 +231,9 @@ class GraphClsTask(BaseTask):
         self.train_mask = train_mask.to(self.device)
         self.val_mask = val_mask.to(self.device)
         self.test_mask = test_mask.to(self.device)
-        self.train_dataloader = DataLoader(self.data[self.train_mask], batch_size=self.args.batch_size, shuffle=False)
-        self.val_dataloader = DataLoader(self.data[self.val_mask], batch_size=self.args.batch_size, shuffle=False)
-        self.test_dataloader = DataLoader(self.data[self.test_mask], batch_size=self.args.batch_size, shuffle=False)
+        self.train_dataloader = DataLoader([basedata for basedata in self.data[self.train_mask]], batch_size=self.args.batch_size, shuffle=False)
+        self.val_dataloader = DataLoader([basedata for basedata in self.data[self.val_mask]], batch_size=self.args.batch_size, shuffle=False)
+        self.test_dataloader = DataLoader([basedata for basedata in self.data[self.test_mask]], batch_size=self.args.batch_size, shuffle=False)
         
         self.splitted_data = {
             "data": self.data,
@@ -241,7 +243,11 @@ class GraphClsTask(BaseTask):
             "train_mask": self.train_mask,
             "val_mask": self.val_mask,
             "test_mask": self.test_mask
-        } 
+        }
+        
+        
+        self.processed_data = processing(args=self.args, splitted_data=self.splitted_data, processed_dir=self.data_dir, client_id=self.client_id)
+        
 
     def local_graph_train_val_test_split(self, local_graphs, split, shuffle=True):
         num_graphs = self.num_samples
