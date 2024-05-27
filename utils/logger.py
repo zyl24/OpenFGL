@@ -24,7 +24,7 @@ class Logger:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")    
             log_name = f"{self.args.fl_algorithm}_{current_time}.pkl"
         else:
-            log_name = log_name + ".pkl"
+            log_name = args.log_name + ".pkl"
             
             
         
