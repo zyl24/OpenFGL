@@ -13,8 +13,23 @@ class Logger:
         self.debug = self.args.debug
         self.task_path = task_path
         self.metrics_list = []
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.log_path = os.path.join(self.task_path, "debug", f"{self.args.fl_algorithm}_{current_time}.pkl")
+        
+        
+        if args.log_root is None:
+            log_root = os.path.join(self.task_path, "debug")
+        else:
+            log_root = args.log_root
+            
+        if args.log_name is None:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")    
+            log_name = f"{self.args.fl_algorithm}_{current_time}.pkl"
+        else:
+            log_name = log_name + ".pkl"
+            
+            
+        
+        self.log_path = os.path.join(log_root, log_name)
+        
         self.start_time = time.time()
     
     def add_log(self, evaluation_result):

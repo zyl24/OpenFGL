@@ -102,6 +102,8 @@ parser.add_argument("--grad_clip", type=float, default=10.0)
 
 # debug
 parser.add_argument("--debug", type=bool, default=True)
+parser.add_argument("--log_root", type=str, default=None)
+parser.add_argument("--log_name", type=str, default=None)
 
 
 
