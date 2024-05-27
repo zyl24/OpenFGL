@@ -28,9 +28,6 @@ supported_evaluation_modes = ["global_model_on_local_data", "global_model_on_glo
 
 supported_data_processing = ["raw", "random_feature_sparsity", "random_feature_noise", "random_edge_sparsity", "random_edge_noise", "random_label_sparsity", "random_label_noise"]
 
-supported_fedgraph_model = ["gin"]
-
-supported_fedsubgraph_model = ["gcn", "gat", "graphsage", "sgc", "gcn2"]
 
 
 

@@ -24,7 +24,7 @@ class GraphClsTask(BaseTask):
         if splitted_data is None:
             splitted_data = self.processed_data # use processed_data to train
         else:
-            names = ["train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
+            names = ["data", "train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
             for name in names:
                 assert name in splitted_data
                 
@@ -43,7 +43,7 @@ class GraphClsTask(BaseTask):
         if splitted_data is None:
             splitted_data = self.splitted_data # use splitted_data to evaluate
         else:
-            names = ["train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
+            names = ["data", "train_dataloader", "val_dataloader", "test_dataloader", "train_mask", "val_mask", "test_mask"]
             for name in names:
                 assert name in splitted_data
                 

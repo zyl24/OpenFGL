@@ -44,8 +44,10 @@ def load_node_edge_level_default_model(args, input_dim, output_dim, client_id=No
             model_name = args.model[model_id]
         else:
             model_name = args.model[0]
-    
-    if model_name == "gcn":
+    if model_name == "mlp":
+        from model.mlp import MLP
+        return MLP(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, num_layers=args.num_layers, dropout=args.dropout)
+    elif model_name == "gcn":
         from model.gcn import GCN
         return GCN(input_dim=input_dim, hid_dim=args.hid_dim, output_dim=output_dim, num_layers=args.num_layers, dropout=args.dropout)
     elif model_name == "gat":
