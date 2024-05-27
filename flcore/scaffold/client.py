@@ -33,7 +33,7 @@ class ScaffoldClient(BaseClient):
     def update_local_control(self):
         with torch.no_grad():
             for it, (local_state, global_state, global_control) in enumerate(zip(self.task.model.parameters(), self.message_pool["server"]["weight"], self.message_pool["server"]["global_control"])):
-                self.local_control[it].data = self.local_control[it].data - global_control.data + (global_state.data - local_state.data) / (self.args.num_epochs)
+                self.local_control[it].data = self.local_control[it].data - global_control.data + (global_state.data - local_state.data) / (self.args.num_epochs * self.args.lr)
         
 
     def send_message(self):

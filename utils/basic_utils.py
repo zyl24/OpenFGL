@@ -68,7 +68,15 @@ def load_client(args, client_id, data, data_dir, message_pool, device):
     elif args.fl_algorithm == "feddep":
         from flcore.feddep.client import FedDEPClient
         return FedDEPClient(args, client_id, data, data_dir, message_pool, device)
-
+    elif args.fl_algorithm == "fggp":
+        from flcore.fggp.client import FGGPClient
+        return FGGPClient(args, client_id, data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "fgssl":
+        from flcore.fgssl.client import FGSSLClient
+        return FGSSLClient(args, client_id, data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "fedgl":
+        from flcore.fedgl.client import FedGLClient
+        return FedGLClient(args, client_id, data, data_dir, message_pool, device)
     
 def load_server(args, global_data, data_dir, message_pool, device):
     if args.fl_algorithm == "isolate":
@@ -119,7 +127,15 @@ def load_server(args, global_data, data_dir, message_pool, device):
     elif args.fl_algorithm == "feddep":
         from flcore.feddep.server import FedDEPEServer
         return FedDEPEServer(args, global_data, data_dir, message_pool, device)
-        
+    elif args.fl_algorithm == "fggp":
+        from flcore.fggp.server import FGGPServer
+        return FGGPServer(args, global_data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "fgssl":
+        from flcore.fgssl.server import FGSSLServer
+        return FGSSLServer(args, global_data, data_dir, message_pool, device)
+    elif args.fl_algorithm == "fedgl":
+        from flcore.fedgl.server import FedGLServer
+        return FedGLServer(args, global_data, data_dir, message_pool, device)
     
 def load_optim(args):
     if args.optim == "adam":

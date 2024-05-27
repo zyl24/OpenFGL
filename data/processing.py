@@ -72,7 +72,7 @@ def random_feature_sparsity(args: argparse.ArgumentParser, splitted_data: dict, 
                                                               batch_size=args.batch_size, shuffle=False)
         masked_splitted_data["test_dataloader"] = DataLoader([ basedata for basedata in masked_splitted_data["data"][masked_splitted_data["test_mask"]]], 
                                                               batch_size=args.batch_size, shuffle=False)
-        
+    
     return masked_splitted_data
 
 
@@ -93,6 +93,7 @@ def random_feature_noise(args: argparse.ArgumentParser, splitted_data: dict, pro
     if args.task == "node_cls":
         noised_splitted_data["data"].x += noise
     elif args.task == "graph_cls":
+        noise = noise.to(noised_splitted_data["data"].data.x.device)
         noised_splitted_data["data"].data.x += noise
         noised_splitted_data["train_dataloader"] = DataLoader([ basedata for basedata in noised_splitted_data["data"][noised_splitted_data["train_mask"]]], 
                                                               batch_size=args.batch_size, shuffle=False)
