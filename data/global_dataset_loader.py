@@ -1,7 +1,9 @@
 from os import path as osp
 from typing import Callable, List, Optional
 import torch
+import torch_geometric
 from torch_geometric.data import Data, InMemoryDataset
+from torch_geometric.transforms import OneHotDegree
 from torch_geometric.io import fs
 import pickle
 from torch_geometric.utils import from_scipy_sparse_matrix
@@ -14,15 +16,23 @@ def load_global_dataset(root, scenario, dataset):
     if scenario == "fedgraph":
         if dataset in  ["AIDS",
                         "BZR",
-                        "COLLAB", "COX2",
+                        "COX2",
                         "DD", "DHFR",
                         "ENZYMES",
-                        "IMDB-BINARY", "IMDB-MULTI",
                         "MUTAG", "NCI1",
                         "PROTEINS", "PTC_MR"]:
             
             from torch_geometric.datasets import TUDataset
             return TUDataset(root=osp.join(root, "fedgraph"), name=dataset, use_node_attr=True, use_edge_attr=True)
+        elif dataset in ["COLLAB", "IMDB-BINARY", "IMDB-MULTI"]:
+            from torch_geometric.datasets import TUDataset
+            tudataset = TUDataset(root=osp.join(root, "fedgraph"), name=dataset, use_node_attr=True, use_edge_attr=True)
+            max_degree = 0
+            for data in tudataset:
+                deg = torch_geometric.utils.degree(data.edge_index[1], num_nodes=data.num_nodes)
+                max_degree = max(max_degree, max(deg).item())
+            tudataset.transform = OneHotDegree(int(max_degree))
+            return tudataset
         elif dataset in ["hERG"]:
             return hERGDataset(root=osp.join(root, "fedgraph"), use_node_attr=True, use_edge_attr=True)
             

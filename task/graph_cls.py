@@ -140,7 +140,7 @@ class GraphClsTask(BaseTask):
     
     @property
     def num_feats(self):
-        return self.data.x.shape[1]
+        return self.data[0].x.shape[1]
     
     @property
     def num_global_classes(self):
