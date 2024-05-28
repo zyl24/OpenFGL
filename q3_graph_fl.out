@@ -1,145 +1,32 @@
 Running fedavg with Dataset=ENZYMES+random_feature_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_feature_sparsity_0.2.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_feature_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_feature_sparsity_0.4.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_feature_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_feature_sparsity_0.6.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_feature_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_feature_sparsity_0.8.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_label_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_label_sparsity_0.2.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_label_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_label_sparsity_0.4.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_label_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_label_sparsity_0.6.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_label_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_label_sparsity_0.8.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_edge_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_edge_sparsity_0.2.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_edge_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_edge_sparsity_0.4.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_edge_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_edge_sparsity_0.6.out: No such file or directory
 Running fedavg with Dataset=ENZYMES+random_edge_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedavg_random_edge_sparsity_0.8.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_feature_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_feature_sparsity_0.2.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_feature_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_feature_sparsity_0.4.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_feature_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_feature_sparsity_0.6.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_feature_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_feature_sparsity_0.8.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_label_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_label_sparsity_0.2.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_label_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_label_sparsity_0.4.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_label_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_label_sparsity_0.6.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_label_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_label_sparsity_0.8.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_edge_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_edge_sparsity_0.2.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_edge_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_edge_sparsity_0.4.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_edge_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_edge_sparsity_0.6.out: No such file or directory
 Running feddc with Dataset=ENZYMES+random_edge_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_feddc_random_edge_sparsity_0.8.out: No such file or directory
 Running fedproto with Dataset=ENZYMES+random_feature_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_feature_sparsity_0.2.out: No such file or directory
 Running fedproto with Dataset=ENZYMES+random_feature_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_feature_sparsity_0.4.out: No such file or directory
 Running fedproto with Dataset=ENZYMES+random_feature_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_feature_sparsity_0.6.out: No such file or directory
 Running fedproto with Dataset=ENZYMES+random_feature_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_feature_sparsity_0.8.out: No such file or directory
 Running fedproto with Dataset=ENZYMES+random_label_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_label_sparsity_0.2.out: No such file or directory
 Running fedproto with Dataset=ENZYMES+random_label_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_label_sparsity_0.4.out: No such file or directory
 Running fedproto with Dataset=ENZYMES+random_label_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_label_sparsity_0.6.out: No such file or directory
 Running fedproto with Dataset=ENZYMES+random_label_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_label_sparsity_0.8.out: No such file or directory
-Running fedproto with Dataset=ENZYMES+random_edge_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_edge_sparsity_0.2.out: No such file or directory
-Running fedproto with Dataset=ENZYMES+random_edge_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_edge_sparsity_0.4.out: No such file or directory
-Running fedproto with Dataset=ENZYMES+random_edge_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_edge_sparsity_0.6.out: No such file or directory
-Running fedproto with Dataset=ENZYMES+random_edge_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedproto_random_edge_sparsity_0.8.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_feature_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_feature_sparsity_0.2.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_feature_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_feature_sparsity_0.4.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_feature_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_feature_sparsity_0.6.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_feature_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_feature_sparsity_0.8.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_label_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_label_sparsity_0.2.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_label_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_label_sparsity_0.4.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_label_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_label_sparsity_0.6.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_label_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_label_sparsity_0.8.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_edge_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_edge_sparsity_0.2.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_edge_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_edge_sparsity_0.4.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_edge_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_edge_sparsity_0.6.out: No such file or directory
-Running fedtgp with Dataset=ENZYMES+random_edge_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedtgp_random_edge_sparsity_0.8.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_feature_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_feature_sparsity_0.2.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_feature_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_feature_sparsity_0.4.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_feature_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_feature_sparsity_0.6.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_feature_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_feature_sparsity_0.8.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_label_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_label_sparsity_0.2.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_label_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_label_sparsity_0.4.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_label_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_label_sparsity_0.6.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_label_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_label_sparsity_0.8.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_edge_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_edge_sparsity_0.2.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_edge_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_edge_sparsity_0.4.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_edge_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_edge_sparsity_0.6.out: No such file or directory
-Running gcfl_plus with Dataset=ENZYMES+random_edge_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_gcfl_plus_random_edge_sparsity_0.8.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_feature_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_feature_sparsity_0.2.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_feature_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_feature_sparsity_0.4.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_feature_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_feature_sparsity_0.6.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_feature_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_feature_sparsity_0.8.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_label_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_label_sparsity_0.2.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_label_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_label_sparsity_0.4.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_label_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_label_sparsity_0.6.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_label_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_label_sparsity_0.8.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_edge_sparsity+0.2 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_edge_sparsity_0.2.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_edge_sparsity+0.4 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_edge_sparsity_0.4.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_edge_sparsity+0.6 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_edge_sparsity_0.6.out: No such file or directory
-Running fedstar with Dataset=ENZYMES+random_edge_sparsity+0.8 Local Model on Local Data, Repeat=1
-./scripts/robustness_q3/graph_fl.sh: line 22: exp/robustness_q3/graph_fl/terminal_output/ENZYMES_fedstar_random_edge_sparsity_0.8.out: No such file or directory
-Done!

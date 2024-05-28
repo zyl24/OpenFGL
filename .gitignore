@@ -4,13 +4,8 @@ __pycache__/
 /exp
 /scripts
 main_test.py
-test.out
-test_2.out
-view_bash.sh
-view_log.py
-nohup.out
-fig.png
-update.sh
-view_python.sh
+*.out
+*.sh
+*.png
 
 

@@ -4,7 +4,7 @@ import pickle
 
 for root, dirs, files in os.walk("/home/ai2/work/OPENFGL/exp/robustness_q3/subgraph_fl/Cora"):
     for file in files:
-        if "fedsage" in file and "feature" in file:
+        if "fedsage" in file and "label" in file:
             print(os.path.join(root, file))
             with open(os.path.join(root, file), 'rb') as file:
                 log_file = pickle.load(file)

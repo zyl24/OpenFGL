@@ -102,7 +102,7 @@ class FedSagePlusClient(BaseClient):
 
     def execute(self):
         # switch phase
-        if self.message_pool["round"] == 0:
+        if self.message_pool["round"] < config["gen_rounds"]:
             self.phase = 0
             self.task.override_evaluate = self.get_phase_0_override_evaluate()
         elif self.message_pool["round"] == config["gen_rounds"]:
@@ -115,6 +115,16 @@ class FedSagePlusClient(BaseClient):
             self.task.override_evaluate = self.get_phase_1_override_evaluate()
             
         # execute
+        if not hasattr(self, "phase"): # miss the generator training phase due to partial participation
+            self.phase = 1
+            self.splitted_filled_data = self.get_filled_subgraph()
+            self.task.model.phase = 1
+            def get_evaluate_splitted_data():
+                return self.splitted_filled_data
+            self.task.evaluate_splitted_data = get_evaluate_splitted_data()
+            self.task.override_evaluate = self.get_phase_1_override_evaluate()
+            
+            
         if self.phase == 0:
             self.task.loss_fn = self.get_custom_loss_fn()
             self.task.train(self.splitted_impaired_data)

@@ -126,7 +126,7 @@ class FedPubServer(BaseServer):
         self.task.model.load_state_dict(self.aggregate(local_weights, ratio))
 
         self.update_weights = []
-        for i in self.message_pool["sampled_clients"]:
+        for i, client_id in enumerate(self.message_pool["sampled_clients"]):
             ratio = sim_matrix[i, :]
             tmp = self.aggregate(local_weights,ratio)
             self.update_weights.append(tmp)

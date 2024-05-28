@@ -27,7 +27,7 @@ class FedGTAServer(BaseServer):
                                                         self.message_pool[f"client_{target_id}"]["lp_moment_v"], dim=0) 
                                 for target_id in self.message_pool["sampled_clients"]]).to(self.device)
             accept_idx = torch.where(sim > config["accept_alpha"])
-            agg_client_list[client_id] = accept_idx[0].tolist()
+            agg_client_list[client_id] = [self.message_pool["sampled_clients"][idx] for idx in accept_idx[0].tolist()]
         
         
         
