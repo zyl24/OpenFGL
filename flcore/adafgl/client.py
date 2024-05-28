@@ -61,7 +61,7 @@ class AdaFGLClient(BaseClient):
                 "weight": list(self.task.model.parameters())
             }
         else:
-            pass # do nothing
+            self.message_pool[f"client_{self.client_id}"] = {}
         
     def adafgl_postprocess(self, loss_ce_fn=nn.CrossEntropyLoss()):
         self.adafgl_model.train()

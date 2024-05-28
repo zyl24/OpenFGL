@@ -37,7 +37,10 @@ class AdaFGLServer(BaseServer):
             pass # do nothing
         
     def send_message(self):
-        self.message_pool["server"] = {
-            "weight": list(self.task.model.parameters())
-        }
+        if self.phase == 0:
+            self.message_pool["server"] = {
+                "weight": list(self.task.model.parameters())
+            }
+        else:
+            self.message_pool["server"] = {}
         

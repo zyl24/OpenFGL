@@ -23,7 +23,7 @@ class FGLTrainer:
             for metric in self.args.metrics:
                 self.evaluation_result[f"best_{metric}"] = 0
         
-        self.logger = Logger(args, self.message_pool, fgl_dataset.processed_dir)
+        self.logger = Logger(args, self.message_pool, fgl_dataset.processed_dir, self.server.personalized)
       
   
     def train(self):

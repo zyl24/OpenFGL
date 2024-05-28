@@ -9,12 +9,13 @@ from utils.basic_utils import total_size
 
 class Logger:
     
-    def __init__(self, args, message_pool, task_path):
+    def __init__(self, args, message_pool, task_path, personalized=False):
         self.args = args
         self.message_pool = message_pool
         self.debug = self.args.debug
         self.task_path = task_path
         self.metrics_list = []
+        self.personalized = personalized
         
         
         if args.log_root is None:
@@ -42,7 +43,7 @@ class Logger:
             print(f"[client {client_id}] cost: {total_size(self.message_pool[f'client_{client_id}'])/1024:.2f} KB.")
             
         # global cost (num_clients * cost)
-        if f"personalized_{self.message_pool['sampled_clients'][0]}" in self.message_pool["server"]:
+        if self.personalized:
             print(f"[server] cost: {total_size(self.message_pool[f'server'])/1024:.2f} KB.")
         else:
             print(f"[server] cost: {len(self.message_pool['sampled_clients']) * total_size(self.message_pool[f'server'])/1024:.2f} KB.")
@@ -89,4 +90,19 @@ fedgta
 [client 8] cost: 360.83 KB.
 [client 9] cost: 360.83 KB.
 [server] cost: 3602.77 KB.
+
+fedtgp/fedproto
+[client 0] cost: 1.75 KB.
+[client 1] cost: 1.75 KB.
+[client 2] cost: 1.75 KB.
+[client 3] cost: 1.75 KB.
+[client 4] cost: 1.75 KB.
+[client 5] cost: 1.75 KB.
+[client 6] cost: 1.75 KB.
+[client 7] cost: 1.75 KB.
+[client 8] cost: 1.75 KB.
+[client 9] cost: 1.75 KB.
+[server] cost: 17.50 KB.
+
+adafgl
 """
