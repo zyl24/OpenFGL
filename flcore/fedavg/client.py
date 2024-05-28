@@ -20,3 +20,5 @@ class FedAvgClient(BaseClient):
                 "weight": list(self.task.model.parameters())
             }
         
+        
+        

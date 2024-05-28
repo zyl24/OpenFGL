@@ -1,6 +1,9 @@
 import torch
 import random
 import numpy as np
+import sys
+from collections.abc import Iterable
+
 
 def check_args(args):
     pass
@@ -181,3 +184,20 @@ def mask_tensor_to_idx(tensor):
         result = [result]
     return result
     
+
+import sys
+import torch
+
+def total_size(o):
+    size = 0
+    if isinstance(o, torch.Tensor):
+        size += o.element_size() * o.numel()
+    elif isinstance(o, dict):
+        size += sum(total_size(v) for v in o.values())
+    elif isinstance(o, Iterable):
+        size += sum(total_size(i) for i in o)
+    return size
+
+# Example usage
+tensor = torch.randn(1433, 64, dtype=torch.float32)
+print("Total size of tensor:", total_size(tensor), "bytes")

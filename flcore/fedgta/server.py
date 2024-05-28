@@ -49,5 +49,6 @@ class FedGTAServer(BaseServer):
                 "weight": list(self.task.model.parameters())
             }
         else:
+            self.message_pool["server"] = {}
             for client_id in self.message_pool["sampled_clients"]:
                 self.message_pool["server"][f'personalized_{client_id}'] = list(self.aggregated_models[client_id].parameters())

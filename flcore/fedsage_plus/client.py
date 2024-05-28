@@ -151,8 +151,8 @@ class FedSagePlusClient(BaseClient):
                 "weight": list(self.task.model.parameters()),
             }
 
-        if self.phase == 0:
-            self.message_pool[f"client_{self.client_id}"]["feat"] = self.task.data.x,  # for 'loss_other'
+        if "round" not in self.message_pool or (hasattr(self, "phase") and self.phase == 0):
+            self.message_pool[f"client_{self.client_id}"]["feat"] = self.task.data.x  # for 'loss_other'
             self.message_pool[f"client_{self.client_id}"]["original_neighbors"] = self.original_neighbors  # for 'loss_other'
 
     def get_impaired_subgraph(self):
