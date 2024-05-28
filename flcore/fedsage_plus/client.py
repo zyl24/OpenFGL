@@ -149,9 +149,11 @@ class FedSagePlusClient(BaseClient):
         self.message_pool[f"client_{self.client_id}"] = {
                 "num_samples": self.task.num_samples,
                 "weight": list(self.task.model.parameters()),
-                "feat": self.task.data.x,  # for 'loss_other'
-                "original_neighbors": self.original_neighbors  # for 'loss_other'
             }
+
+        if self.phase == 0:
+            self.message_pool[f"client_{self.client_id}"]["feat"] = self.task.data.x,  # for 'loss_other'
+            self.message_pool[f"client_{self.client_id}"]["original_neighbors"] = self.original_neighbors  # for 'loss_other'
 
     def get_impaired_subgraph(self):
         hide_len = int(config["hidden_portion"] * (self.task.val_mask).sum())

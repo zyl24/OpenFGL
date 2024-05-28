@@ -3,6 +3,8 @@ import copy
 import pickle
 import datetime
 import time
+import torch
+from collections.abc import Iterable
 
 
 class Logger:
@@ -25,17 +27,17 @@ class Logger:
             log_name = f"{self.args.fl_algorithm}_{current_time}.pkl"
         else:
             log_name = args.log_name + ".pkl"
-            
-            
+             
         
         self.log_path = os.path.join(log_root, log_name)
-        
         self.start_time = time.time()
     
     def add_log(self, evaluation_result):
         if not self.debug:
             return
         self.metrics_list.append(copy.deepcopy(evaluation_result))
+        
+        
     
     def save(self):
         if not self.debug:
@@ -52,3 +54,4 @@ class Logger:
         }
         with open(self.log_path, 'wb') as file:
             pickle.dump(log, file)
+            
