@@ -8,7 +8,7 @@ import sys
 from sklearn.cluster import KMeans
 import pymetis as metis
 from tqdm import tqdm
-
+import torch_geometric
 
 def get_subgraph_pyg_data(global_dataset, node_list):
     global_edge_index = global_dataset.edge_index
@@ -106,6 +106,126 @@ def fedgraph_label_dirichlet(args, global_dataset, shuffle=True):
     
     print(f"label_counts:\n{np.array(client_label_counts)}")
     return local_data
+    
+    
+def fedgraph_topology_skew(args, global_dataset, shuffle=True):
+    print("Conducting fedgraph topology skew simulation...")
+    
+    graph_labels = global_dataset.y.numpy()
+    num_clients = args.num_clients
+    alpha = args.dirichlet_alpha
+    unique_labels, label_counts = np.unique(graph_labels, return_counts=True)
+    
+    
+    print(f"num_classes: {len(unique_labels)}")
+    print(f"global label distribution: {label_counts}")
+       
+    min_size = 0
+    K = len(unique_labels)
+    N = graph_labels.shape[0]
+    client_indices = [[] for _ in range(num_clients)]
+    
+    d_list = []
+    for graph_id, data in enumerate(global_dataset):
+        deg = torch_geometric.utils.degree(data.edge_index[1], num_nodes=data.num_nodes)
+        
+        d_list.append((graph_id, deg.mean()))
+    
+    d_list.sort(key= lambda x: x[1])
+    
+    segment_len = len(d_list) // num_clients
+    for client_id in range(num_clients):
+        left = client_id * segment_len
+        right = segment_len * (client_id + 1)
+        if client_id == num_clients - 1:
+            right = len(d_list)
+        
+        segment = d_list[left : right]
+        client_indices[client_id] = [x[0] for x in segment]
+    
+    assert sum([len(x) for x in client_indices]) == N
+    
+    local_data = []
+    client_label_counts = [[0] * K for _ in range(args.num_clients)]
+    for client_id in range(args.num_clients):
+        for class_i in range(K):
+            client_label_counts[client_id][class_i] = (graph_labels[client_indices[client_id]] == class_i).sum()
+        
+        list.sort(client_indices[client_id])
+        
+        local_id_to_global_id = {}
+        for local_id, global_id in enumerate(client_indices[client_id]):
+            local_id_to_global_id[local_id] = global_id
+        
+        local_graphs = global_dataset.copy(client_indices[client_id]) # InMemoryDataset -> deep-copy subset
+        local_graphs.num_global_classes = global_dataset.num_classes
+        local_graphs.global_map = local_id_to_global_id
+        local_data.append(local_graphs)
+    
+    print(f"label_counts:\n{np.array(client_label_counts)}")
+    return local_data
+    
+    
+    
+    
+    
+  
+def fedgraph_feature_skew(args, global_dataset, shuffle=True):
+    print("Conducting fedgraph feature skew simulation...")
+    
+    graph_labels = global_dataset.y.numpy()
+    num_clients = args.num_clients
+    alpha = args.dirichlet_alpha
+    unique_labels, label_counts = np.unique(graph_labels, return_counts=True)
+    
+    
+    print(f"num_classes: {len(unique_labels)}")
+    print(f"global label distribution: {label_counts}")
+       
+    min_size = 0
+    K = len(unique_labels)
+    N = graph_labels.shape[0]
+    client_indices = [[] for _ in range(num_clients)]
+    
+    f_list = []
+    for graph_id, data in enumerate(global_dataset):
+        pass
+        # deg = torch_geometric.utils.degree(data.edge_index[1], num_nodes=data.num_nodes)
+        # f_list.append((graph_id, deg.mean()))
+    
+    f_list.sort(key= lambda x: x[1])
+    
+    segment_len = len(f_list) // num_clients
+    for client_id in range(num_clients):
+        left = client_id * segment_len
+        right = segment_len * (client_id + 1)
+        if client_id == num_clients - 1:
+            right = len(f_list)
+        
+        segment = f_list[left : right]
+        client_indices[client_id] = [x[0] for x in segment]
+    
+    assert sum([len(x) for x in client_indices]) == N
+    
+    local_data = []
+    client_label_counts = [[0] * K for _ in range(args.num_clients)]
+    for client_id in range(args.num_clients):
+        for class_i in range(K):
+            client_label_counts[client_id][class_i] = (graph_labels[client_indices[client_id]] == class_i).sum()
+        
+        list.sort(client_indices[client_id])
+        
+        local_id_to_global_id = {}
+        for local_id, global_id in enumerate(client_indices[client_id]):
+            local_id_to_global_id[local_id] = global_id
+        
+        local_graphs = global_dataset.copy(client_indices[client_id]) # InMemoryDataset -> deep-copy subset
+        local_graphs.num_global_classes = global_dataset.num_classes
+        local_graphs.global_map = local_id_to_global_id
+        local_data.append(local_graphs)
+    
+    print(f"label_counts:\n{np.array(client_label_counts)}")
+    return local_data 
     
     
     

@@ -3,7 +3,7 @@ import random
 import numpy as np
 import sys
 from collections.abc import Iterable
-
+from fvcore.nn import FlopCountAnalysis, parameter_count
 
 def check_args(args):
     pass
@@ -198,6 +198,10 @@ def total_size(o):
         size += sum(total_size(i) for i in o)
     return size
 
-# Example usage
-tensor = torch.randn(1433, 64, dtype=torch.float32)
-print("Total size of tensor:", total_size(tensor), "bytes")
+
+
+def model_complexity(model:torch.nn.Module, data):
+    flops  = FlopCountAnalysis(model, data).total()
+    params = sum([val for val in parameter_count(model).values()])
+    return flops, params
+    

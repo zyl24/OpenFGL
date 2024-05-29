@@ -118,6 +118,9 @@ class FGLDataset(Dataset):
         elif self.args.simulation_mode == "fedgraph_cross_domain":
             from data.simulation import fedgraph_cross_domain
             self.local_data = fedgraph_cross_domain(self.args, global_dataset)
+        elif self.args.simulation_mode == "fedgraph_topology_skew":
+            from data.simulation import fedgraph_topology_skew
+            self.local_data = fedgraph_topology_skew(self.args, global_dataset)
         elif self.args.simulation_mode == "fedsubgraph_label_dirichlet":
             from data.simulation import fedsubgraph_label_dirichlet
             self.local_data = fedsubgraph_label_dirichlet(self.args, global_dataset)
@@ -133,7 +136,7 @@ class FGLDataset(Dataset):
         elif self.args.simulation_mode == "fedsubgraph_metis":
             from data.simulation import fedsubgraph_metis
             self.local_data = fedsubgraph_metis(self.args, global_dataset)
-        
+
         
         
         for client_id in range(self.args.num_clients):

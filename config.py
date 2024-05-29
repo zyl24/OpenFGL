@@ -11,7 +11,7 @@ supported_fedsubgraph_datasets = [
 "Amazon-ratings", "Roman-empire", "Questions", "Minesweeper"]
 
 
-supported_fedgraph_simulations = ["fedgraph_cross_domain", "fedgraph_label_dirichlet"]
+supported_fedgraph_simulations = ["fedgraph_cross_domain", "fedgraph_label_dirichlet", "fedgraph_topology_skew"]
 supported_fedsubgraph_simulations = ["fedsubgraph_label_dirichlet", "fedsubgraph_louvain_clustering", "fedsubgraph_metis_clustering", "fedsubgraph_louvain", "fedsubgraph_metis"]
 
 supported_fedgraph_task = ["graph_cls", "graph_reg"]
