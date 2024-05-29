@@ -366,8 +366,6 @@ def fedsubgraph_metis_clustering(args, global_dataset):
 
 def fedsubgraph_metis(args, global_dataset):
     print("Conducting fedsubgraph metis simulation...")
-    assert args.metis_num_coms == args.num_clients, f"args.metis_num_coms should be equal to args.num_clients."
-    
     graph_nx = to_networkx(global_dataset[0], to_undirected=True)
     n_cuts, membership = metis.part_graph(args.metis_num_coms, graph_nx)
     

@@ -65,7 +65,6 @@ class Logger:
             "time": time.time() - self.start_time,
             "metric": self.metrics_list,
             "avg_cost_per_round": sum(self.comm_cost) / len(self.comm_cost) / 1024 # KB
-            
         }
         with open(self.log_path, 'wb') as file:
             pickle.dump(log, file)
