@@ -136,6 +136,9 @@ class FGLDataset(Dataset):
         elif self.args.simulation_mode == "fedsubgraph_metis":
             from data.simulation import fedsubgraph_metis
             self.local_data = fedsubgraph_metis(self.args, global_dataset)
+        elif self.args.simulation_mode == "fedgraph_feature_skew":
+            from data.simulation import fedgraph_feature_skew
+            self.local_data = fedgraph_feature_skew(self.args, global_dataset)
 
         
         

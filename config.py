@@ -11,7 +11,7 @@ supported_fedsubgraph_datasets = [
 "Amazon-ratings", "Roman-empire", "Questions", "Minesweeper"]
 
 
-supported_fedgraph_simulations = ["fedgraph_cross_domain", "fedgraph_label_dirichlet", "fedgraph_topology_skew"]
+supported_fedgraph_simulations = ["fedgraph_cross_domain", "fedgraph_label_dirichlet", "fedgraph_topology_skew", "fedgraph_feature_skew"]
 supported_fedsubgraph_simulations = ["fedsubgraph_label_dirichlet", "fedsubgraph_louvain_clustering", "fedsubgraph_metis_clustering", "fedsubgraph_louvain", "fedsubgraph_metis"]
 
 supported_fedgraph_task = ["graph_cls", "graph_reg"]
@@ -96,16 +96,19 @@ parser.add_argument("--evaluation_mode", type=str, default="local_model_on_local
 
 # privacy
 parser.add_argument("--dp_mech", type=str, default='no_dp')
-parser.add_argument("--dp_eps", type=float, default=10.0)
-parser.add_argument("--dp_delta", type=float, default=1e-5)
-parser.add_argument("--grad_clip", type=float, default=10.0)
+parser.add_argument("--noise_scale", type=float, default=1.0)
+parser.add_argument("--grad_clip", type=float, default=1.0)
+parser.add_argument("--dp_q", type=float, default=0.1)
+# for node-level and link-level prediction tasks
+parser.add_argument("--max_degree", type=int, default=5)
+parser.add_argument("--max_epsilon", type=float, default=20)
 
 # debug
 parser.add_argument("--debug", type=bool, default=False)
 parser.add_argument("--log_root", type=str, default=None)
 parser.add_argument("--log_name", type=str, default=None)
-
-
+parser.add_argument("--comm_cost", type=bool, default=False)
+parser.add_argument("--model_param", type=bool, default=False)
 
 
 

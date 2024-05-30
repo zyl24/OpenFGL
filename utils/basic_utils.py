@@ -200,8 +200,7 @@ def total_size(o):
 
 
 
-def model_complexity(model:torch.nn.Module, data):
-    flops  = FlopCountAnalysis(model, data).total()
+def model_complexity(model:torch.nn.Module):
     params = sum([val for val in parameter_count(model).values()])
-    return flops, params
+    return params
     

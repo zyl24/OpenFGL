@@ -39,18 +39,18 @@ class Logger:
             return
         self.metrics_list.append(copy.deepcopy(evaluation_result))
         
-        # comm local cost
-        comm_cost = 0
-        for client_id in self.message_pool["sampled_clients"]:
-            comm_cost += total_size(self.message_pool[f'client_{client_id}'])
+        # cost
+        if self.args.comm_cost:
+            comm_cost = 0
+            for client_id in self.message_pool["sampled_clients"]:
+                comm_cost += total_size(self.message_pool[f'client_{client_id}'])
             
-        # global cost (num_clients * cost)
-        if self.personalized:
-            comm_cost += total_size(self.message_pool[f'server'])
-        else:
-            comm_cost += len(self.message_pool['sampled_clients']) * total_size(self.message_pool[f'server'])
+            if self.personalized:
+                comm_cost += total_size(self.message_pool[f'server'])
+            else:
+                comm_cost += len(self.message_pool['sampled_clients']) * total_size(self.message_pool[f'server'])
             
-        self.comm_cost.append(comm_cost)
+            self.comm_cost.append(comm_cost)
     
     def save(self):
         if not self.debug:
@@ -64,8 +64,10 @@ class Logger:
             "args": vars(self.args),
             "time": time.time() - self.start_time,
             "metric": self.metrics_list,
-            "avg_cost_per_round": sum(self.comm_cost) / len(self.comm_cost) / 1024 # KB
         }
+        
+        if self.args.comm_cost:
+            log["avg_cost_per_round"] = sum(self.comm_cost) / len(self.comm_cost) / 1024 # KB
         with open(self.log_path, 'wb') as file:
             pickle.dump(log, file)
             

@@ -189,7 +189,8 @@ def fedgraph_feature_skew(args, global_dataset, shuffle=True):
     
     f_list = []
     for graph_id, data in enumerate(global_dataset):
-        pass
+        avg_feature = data.x.mean()
+        f_list.append((graph_id, avg_feature))
         # deg = torch_geometric.utils.degree(data.edge_index[1], num_nodes=data.num_nodes)
         # f_list.append((graph_id, deg.mean()))
     

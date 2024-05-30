@@ -4,6 +4,7 @@ from data.distributed_dataset_loader import FGLDataset
 from utils.basic_utils import load_client, load_server
 from utils.logger import Logger
 
+
 class FGLTrainer:
     
     def __init__(self, args):
@@ -23,8 +24,9 @@ class FGLTrainer:
             for metric in self.args.metrics:
                 self.evaluation_result[f"best_{metric}"] = 0
         
+
         self.logger = Logger(args, self.message_pool, fgl_dataset.processed_dir, self.server.personalized)
-      
+        
   
     def train(self):
         
