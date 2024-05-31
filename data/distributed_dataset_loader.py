@@ -29,41 +29,41 @@ class FGLDataset(Dataset):
         return self.root
 
     def check_args(self, args):
-        if args.scenario == "fedgraph":
-            from config import supported_fedgraph_datasets, supported_fedgraph_simulations, supported_fedgraph_task
+        if args.scenario == "graph_fl":
+            from config import supported_graph_fl_datasets, supported_graph_fl_simulations, supported_graph_fl_task
             for dataset in args.dataset:
-                assert dataset in supported_fedgraph_datasets, f"Invalid fedgraph dataset '{dataset}'."
-            assert args.simulation_mode in supported_fedgraph_simulations, f"Invalid fedgraph simulation mode '{args.simulation_mode}'."
-            assert args.task in supported_fedgraph_task, f"Invalid fedgraph task '{args.task}'."
+                assert dataset in supported_graph_fl_datasets, f"Invalid graph-fl dataset '{dataset}'."
+            assert args.simulation_mode in supported_graph_fl_simulations, f"Invalid graph_fl simulation mode '{args.simulation_mode}'."
+            assert args.task in supported_graph_fl_task, f"Invalid graph-fl task '{args.task}'."
             
             
-        elif args.scenario == "fedsubgraph":
-            from config import supported_fedsubgraph_datasets, supported_fedsubgraph_simulations, supported_fedsubgraph_task
+        elif args.scenario == "subgraph_fl":
+            from config import supported_subgraph_fl_datasets, supported_subgraph_fl_simulations, supported_subgraph_fl_task
             for dataset in args.dataset:
-                assert dataset in supported_fedsubgraph_datasets, f"Invalid fedsubgraph dataset '{dataset}'."
-            assert args.simulation_mode in supported_fedsubgraph_simulations, f"Invalid fedsubgraph simulation mode '{args.simulation_mode}'."
-            assert args.task in supported_fedsubgraph_task, f"Invalid fedgraph task '{args.task}'."
+                assert dataset in supported_subgraph_fl_datasets, f"Invalid subgraph_fl dataset '{dataset}'."
+            assert args.simulation_mode in supported_subgraph_fl_simulations, f"Invalid subgraph_fl simulation mode '{args.simulation_mode}'."
+            assert args.task in supported_subgraph_fl_task, f"Invalid graph_fl task '{args.task}'."
         
-        if args.simulation_mode == "fedgraph_cross_domain":
-            assert len(args.dataset) == args.num_clients , f"For fedgraph cross domain simulation, the number of clients must be equal to the number of used datasets (args.num_clients={args.num_clients}; used_datasets: {args.dataset})."
-        elif args.simulation_mode == "fedgraph_label_dirichlet":
-            assert len(args.dataset) == 1, f"For fedgraph label dirichlet simulation, only single dataset is supported."
-        elif args.simulation_mode == "fedsubgraph_label_dirichlet":
-            assert len(args.dataset) == 1, f"For fedsubgraph label dirichlet simulation, only single dataset is supported."
-        elif args.simulation_mode == "fedsubgraph_louvain_clustering":
-            assert len(args.dataset) == 1, f"For fedsubgraph louvain clustering simulation, only single dataset is supported."
-        elif args.simulation_mode == "fedsubgraph_metis_clustering":
-            assert len(args.dataset) == 1, f"For fedsubgraph metis clustering simulation, only single dataset is supported."
+        if args.simulation_mode == "graph_fl_cross_domain":
+            assert len(args.dataset) == args.num_clients , f"For graph-fl cross domain simulation, the number of clients must be equal to the number of used datasets (args.num_clients={args.num_clients}; used_datasets: {args.dataset})."
+        elif args.simulation_mode == "graph_fl_label_skew":
+            assert len(args.dataset) == 1, f"For graph-fl label skew simulation, only single dataset is supported."
+        elif args.simulation_mode == "subgraph_fl_label_skew":
+            assert len(args.dataset) == 1, f"For subgraph-fl label skew simulation, only single dataset is supported."
+        elif args.simulation_mode == "subgraph_fl_louvain_plus":
+            assert len(args.dataset) == 1, f"For subgraph-fl louvain clustering simulation, only single dataset is supported."
+        elif args.simulation_mode == "subgraph_fl_metis_plus":
+            assert len(args.dataset) == 1, f"For subgraph-fl metis clustering simulation, only single dataset is supported."
             
         
     
     @property
     def processed_dir(self) -> str:
-        if self.args.simulation_mode in ["fedsubgraph_label_dirichlet", "fedgraph_label_dirichlet"]:
-            simulation_name = f"{self.args.simulation_mode}_{self.args.dirichlet_alpha:.2f}"
-        elif self.args.simulation_mode in ["fedsubgraph_louvain_clustering", "fedsubgraph_louvain"]:
+        if self.args.simulation_mode in ["subgraph_fl_label_skew", "graph_fl_label_skew"]:
+            simulation_name = f"{self.args.simulation_mode}_{self.args.skew_alpha:.2f}"
+        elif self.args.simulation_mode in ["subgraph_fl_louvain_plus", "subgraph_fl_louvain"]:
             simulation_name = f"{self.args.simulation_mode}_{self.args.louvain_resolution}"
-        elif self.args.simulation_mode in ["fedsubgraph_metis_clustering"]:
+        elif self.args.simulation_mode in ["subgraph_fl_metis_plus"]:
             simulation_name = f"{self.args.simulation_mode}_{self.args.metis_num_coms}"
         else:
             simulation_name = self.args.simulation_mode
@@ -113,33 +113,33 @@ class FGLDataset(Dataset):
         if not osp.exists(self.processed_dir):
             os.makedirs(self.processed_dir)
 
-        if self.args.simulation_mode == "fedgraph_label_dirichlet":
-            from data.simulation import fedgraph_label_dirichlet
-            self.local_data = fedgraph_label_dirichlet(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedgraph_cross_domain":
-            from data.simulation import fedgraph_cross_domain
-            self.local_data = fedgraph_cross_domain(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedgraph_topology_skew":
-            from data.simulation import fedgraph_topology_skew
-            self.local_data = fedgraph_topology_skew(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedsubgraph_label_dirichlet":
-            from data.simulation import fedsubgraph_label_dirichlet
-            self.local_data = fedsubgraph_label_dirichlet(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedsubgraph_louvain_clustering":
-            from data.simulation import fedsubgraph_louvain_clustering
-            self.local_data = fedsubgraph_louvain_clustering(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedsubgraph_metis_clustering":
-            from data.simulation import fedsubgraph_metis_clustering
-            self.local_data = fedsubgraph_metis_clustering(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedsubgraph_louvain":
-            from data.simulation import fedsubgraph_louvain
-            self.local_data = fedsubgraph_louvain(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedsubgraph_metis":
-            from data.simulation import fedsubgraph_metis
-            self.local_data = fedsubgraph_metis(self.args, global_dataset)
-        elif self.args.simulation_mode == "fedgraph_feature_skew":
-            from data.simulation import fedgraph_feature_skew
-            self.local_data = fedgraph_feature_skew(self.args, global_dataset)
+        if self.args.simulation_mode == "graph_fl_label_skew":
+            from data.simulation import graph_fl_label_skew
+            self.local_data = graph_fl_label_skew(self.args, global_dataset)
+        elif self.args.simulation_mode == "graph_fl_cross_domain":
+            from data.simulation import graph_fl_cross_domain
+            self.local_data = graph_fl_cross_domain(self.args, global_dataset)
+        elif self.args.simulation_mode == "graph_fl_topology_skew":
+            from data.simulation import graph_fl_topology_skew
+            self.local_data = graph_fl_topology_skew(self.args, global_dataset)
+        elif self.args.simulation_mode == "subgraph_fl_label_skew":
+            from data.simulation import subgraph_fl_label_skew
+            self.local_data = subgraph_fl_label_skew(self.args, global_dataset)
+        elif self.args.simulation_mode == "subgraph_fl_louvain_plus":
+            from data.simulation import subgraph_fl_louvain_plus
+            self.local_data = subgraph_fl_louvain_plus(self.args, global_dataset)
+        elif self.args.simulation_mode == "subgraph_fl_metis_plus":
+            from data.simulation import subgraph_fl_metis_plus
+            self.local_data = subgraph_fl_metis_plus(self.args, global_dataset)
+        elif self.args.simulation_mode == "subgraph_fl_louvain":
+            from data.simulation import subgraph_fl_louvain
+            self.local_data = subgraph_fl_louvain(self.args, global_dataset)
+        elif self.args.simulation_mode == "subgraph_fl_metis":
+            from data.simulation import subgraph_fl_metis
+            self.local_data = subgraph_fl_metis(self.args, global_dataset)
+        elif self.args.simulation_mode == "graph_fl_feature_skew":
+            from data.simulation import graph_fl_feature_skew
+            self.local_data = graph_fl_feature_skew(self.args, global_dataset)
 
         
         
@@ -162,7 +162,7 @@ class FGLDataset(Dataset):
         
         if len(self.args.dataset) == 1:
             global_dataset = load_global_dataset(self.global_root, scenario=self.args.scenario, dataset=self.args.dataset[0])
-            if self.args.scenario == "fedgraph":
+            if self.args.scenario == "graph_fl":
                 self.global_data = global_dataset
             else:
                 self.global_data = global_dataset.data

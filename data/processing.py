@@ -1,6 +1,5 @@
 import os.path as osp
 import os
-from decimal import Decimal
 import torch
 import numpy as np
 import copy
@@ -8,7 +7,6 @@ from torch_geometric.loader import DataLoader
 import random
 import argparse
 from torch_geometric.utils import to_undirected
-from torch_geometric.utils import dropout_edge
 from torch_geometric.utils import add_random_edge
 
 
@@ -22,11 +20,11 @@ def processing(args: argparse.ArgumentParser, splitted_data, processed_dir, clie
         from data.processing import random_feature_noise
         processed_data = random_feature_noise(args, splitted_data, processed_dir=processed_dir, client_id=client_id, noise_std=args.processing_percentage)
     elif args.processing == "random_edge_sparsity":
-        from data.processing import random_edge_sparsity
-        processed_data = random_edge_sparsity(args, splitted_data, processed_dir=processed_dir, client_id=client_id, mask_prob=args.processing_percentage)
+        from data.processing import random_topology_sparsity
+        processed_data = random_topology_sparsity(args, splitted_data, processed_dir=processed_dir, client_id=client_id, mask_prob=args.processing_percentage)
     elif args.processing == "random_edge_noise":
-        from data.processing import random_edge_noise
-        processed_data = random_edge_noise(args, splitted_data, processed_dir=processed_dir, client_id=client_id, noise_prob=args.processing_percentage)
+        from data.processing import random_topology_noise
+        processed_data = random_topology_noise(args, splitted_data, processed_dir=processed_dir, client_id=client_id, noise_prob=args.processing_percentage)
     elif args.processing == "random_label_sparsity":
         from data.processing import random_label_sparsity
         processed_data = random_label_sparsity(args, splitted_data, processed_dir=processed_dir, client_id=client_id, mask_prob=args.processing_percentage)
@@ -40,10 +38,9 @@ def processing(args: argparse.ArgumentParser, splitted_data, processed_dir, clie
             
             
             
-# Feature
 
 def random_feature_sparsity(args: argparse.ArgumentParser, splitted_data: dict, processed_dir: str, client_id: int, mask_prob: float=0.1):
-    mask_filename = osp.join(processed_dir, "mask", f"random_feature_mask_{mask_prob:.2f}_client_{client_id}.pt")
+    mask_filename = osp.join(processed_dir, "sparsity", f"random_feature_sparsity_{mask_prob:.2f}_client_{client_id}.pt")
     if osp.exists(mask_filename):
         mask = torch.load(mask_filename)
     else:
@@ -106,11 +103,8 @@ def random_feature_noise(args: argparse.ArgumentParser, splitted_data: dict, pro
  
 
 
-# Label
-
-
 def random_label_sparsity(args: argparse.ArgumentParser, splitted_data: dict, processed_dir: str, client_id: int, mask_prob=0.1):
-    mask_filename = osp.join(processed_dir, "mask", f"random_label_mask_{mask_prob:.2f}_client_{client_id}.pt")
+    mask_filename = osp.join(processed_dir, "sparsity", f"random_label_sparsity_{mask_prob:.2f}_client_{client_id}.pt")
     if osp.exists(mask_filename):
         masked_train_mask = torch.load(mask_filename)
     else:
@@ -172,11 +166,10 @@ def random_label_noise(args: argparse.ArgumentParser, splitted_data: dict, proce
 
 
  
- 
-# Topology 
 
-def random_edge_sparsity(args: argparse.ArgumentParser, splitted_data: dict, processed_dir: str, client_id: int, mask_prob: float=0.1):
-    masked_edge_index_filename = osp.join(processed_dir, "mask", f"random_edge_mask_{mask_prob:.2f}_client_{client_id}.pt")
+
+def random_topology_sparsity(args: argparse.ArgumentParser, splitted_data: dict, processed_dir: str, client_id: int, mask_prob: float=0.1):
+    masked_edge_index_filename = osp.join(processed_dir, "sparsity", f"random_topology_sparsity_{mask_prob:.2f}_client_{client_id}.pt")
 
     
     if args.task == "node_cls":
@@ -233,8 +226,8 @@ def random_edge_sparsity(args: argparse.ArgumentParser, splitted_data: dict, pro
     return masked_splitted_data
 
     
-def random_edge_noise(args, splitted_data: dict, processed_dir: str, client_id: int, noise_prob: float=0.1):
-    noised_edge_index_filename = osp.join(processed_dir, "noise", f"random_edge_noise_{noise_prob:.2f}_client_{client_id}.pt")
+def random_topology_noise(args, splitted_data: dict, processed_dir: str, client_id: int, noise_prob: float=0.1):
+    noised_edge_index_filename = osp.join(processed_dir, "noise", f"random_topology_noise_{noise_prob:.2f}_client_{client_id}.pt")
     
     if args.task == "node_cls":
         if osp.exists(noised_edge_index_filename):
@@ -305,81 +298,5 @@ def random_edge_noise(args, splitted_data: dict, processed_dir: str, client_id: 
 
 
     return noised_splitted_data
-
-
-
-    
-
-
-
-# # def random_home_edge_injection(local_data, process_dir, ratio=0.):
-# #     assert not isinstance(ratio, list)
-
-# #     homo_random_injection_root = osp.join(process_dir, f"homo_injection_{ratio}")
-# #     if not osp.exists(homo_random_injection_root):
-# #         os.makedirs(homo_random_injection_root)
-# #     for client_id in range(len(local_data)):
-# #         local_labels = local_data[client_id].y
-# #         edge_file = osp.join(homo_random_injection_root, f"edge_list_{client_id}.pt")
-# #         if osp.exists(edge_file):
-# #             new_edge_list = torch.load(edge_file)
-# #         else:
-# #             edge_list = local_data[client_id].edge_index.T.tolist()
-# #             num_nodes = local_data[client_id].num_nodes
-# #             # homo_cnt = 0
-# #             # homo_added = 0
-# #             # print(num_nodes)
-# #             # print(len(edge_list))
-# #             new_edge_list = edge_list
-# #             for i in range(num_nodes):
-# #                 for j in range(i+1, num_nodes):
-# #                     if local_labels[i] == local_labels[j]:
-# #                         if ([i,j] not in edge_list) and ([j,i] not in edge_list):
-# #                             # undirected graph
-# #                             # homo_cnt += 1
-# #                             rnd = np.random.random()
-# #                             if rnd < ratio:
-# #                                 homo_added += 1
-# #                                 new_edge_list.append((i, j))
-# #                                 new_edge_list.append((j, i))
-
-# #             new_edge_list = torch.tensor(new_edge_list).T
-# #             torch.save(new_edge_list, edge_file)  
-            
-# #         local_data[client_id].edge_index = new_edge_list
-# #         # print(homo_cnt, homo_added)
-# #         # print(local_data[client_id].edge_index.shape)
-# #     return local_data
-
-# # def random_hete_edge_injection(local_data, process_dir, ratio=0.):
-# #     assert not isinstance(ratio, list)
-
-# #     hete_random_injection_root = osp.join(process_dir, f"hete_injection_{ratio}")
-# #     if not osp.exists(hete_random_injection_root):
-# #         os.makedirs(hete_random_injection_root)
-# #     for client_id in range(len(local_data)):
-# #         local_labels = local_data[client_id].y
-# #         edge_file = osp.join(hete_random_injection_root, f"edge_list_{client_id}.pt")
-# #         if osp.exists(edge_file):
-# #             edge_list = torch.load(edge_file)
-# #         else:
-# #             edge_list = local_data[client_id].edge_index.T.tolist()
-# #             num_nodes = local_data[client_id].num_nodes
-# #             new_edge_list = edge_list
-# #             for i in range(num_nodes):
-# #                 for j in range(i+1, num_nodes):
-# #                     if local_labels[i] != local_labels[j]:
-# #                         if ([i,j] not in edge_list) and ([j,i] not in edge_list):
-# #                             # undirected graph
-# #                             rnd = np.random.random()
-# #                             if rnd < ratio:
-# #                                 new_edge_list.append((i, j))
-# #                                 new_edge_list.append((j, i))
-
-# #             new_edge_list = torch.tensor(new_edge_list).T
-# #             torch.save(new_edge_list, edge_file)  
-            
-# #         local_data[client_id].edge_index = new_edge_list
-# #     return local_data
 
 

@@ -1,21 +1,21 @@
 import argparse
 
 
-supported_scenario = ["fedgraph", "fedsubgraph"]
+supported_scenario = ["graph_fl", "subgraph_fl"]
 
-supported_fedgraph_datasets = [
+supported_graph_fl_datasets = [
 "AIDS", "BZR", "COLLAB", "COX2", "DD", "DHFR", "ENZYMES", "IMDB-BINARY", "IMDB-MULTI", "MUTAG", "NCI1", "PROTEINS", "PTC_MR", "hERG"
 ]
-supported_fedsubgraph_datasets = [
+supported_subgraph_fl_datasets = [
 "Cora", "CiteSeer", "PubMed", "CS", "Physics", "Computers", "Photo", "Chameleon", "Squirrel", "ogbn-arxiv", "ogbn-products", "Tolokers", "Actor", \
 "Amazon-ratings", "Roman-empire", "Questions", "Minesweeper"]
 
 
-supported_fedgraph_simulations = ["fedgraph_cross_domain", "fedgraph_label_dirichlet", "fedgraph_topology_skew", "fedgraph_feature_skew"]
-supported_fedsubgraph_simulations = ["fedsubgraph_label_dirichlet", "fedsubgraph_louvain_clustering", "fedsubgraph_metis_clustering", "fedsubgraph_louvain", "fedsubgraph_metis"]
+supported_graph_fl_simulations = ["graph_fl_cross_domain", "graph_fl_label_skew", "graph_fl_topology_skew", "graph_fl_feature_skew"]
+supported_subgraph_fl_simulations = ["subgraph_fl_label_skew", "subgraph_fl_louvain_plus", "subgraph_fl_metis_plus", "subgraph_fl_louvain", "subgraph_fl_metis"]
 
-supported_fedgraph_task = ["graph_cls", "graph_reg"]
-supported_fedsubgraph_task = ["node_cls", "link_pred", "node_clust"]
+supported_graph_fl_task = ["graph_cls", "graph_reg"]
+supported_subgraph_fl_task = ["node_cls", "link_pred", "node_clust"]
 
 
 supported_fl_algorithm = ["isolate", "fedavg", "fedprox", "scaffold", "moon", "feddc", "fedproto", "fedtgp", "fedpub", "fedstar", "fedgta", "fedtad", "gcfl_plus", "fedsage_plus", "adafgl", "feddep", "fggp", "fgssl", "fedgl"]
@@ -40,7 +40,7 @@ parser.add_argument("--seed", type=int, default=2024)
 
 # global dataset settings 
 parser.add_argument("--root", type=str, default="/home/ai2/work/OPENFGL/dataset")
-parser.add_argument("--scenario", type=str, default="fedsubgraph", choices=supported_scenario)
+parser.add_argument("--scenario", type=str, default="subgraph_fl", choices=supported_scenario)
 parser.add_argument("--dataset", type=str, default=[], action='append')
 parser.add_argument("--processing", type=str, default="raw", choices=supported_data_processing)
 parser.add_argument("--processing_percentage", type=float, default=0.1)
@@ -64,16 +64,16 @@ parser.add_argument("--client_frac", type=float, default=1.0)
 
 
 # simulation settings
-parser.add_argument("--simulation_mode", type=str, default="fedsubgraph_louvain", choices=supported_fedgraph_simulations + supported_fedsubgraph_simulations)
+parser.add_argument("--simulation_mode", type=str, default="subgraph_fl_louvain", choices=supported_graph_fl_simulations + supported_subgraph_fl_simulations)
 parser.add_argument("--dirichlet_alpha", type=float, default=10)
 parser.add_argument("--dirichlet_try_cnt", type=int, default=100)
 parser.add_argument("--least_samples", type=int, default=5)
 parser.add_argument("--louvain_resolution", type=float, default=1)
-parser.add_argument("--louvain_delta", type=float, default=20, help="Maximum allowable difference in node counts between any two clients in the fedgraph_louvain simulation.")
+parser.add_argument("--louvain_delta", type=float, default=20, help="Maximum allowable difference in node counts between any two clients in the graph_fl_louvain simulation.")
 parser.add_argument("--metis_num_coms", type=int, default=100)
 
 # task settings
-parser.add_argument("--task", type=str, default="node_cls", choices=supported_fedgraph_task + supported_fedsubgraph_task)
+parser.add_argument("--task", type=str, default="node_cls", choices=supported_graph_fl_task + supported_subgraph_fl_task)
 parser.add_argument("--num_clusters", type=int, default=7)
 # training settings
 parser.add_argument("--train_val_test", type=str, default="default_split")

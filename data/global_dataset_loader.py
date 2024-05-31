@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Tuple
 
 
 def load_global_dataset(root, scenario, dataset):
-    if scenario == "fedgraph":
+    if scenario == "graph_fl":
         if dataset in  ["AIDS",
                         "BZR",
                         "COX2",
@@ -23,10 +23,10 @@ def load_global_dataset(root, scenario, dataset):
                         "PROTEINS", "PTC_MR"]:
             
             from torch_geometric.datasets import TUDataset
-            return TUDataset(root=osp.join(root, "fedgraph"), name=dataset, use_node_attr=True, use_edge_attr=True)
+            return TUDataset(root=osp.join(root, "graph_fl"), name=dataset, use_node_attr=True, use_edge_attr=True)
         elif dataset in ["COLLAB", "IMDB-BINARY", "IMDB-MULTI"]:
             from torch_geometric.datasets import TUDataset
-            tudataset = TUDataset(root=osp.join(root, "fedgraph"), name=dataset, use_node_attr=True, use_edge_attr=True)
+            tudataset = TUDataset(root=osp.join(root, "graph_fl"), name=dataset, use_node_attr=True, use_edge_attr=True)
             max_degree = 0
             for data in tudataset:
                 deg = torch_geometric.utils.degree(data.edge_index[1], num_nodes=data.num_nodes)
@@ -34,43 +34,43 @@ def load_global_dataset(root, scenario, dataset):
             tudataset.transform = OneHotDegree(int(max_degree))
             return tudataset
         elif dataset in ["hERG"]:
-            return hERGDataset(root=osp.join(root, "fedgraph"), use_node_attr=True, use_edge_attr=True)
+            return hERGDataset(root=osp.join(root, "graph_fl"), use_node_attr=True, use_edge_attr=True)
             
         
         
                 
-    elif scenario == "fedsubgraph":
+    elif scenario == "subgraph_fl":
         if dataset in ["Cora", "CiteSeer", "PubMed"]:
             from torch_geometric.datasets import Planetoid
-            return Planetoid(root=osp.join(root, "fedsubgraph"), name=dataset)
+            return Planetoid(root=osp.join(root, "subgraph_fl"), name=dataset)
         elif dataset in ["Photo", "Computers"]:
             from torch_geometric.datasets import Amazon
-            return Amazon(root=osp.join(root, "fedsubgraph"), name=dataset)
+            return Amazon(root=osp.join(root, "subgraph_fl"), name=dataset)
         elif dataset in ["CS", "Physics"]:
             from torch_geometric.datasets import Coauthor
-            return Coauthor(root=osp.join(root, "fedsubgraph"), name=dataset)
+            return Coauthor(root=osp.join(root, "subgraph_fl"), name=dataset)
         elif dataset in ["Chameleon", "Squirrel"]:
-            return WikiPages(root=osp.join(root, "fedsubgraph"), name=dataset)
+            return WikiPages(root=osp.join(root, "subgraph_fl"), name=dataset)
         elif dataset in ["Tolokers", "Roman-empire", "Amazon-ratings", "Questions", "Minesweeper"]:
             from torch_geometric.datasets import HeterophilousGraphDataset
-            return HeterophilousGraphDataset(root=osp.join(root, "fedsubgraph"), name=dataset)
+            return HeterophilousGraphDataset(root=osp.join(root, "subgraph_fl"), name=dataset)
         elif dataset in ["Actor"]:
             from torch_geometric.datasets import Actor
-            return Actor(root=osp.join(root, "fedsubgraph"))
+            return Actor(root=osp.join(root, "subgraph_fl"))
         elif dataset in ["ogbn-arxiv", "ogbn-products"]:
             from ogb.nodeproppred import PygNodePropPredDataset
-            return PygNodePropPredDataset(root=osp.join(root, "fedsubgraph"), name=dataset)
+            return PygNodePropPredDataset(root=osp.join(root, "subgraph_fl"), name=dataset)
         elif dataset in ["Genius"]:
             from torch_geometric.datasets import LINKXDataset
-            return LINKXDataset(root=osp.join(root, "fedsubgraph"), name=dataset)
+            return LINKXDataset(root=osp.join(root, "subgraph_fl"), name=dataset)
         elif dataset in ["DBLP", "IMDB", "Freebase", "ACM"]:
             from torch_geometric.datasets import HGBDataset
-            return HGBDataset(root=osp.join(root, "fedsubgraph"), name=dataset)
+            return HGBDataset(root=osp.join(root, "subgraph_fl"), name=dataset)
         elif dataset in ["OAG-Venue", "OAG-L1-Field"]:
             pass
         elif dataset in ["OGB-MAG"]:
             from torch_geometric.datasets import OGB_MAG
-            return OGB_MAG(root=osp.join(root, "fedsubgraph"), preprocess="metapath2vec")
+            return OGB_MAG(root=osp.join(root, "subgraph_fl"), preprocess="metapath2vec")
         
 
 def cat(seq: List[Optional[torch.Tensor]]) -> Optional[torch.Tensor]:
