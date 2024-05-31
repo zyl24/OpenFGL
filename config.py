@@ -26,7 +26,7 @@ supported_metrics = ["accuracy", "precision", "f1", "recall", "auc", "ap", "clus
 
 supported_evaluation_modes = ["global_model_on_local_data", "global_model_on_global_data", "local_model_on_local_data", "local_model_on_global_data"]
 
-supported_data_processing = ["raw", "random_feature_sparsity", "random_feature_noise", "random_edge_sparsity", "random_edge_noise", "random_label_sparsity", "random_label_noise"]
+supported_data_processing = ["raw", "random_feature_sparsity", "random_feature_noise", "random_topology_sparsity", "random_topology_noise", "random_label_sparsity", "random_label_noise"]
 
 
 

@@ -19,10 +19,10 @@ def processing(args: argparse.ArgumentParser, splitted_data, processed_dir, clie
     elif args.processing == "random_feature_noise":
         from data.processing import random_feature_noise
         processed_data = random_feature_noise(args, splitted_data, processed_dir=processed_dir, client_id=client_id, noise_std=args.processing_percentage)
-    elif args.processing == "random_edge_sparsity":
+    elif args.processing == "random_topology_sparsity":
         from data.processing import random_topology_sparsity
         processed_data = random_topology_sparsity(args, splitted_data, processed_dir=processed_dir, client_id=client_id, mask_prob=args.processing_percentage)
-    elif args.processing == "random_edge_noise":
+    elif args.processing == "random_topology_noise":
         from data.processing import random_topology_noise
         processed_data = random_topology_noise(args, splitted_data, processed_dir=processed_dir, client_id=client_id, noise_prob=args.processing_percentage)
     elif args.processing == "random_label_sparsity":
