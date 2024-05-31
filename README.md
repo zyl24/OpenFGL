@@ -4,16 +4,16 @@
 
 
 
-[![Stars](https://img.shields.io/github/stars/zyl24/OpenFGL.svg?color=orange)](https://github.com/zyl24/OpenFGL/stargazers) ![](https://img.shields.io/github/last-commit/zyl24/OpenFGL) [![arXiv](https://img.shields.io/badge/arXiv-2312.04992-b31b1b.svg)](https://arxiv.org/abs/2312.04992)
-
+[![Stars](https://img.shields.io/github/stars/zyl24/OpenFGL.svg?color=orange)](https://github.com/zyl24/OpenFGL/stargazers) ![](https://img.shields.io/github/last-commit/zyl24/OpenFGL) 
 <!-- [![arXiv](https://img.shields.io/badge/arXiv-2312.04992-b31b1b.svg)](https://arxiv.org/abs/2312.04992) -->
+
  
 
 
 
 ## Library Highlights :rocket: 
 
-- Two FGL Scenarios: Fed-Graph and Fed-Subgraph
+- Two FGL Scenarios: Graph-FL and Subgraph-FL
 - xxx FGL Algorithms
 - xxx FGL Datasets
 - xxx GNN Models
@@ -32,7 +32,7 @@ Here we present a summary of papers in the FGL field.
 
 
 <details>
-  <summary>Fed-Graph</summary>
+  <summary>Graph-FL</summary>
     
 | Title | Venue | Year | Materials |
 | ----- | ----- | ---- | --------- |
@@ -45,7 +45,7 @@ Here we present a summary of papers in the FGL field.
 
 
 <details>
-  <summary>Fed-Subgraph</summary>
+  <summary>Subgraph-FL</summary>
     
 | Title | Venue | Year | Materials |
 | ----- | ----- | ---- | --------- |
@@ -189,22 +189,4 @@ You can modify the experimental settings in `/config.py` as needed, and then run
 ## Cite
 Please cite our paper (and the respective papers of the methods used) if you use this code in your own work:
 ```
-@article{xkLi_FedGTA_VLDB_2024,
-  author       = {Xunkai Li and
-                  Zhengyu Wu and
-                  Wentao Zhang and
-                  Yinlin Zhu and
-                  Ronghua Li and
-                  Guoren Wang},
-  title        = {FedGTA: Topology-aware Averaging for Federated Graph Learning},
-  journal      = {Proc. {VLDB} Endow.},
-  volume       = {17},
-  number       = {1},
-  pages        = {41--50},
-  year         = {2023},
-  url          = {https://www.vldb.org/pvldb/vol17/p41-li.pdf},
-  timestamp    = {Mon, 27 Nov 2023 13:13:34 +0100},
-  biburl       = {https://dblp.org/rec/journals/pvldb/LiWZZLW23.bib},
-  bibsource    = {dblp computer science bibliography, https://dblp.org}
-}
 ```
