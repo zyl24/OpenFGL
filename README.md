@@ -81,9 +81,11 @@ Here we present a summary of papers in the FGL field.
 
 </details>
 
-## FGL Datasets 
-Here we categorize various commonly used graph datasets in recent FGL studies
 
+Moreover, we categorize various commonly used graph datasets in recent FGL studies
+
+<details>
+    <summary>FGL Datasets</summary>
 
 | Name | Node Feature | Node Label | Edge Feature | Edge Label | Graph Label | Nodes | Edges    | Graphs | Materials|
 | ----------- | ------------ | ---------- | ------------ | ---------- | ----------- | ------ | --- | ------ | -------------------- |
@@ -139,7 +141,7 @@ Here we categorize various commonly used graph datasets in recent FGL studies
 | CoraFull  | 8710 | 70 | - |  | - | 19793 | 65311 | 1 | [[Paper]](https://arxiv.org/abs/1707.03815)|
 
 
-
+</details>
 
 ## Get Started
 You can modify the experimental settings in `/config.py` as needed, and then run `/main.py` to start your work with OpenFGL. Moreover, we provide various configured jupyter notebook examples, all of which can be found in `/examples`.
