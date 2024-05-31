@@ -7,6 +7,7 @@ from sknetwork.clustering import Louvain
 import sys
 from sklearn.cluster import KMeans
 import pymetis as metis
+import torch_geometric.utils
 from tqdm import tqdm
 import torch_geometric
 
@@ -271,6 +272,8 @@ def fedsubgraph_label_dirichlet(args, global_dataset, shuffle=True):
         for class_i in range(K):
             client_label_counts[client_id][class_i] = (node_labels[client_indices[client_id]] == class_i).sum()
         local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
+        if local_subgraph.edge_index.dim() == 1:
+            local_subgraph.edge_index, _ = torch_geometric.utils.add_random_edge(local_subgraph.edge_index.view(2,-1))
         local_data.append(local_subgraph)
     print(f"label_counts:\n{np.array(client_label_counts)}")
     return local_data
@@ -309,10 +312,14 @@ def fedsubgraph_louvain_clustering(args, global_dataset):
     
     for com_id in range(num_communities):
         client_indices[clustering_labels[com_id]] += communities[com_id]["nodes"]
-        
+    
+    
+      
     local_data = []
     for client_id in range(args.num_clients):
         local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
+        if local_subgraph.edge_index.dim() == 1:
+            local_subgraph.edge_index, _ = torch_geometric.utils.add_random_edge(local_subgraph.edge_index.view(2,-1))
         local_data.append(local_subgraph)
 
     return local_data
@@ -353,6 +360,8 @@ def fedsubgraph_metis_clustering(args, global_dataset):
     local_data = []
     for client_id in range(args.num_clients):
         local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
+        if local_subgraph.edge_index.dim() == 1:
+            local_subgraph.edge_index, _ = torch_geometric.utils.add_random_edge(local_subgraph.edge_index.view(2,-1))
         local_data.append(local_subgraph)
     
     return local_data
@@ -378,6 +387,8 @@ def fedsubgraph_metis(args, global_dataset):
     
     for client_id in range(args.num_clients):
         local_subgraph = get_subgraph_pyg_data(global_dataset, client_indices[client_id])
+        if local_subgraph.edge_index.dim() == 1:
+            local_subgraph.edge_index, _ = torch_geometric.utils.add_random_edge(local_subgraph.edge_index.view(2,-1))
         local_data.append(local_subgraph)
     
     return local_data
@@ -465,6 +476,8 @@ def fedsubgraph_louvain(args, global_dataset):
     local_data = []
     for client_id in range(args.num_clients):
         local_subgraph = get_subgraph_pyg_data(global_dataset, owner_node_ids[client_id])
+        if local_subgraph.edge_index.dim() == 1:
+            local_subgraph.edge_index, _ = torch_geometric.utils.add_random_edge(local_subgraph.edge_index.view(2,-1))
         local_data.append(local_subgraph)
 
     return local_data

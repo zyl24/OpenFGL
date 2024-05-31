@@ -96,6 +96,7 @@ class FGLDataset(Dataset):
             data.edge_index, data.edge_attr = remove_self_loops(*to_undirected(data.edge_index, data.edge_attr))
         else:
             data.edge_index = remove_self_loops(to_undirected(data.edge_index))[0]
+        data.edge_index = data.edge_index.to(torch.int64)
         # reset cache
         data._data_list = None
         return data
