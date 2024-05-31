@@ -1,4 +1,6 @@
-# OpenFGL: A Comprehensive Benchmarks for Federated Graph Learning
+
+![logo](https://github.com/zyl24/OpenFGL/assets/59046279/34addd61-c8c3-4263-af84-cad5aafe73a5)
+
 
 **OpenFGL** (Open Federated Graph Learning) is a comprehensive, user-friendly algorithm library, complemented by an integrated evaluation platform, designed specifically for researchers in the field of federated graph learning (FGL).
 
