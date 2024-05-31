@@ -13,11 +13,11 @@
 
 ## Library Highlights :rocket: 
 
-- Two FGL Scenarios: Graph-FL and Subgraph-FL
-- xxx FGL Algorithms
-- xxx FGL Datasets
-- xxx GNN Models
-- xxx Downstream Tasks
+- 2 FGL Scenarios: Graph-FL and Subgraph-FL
+- 10+ FGL Algorithms
+- 34 FGL Datasets
+- 12 GNN Models
+- 5 Downstream Tasks
 - Comprehensive FGL Data Property Analysis
 
 
