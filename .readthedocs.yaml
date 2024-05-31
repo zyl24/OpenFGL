@@ -5,8 +5,8 @@ build:
   tools:
     python: "3.9"
 
-# python:
-  # install:
-    # - requirements: docs/requirements.txt
+python:
+  install:
+    - requirements: docs/requirements.txt
 
 formats: all
