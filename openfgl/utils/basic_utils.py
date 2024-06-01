@@ -3,10 +3,11 @@ import random
 import numpy as np
 import sys
 from collections.abc import Iterable
-from fvcore.nn import FlopCountAnalysis, parameter_count
-
-def check_args(args):
-    pass
+from fvcore.nn import parameter_count
+import sys
+import torch
+import torch
+from collections.abc import Iterable
 
 
 def seed_everything(seed):
@@ -185,20 +186,37 @@ def mask_tensor_to_idx(tensor):
     return result
     
 
-import sys
-import torch
 
-def total_size(o):
+
+def total_size(o, seen=None):
+    """Calculate the total memory size of a given object, avoiding infinite recursion.
+
+    Args:
+        o: The object to calculate the size of.
+        seen: A set of already seen objects to avoid infinite recursion.
+
+    Returns:
+        int: The total memory size of the object in bytes.
+    """
+    if seen is None:
+        seen = set()
+    
     size = 0
+    object_id = id(o)
+    
+    if object_id in seen:
+        return size
+    
+    seen.add(object_id)
+    
     if isinstance(o, torch.Tensor):
         size += o.element_size() * o.numel()
     elif isinstance(o, dict):
-        size += sum(total_size(v) for v in o.values())
-    elif isinstance(o, Iterable):
-        size += sum(total_size(i) for i in o)
+        size += sum(total_size(v, seen) for v in o.values())
+    elif isinstance(o, Iterable) and not isinstance(o, (str, bytes)):
+        size += sum(total_size(i, seen) for i in o)
+    
     return size
-
-
 
 def model_complexity(model:torch.nn.Module):
     params = sum([val for val in parameter_count(model).values()])

@@ -10,6 +10,20 @@ from utils.basic_utils import total_size
 class Logger:
     
     def __init__(self, args, message_pool, task_path, personalized=False):
+        """Logger class for tracking and saving evaluation results and communication costs.
+
+        Args:
+            args (Namespace): Arguments specifying logging and evaluation parameters.
+            message_pool (dict): A pool of messages exchanged during the evaluation.
+            task_path (str): Path to the task directory.
+            personalized (bool): Whether to log personalized communication costs.
+
+        Attributes:
+            log_path (str): Path to the log file.
+            start_time (float): Start time of the evaluation.
+            comm_cost (list): List of communication costs per round.
+            metrics_list (list): List of evaluation metrics.
+        """
         self.args = args
         self.message_pool = message_pool
         self.debug = self.args.debug
@@ -35,6 +49,10 @@ class Logger:
         self.comm_cost = []
     
     def add_log(self, evaluation_result):
+        """Add an evaluation result to the log.
+        Args:
+            evaluation_result (dict): The evaluation result to be logged.
+        """
         if not self.debug:
             return
         self.metrics_list.append(copy.deepcopy(evaluation_result))
@@ -53,6 +71,7 @@ class Logger:
             self.comm_cost.append(comm_cost)
     
     def save(self):
+        """Save the log to a file."""
         if not self.debug:
             return
         
@@ -70,46 +89,4 @@ class Logger:
             log["avg_cost_per_round"] = sum(self.comm_cost) / len(self.comm_cost) / 1024 # KB
         with open(self.log_path, 'wb') as file:
             pickle.dump(log, file)
-            
-"""
-fedavg
-[client 0] cost: 360.28 KB.
-[client 1] cost: 360.28 KB.
-[client 2] cost: 360.28 KB.
-[client 3] cost: 360.28 KB.
-[client 4] cost: 360.28 KB.
-[client 5] cost: 360.28 KB.
-[client 6] cost: 360.28 KB.
-[client 7] cost: 360.28 KB.
-[client 8] cost: 360.28 KB.
-[client 9] cost: 360.28 KB.
-[server] cost: 3602.77 KB.
-
-fedgta
-[client 0] cost: 360.83 KB.
-[client 1] cost: 360.83 KB.
-[client 2] cost: 360.83 KB.
-[client 3] cost: 360.83 KB.
-[client 4] cost: 360.83 KB.
-[client 5] cost: 360.83 KB.
-[client 6] cost: 360.83 KB.
-[client 7] cost: 360.83 KB.
-[client 8] cost: 360.83 KB.
-[client 9] cost: 360.83 KB.
-[server] cost: 3602.77 KB.
-
-fedtgp/fedproto
-[client 0] cost: 1.75 KB.
-[client 1] cost: 1.75 KB.
-[client 2] cost: 1.75 KB.
-[client 3] cost: 1.75 KB.
-[client 4] cost: 1.75 KB.
-[client 5] cost: 1.75 KB.
-[client 6] cost: 1.75 KB.
-[client 7] cost: 1.75 KB.
-[client 8] cost: 1.75 KB.
-[client 9] cost: 1.75 KB.
-[server] cost: 17.50 KB.
-
-adafgl
-"""
+   

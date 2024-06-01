@@ -6,8 +6,26 @@ from utils.logger import Logger
 
 
 class FGLTrainer:
+    """
+    Federated Graph Learning Trainer class to manage the training and evaluation process.
+
+    Attributes:
+        args (Namespace): Arguments containing model and training configurations.
+        message_pool (dict): Dictionary to manage messages between clients and server.
+        device (torch.device): Device to run the computations on.
+        clients (list): List of client instances.
+        server (object): Server instance.
+        evaluation_result (dict): Dictionary to store the best evaluation results.
+        logger (Logger): Logger instance to log training and evaluation metrics.
+    """
     
     def __init__(self, args):
+        """
+        Initialize the FGLTrainer with provided arguments and dataset.
+
+        Args:
+            args (Namespace): Arguments containing model and training configurations.
+        """
         self.args = args
         self.message_pool = {}
         fgl_dataset = FGLDataset(args)
@@ -29,6 +47,9 @@ class FGLTrainer:
         
   
     def train(self):
+        """
+        Train the model over a specified number of rounds, performing federated learning with the clients.
+        """
         
         for round_id in range(self.args.num_rounds):
             sampled_clients = sorted(random.sample(list(range(self.args.num_clients)), int(self.args.num_clients * self.args.client_frac)))
@@ -49,7 +70,13 @@ class FGLTrainer:
         
         
     def evaluate(self):
-        # download -> local-train -> evaluate on local data
+        """
+        Evaluate the model based on the specified evaluation mode and task.
+
+        Raises:
+            ValueError: If the evaluation mode is not supported by the personalized algorithm.
+        """
+        
         evaluation_result = {"current_round": self.message_pool["round"]}
         
         if self.args.task in ["graph_cls", "graph_reg", "node_cls", "link_pred"]:
