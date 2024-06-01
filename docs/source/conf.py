@@ -35,9 +35,7 @@ intersphinx_mapping = {
 intersphinx_disabled_domains = ['std']
 
 templates_path = ['_templates']
-exclude_patterns = []
-
-
+# exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -49,4 +47,4 @@ html_static_path = ['_static']
 epub_show_urls = 'footnote'
 
 # sphinx-autobuild source build/html
-todo_include_todos = True
+# todo_include_todos = True
