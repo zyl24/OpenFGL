@@ -11,7 +11,6 @@ Welcome to OpenFGL's documentation!
    :caption: Contents:
 
 
-
 Indices and tables
 ==================
 
