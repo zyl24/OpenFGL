@@ -21,11 +21,11 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
+    # 'sphinx.ext.todo',
+    # 'sphinx.ext.mathjax',
+    # 'sphinx.ext.viewcode',
     # 'recommonmark',
-    'sphinx_markdown_tables'
+    # 'sphinx_markdown_tables'
 ]
 
 intersphinx_mapping = {
