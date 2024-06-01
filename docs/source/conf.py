@@ -24,7 +24,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
-    'recommonmark',
+    # 'recommonmark',
     'sphinx_markdown_tables'
 ]
 
