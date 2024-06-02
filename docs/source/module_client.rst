@@ -5,6 +5,6 @@ Client
        :members:
        :show-inheritance:
 
-    .. autoclass:: openfgl.task.fedavg.FedAvgClient
+    .. autoclass:: openfgl.flcore.fedavg.FedAvgClient
            :members:
            :show-inheritance:

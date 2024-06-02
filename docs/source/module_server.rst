@@ -5,6 +5,6 @@ Server
        :members:
        :show-inheritance:
 
-    .. autoclass:: openfgl.task.fedavg.FedAvgServer
+    .. autoclass:: openfgl.flcore.fedavg.FedAvgServer
            :members:
            :show-inheritance:
