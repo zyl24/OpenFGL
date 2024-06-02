@@ -6,7 +6,7 @@
 Welcome to OpenFGL's documentation!
 ===================================
 
-.. figure:: img/openfgl_logo.jpg
+.. figure:: img/openfgl_logo.png
    :width: 400
    :align: center
 
