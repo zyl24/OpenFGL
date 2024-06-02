@@ -3,6 +3,6 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "OpenFGL"
+name = "openfgl"
 authors = [{name = "zyl", email = "graziella@lumache"}]
 dynamic = ["version", "description"]
