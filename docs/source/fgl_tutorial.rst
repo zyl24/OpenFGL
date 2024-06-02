@@ -95,7 +95,7 @@ Evaluation Settings
    *choices*: "global_model_on_local_data", "global_model_on_global_data", "local_model_on_local_data", "local_model_on_global_data"
 
 
-Privacy Settings:
+Privacy Settings
 ~~~~~~~~~~~~~~~~~~
 
 .. code:: python

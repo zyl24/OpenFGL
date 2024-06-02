@@ -22,8 +22,8 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     # 'sphinx.ext.todo',
-    # 'sphinx.ext.mathjax',
-    # 'sphinx.ext.viewcode',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
     # 'recommonmark',
     # 'sphinx_markdown_tables'
 ]
