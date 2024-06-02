@@ -17,7 +17,7 @@ Server
         :members:
         :show-inheritance:
 
-    .. autoclass:: openfgl.flcore.feddep.server.FedDEPServer
+    .. autoclass:: openfgl.flcore.feddep.server.FedDEPEServer
         :members:
         :show-inheritance:
 

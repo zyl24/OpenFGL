@@ -15,6 +15,7 @@ sphinx-rtd-theme==1.3.0rc1
 
 torch
 torch_geometric
+torch_scatter
 setuptools
 sphinxcontrib-bibtex
 matplotlib
