@@ -10,6 +10,7 @@ Welcome to OpenFGL's documentation!
    :width: 600
    :align: center
 
+
 **OpenFGL** is a benchmark for Federated Graph Learning.
 It provides a fair and comprehensive platform to evaluate existing FGL works and facilitate future FGL research.
 
