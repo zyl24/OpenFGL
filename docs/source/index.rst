@@ -7,7 +7,7 @@ Welcome to OpenFGL's documentation!
 ===================================
 
 .. figure:: img/openfgl_logo.png
-   :width: 400
+   :width: 600
    :align: center
 
 **OpenFGL** is a benchmark for Federated Graph Learning.
