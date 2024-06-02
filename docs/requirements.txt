@@ -30,3 +30,4 @@ pyro-api
 pyro-ppl
 numba
 sphinx-autoapi
+fvcore
