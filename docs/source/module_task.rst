@@ -2,26 +2,22 @@ Task
 ==========
 
 
-    .. autoclass:: openfgl.task.base
+    .. autoclass:: openfgl.task.base.BaseTask
        :members:
        :show-inheritance:
 
-    .. autoclass:: openfgl.task.graph_cls
+    .. autoclass:: openfgl.task.graph_cls.GraphClsTask
            :members:
            :show-inheritance:
 
-    .. autoclass:: openfgl.task.graph_reg
+    .. autoclass:: openfgl.task.link_pred.LinkPredTask
            :members:
            :show-inheritance:
 
-    .. autoclass:: openfgl.task.link_pred
+    .. autoclass:: openfgl.task.node_cls.NodeClsTask
            :members:
            :show-inheritance:
 
-    .. autoclass:: openfgl.task.node_cls
-           :members:
-           :show-inheritance:
-
-    .. autoclass:: openfgl.task.node_clust
+    .. autoclass:: openfgl.task.node_clust.NodeClustTask
            :members:
            :show-inheritance:
