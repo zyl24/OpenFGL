@@ -6,6 +6,10 @@
 Welcome to OpenFGL's documentation!
 ===================================
 
+.. figure:: img/openfgl_logo.jpg
+   :width: 400
+   :align: center
+
 **OpenFGL** is a benchmark for Federated Graph Learning.
 It provides a fair and comprehensive platform to evaluate existing FGL works and facilitate future FGL research.
 
