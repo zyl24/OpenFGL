@@ -53,10 +53,6 @@ Client
         :members:
         :show-inheritance:
 
-    .. autoclass:: openfgl.flcore.fgssl.client.FGSSLClient
-        :members:
-        :show-inheritance:
-
     .. autoclass:: openfgl.flcore.gcfl_plus.client.GCFLPlusClient
         :members:
         :show-inheritance:
