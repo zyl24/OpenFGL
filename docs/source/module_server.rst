@@ -37,14 +37,6 @@ Server
         :members:
         :show-inheritance:
 
-    .. autoclass:: openfgl.flcore.fedsage_plus.server.FedSagePlusServer
-        :members:
-        :show-inheritance:
-
-    .. autoclass:: openfgl.flcore.fedpub.server.FedPubServer
-        :members:
-        :show-inheritance:
-
     .. autoclass:: openfgl.flcore.fedstar.server.FedStarServer
         :members:
         :show-inheritance:
@@ -77,4 +69,4 @@ Server
         :members:
         :show-inheritance:
 
-.. fedpub, fgssl
+.. fedpub, fgssl, fedsage_plus
