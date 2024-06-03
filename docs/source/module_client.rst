@@ -45,10 +45,6 @@ Client
         :members:
         :show-inheritance:
 
-    .. autoclass:: openfgl.flcore.fedpub.client.FedPubClient
-        :members:
-        :show-inheritance:
-
     .. autoclass:: openfgl.flcore.fedstar.client.FedStarClient
         :members:
         :show-inheritance:
@@ -84,3 +80,6 @@ Client
     .. autoclass:: openfgl.flcore.scaffold.client.ScaffoldClient
         :members:
         :show-inheritance:
+
+
+.. fedpub, fgssl

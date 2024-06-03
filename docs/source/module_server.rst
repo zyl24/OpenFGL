@@ -37,10 +37,6 @@ Server
         :members:
         :show-inheritance:
 
-    .. autoclass:: openfgl.flcore.fedpub.server.FedPubServer
-        :members:
-        :show-inheritance:
-
     .. autoclass:: openfgl.flcore.fedsage_plus.server.FedSagePlusServer
         :members:
         :show-inheritance:
@@ -65,10 +61,6 @@ Server
         :members:
         :show-inheritance:
 
-    .. autoclass:: openfgl.flcore.fgssl.server.FGSSLServer
-        :members:
-        :show-inheritance:
-
     .. autoclass:: openfgl.flcore.gcfl_plus.server.GCFLPlusServer
         :members:
         :show-inheritance:
@@ -84,3 +76,5 @@ Server
     .. autoclass:: openfgl.flcore.scaffold.server.ScaffoldServer
         :members:
         :show-inheritance:
+
+.. fedpub, fgssl
