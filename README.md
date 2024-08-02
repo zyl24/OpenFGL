@@ -31,7 +31,11 @@ OpenFGL is a comprehensive, user-friendly algorithm library, complemented by an 
 - 5 Downstream Tasks
 - Comprehensive FGL Data Property Analysis
 
-## Installation
+## Get Started
+
+```
+python main.py --dataset Cora --model gcn --metrics accuracy
+```
 
 
 ## Citation
