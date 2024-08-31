@@ -6,4 +6,4 @@
 OpenFGL is a comprehensive, user-friendly algorithm library, complemented by an integrated evaluation platform, designed specifically for researchers in the field of federated graph learning (FGL).
 
 ---
-This repository has been mitegrated to [OpenFGL]([https://github.com/xkLi-Allen/OpenFGL]).
+This repository has been migrated to [OpenFGL](https://github.com/xkLi-Allen/OpenFGL).
